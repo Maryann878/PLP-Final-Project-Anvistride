@@ -14,12 +14,7 @@ const generateToken = (userId) => {
 // @route POST /api/auth/register
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    // Check if all fields are filled
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    const { username, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -33,7 +28,7 @@ export const registerUser = async (req, res) => {
 
     // Create user
     const newUser = await User.create({
-      name,
+      name: username,
       email,
       password: hashedPassword,
     });
@@ -47,6 +42,7 @@ export const registerUser = async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        createdAt: newUser.createdAt,
       },
       token,
     });
@@ -62,11 +58,6 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
-  
-      // Check for email & password
-      if (!email || !password) {
-        return res.status(400).json({ message: "Please provide email and password" });
-      }
   
       // Find user
       const user = await User.findOne({ email });
@@ -89,6 +80,7 @@ export const loginUser = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          createdAt: user.createdAt,
         },
         token,
       });

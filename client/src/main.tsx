@@ -1,19 +1,51 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+import { router } from "@/routes/router";
+import { AuthProvider } from "@/context/AuthContext";
+import { AppProvider } from "@/context/AppContext"; // <- import AppProvider
+import { NotificationProvider } from "@/context/NotificationContext"; // <- import NotificationProvider
+import { ThemeProvider } from "@/context/ThemeContext";
+import { SocketProvider } from "@/context/SocketContext";
+import { ActivityProvider } from "@/context/ActivityContext";
+import { ChatProvider } from "@/context/ChatContext";
+import { Toaster } from "@/components/ui/toast"; // <- Import Toaster
+import { useToast } from "@/components/ui/use-toast"; // <- Import useToast
+import { setGlobalToast } from "@/lib/toast"; // <- Import setGlobalToast
+import ErrorBoundary from "@/components/ErrorBoundary";
+import SocketStatus from "@/components/SocketStatus";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+function MainWrapper() {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setGlobalToast(toast);
+  }, [toast]);
+
+  return <RouterProvider router={router} />;
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <ChatProvider>
+              <ActivityProvider>
+                <AppProvider>
+                  <NotificationProvider>
+                  <MainWrapper /> {/* Use MainWrapper to provide toast context */}
+                  <Toaster /> {/* <- Add Toaster here */}
+                  <SocketStatus /> {/* Socket connection status indicator */}
+                </NotificationProvider>
+              </AppProvider>
+            </ActivityProvider>
+            </ChatProvider>
+          </SocketProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

@@ -1,17 +1,14 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
+import { Outlet } from "react-router-dom";
 
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background text-foreground">
-      <h1 className="text-4xl font-bold">🚀 Tailwind v4 + Vite + Shadcn is working!</h1>
-
-      <Button variant="default">Shadcn Button</Button>
-
-      {/* visible debug helper */}
-      <div className="app-debug-visible">
-        If you see this pink box, Tailwind + global styles are loaded correctly!
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Optional: add Navbar here */}
+        <Outlet />
       </div>
     </div>
   );
 }
+
+export default App;
