@@ -112,9 +112,8 @@ const LoginPage: React.FC = () => {
         <span className="text-xs sm:text-sm font-medium">Home</span>
       </Link>
 
-      {/* Background matching landing page */}
+      {/* Background matching Forgot Password Page */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Background images with same styling as hero */}
         <div
           className="absolute inset-0"
           style={{
@@ -122,7 +121,6 @@ const LoginPage: React.FC = () => {
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            // opacity: 0.15,
           }}
         />
         <div
@@ -135,20 +133,18 @@ const LoginPage: React.FC = () => {
             opacity: 0.1,
           }}
         />
-        {/* Gradient overlay matching landing page */}
         <div
           className="absolute inset-0"
           style={{
             background: "linear-gradient(135deg, rgba(106,13,173,0.35) 0%, rgba(124,58,237,0.25) 30%, rgba(26,188,156,0.20) 70%, rgba(99,102,241,0.10) 100%)",
           }}
         />
-        {/* Additional lighting effects */}
         <div className="absolute -right-10 top-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-teal-200/15 blur-[140px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        <Card className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-8 sm:p-10">
+      <div className="relative z-10 w-full max-w-md animate-scale-in">
+        <Card className="bg-white rounded-2xl shadow-2xl shadow-purple-500/10 border-2 border-purple-100/50 p-8 sm:p-10">
           <CardHeader className="p-0">
             {/* Logo - Clickable to go to landing page */}
             <Link to="/" className="flex justify-center mb-8 group">

@@ -38,7 +38,7 @@ const BottomBar = () => {
           onClick={() => setShowMenu(false)}
         >
           <div 
-            className="absolute bottom-20 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-purple-200/50 shadow-2xl rounded-t-3xl p-4 animate-in slide-in-from-bottom"
+            className="absolute bottom-20 left-0 right-0 bg-white/98 backdrop-blur-2xl border-t-2 border-purple-100/50 shadow-2xl shadow-purple-500/20 rounded-t-2xl p-5 animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="grid grid-cols-3 gap-3">
@@ -48,10 +48,10 @@ const BottomBar = () => {
                   to={item.to}
                   onClick={() => setShowMenu(false)}
                   className={({ isActive }) =>
-                    `flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
+                    `flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 group ${
                       isActive
-                        ? "bg-purple-50 text-purple-600 scale-105"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-purple-600"
+                        ? "bg-gradient-to-br from-[#6A0DAD] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/30 scale-105"
+                        : "text-gray-600 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 hover:text-purple-700 hover:shadow-md hover:scale-105"
                     }`
                   }
                 >
@@ -64,14 +64,14 @@ const BottomBar = () => {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t-2 border-purple-200/50 shadow-2xl flex justify-around items-center py-2 md:hidden z-50 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t-2 border-purple-100/50 shadow-2xl shadow-purple-500/10 flex justify-around items-center py-3 md:hidden z-50 pb-safe">
         <NavLink
           to="/app"
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-1.5 rounded-xl flex-1 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group ${
               isActive 
-                ? "text-purple-600 bg-purple-50 scale-110" 
-                : "text-gray-500 hover:text-purple-600 hover:bg-purple-50/50"
+                ? "text-white bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] shadow-lg shadow-purple-500/30 scale-110" 
+                : "text-gray-600 hover:text-purple-700 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 hover:shadow-md hover:scale-105"
             }`
           }
         >
@@ -82,10 +82,10 @@ const BottomBar = () => {
         <NavLink
           to="/app/vision"
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-1.5 rounded-xl flex-1 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group ${
               isActive 
-                ? "text-purple-600 bg-purple-50 scale-110" 
-                : "text-gray-500 hover:text-purple-600 hover:bg-purple-50/50"
+                ? "text-white bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] shadow-lg shadow-purple-500/30 scale-110" 
+                : "text-gray-600 hover:text-purple-700 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 hover:shadow-md hover:scale-105"
             }`
           }
         >
@@ -124,10 +124,10 @@ const BottomBar = () => {
         <NavLink
           to="/app/profile"
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-1.5 rounded-xl flex-1 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group ${
               isActive 
-                ? "text-blue-600 bg-blue-50 scale-110" 
-                : "text-gray-500 hover:text-blue-600 hover:bg-blue-50/50"
+                ? "text-white bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] shadow-lg shadow-purple-500/30 scale-110" 
+                : "text-gray-600 hover:text-purple-700 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 hover:shadow-md hover:scale-105"
             }`
           }
         >
@@ -136,13 +136,13 @@ const BottomBar = () => {
         </NavLink>
 
         <button
-          className="flex flex-col items-center gap-1 text-xs font-semibold text-gray-500 active:scale-95 transition-all hover:scale-105 relative"
+          className="flex flex-col items-center gap-1 text-xs font-semibold text-gray-600 transition-all relative group"
           onClick={() => setShowMenu(!showMenu)}
         >
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ring-2 ring-white/50 ${showMenu ? 'scale-110' : ''}`}>
-            <Menu className="w-5 h-5 text-white" />
+          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 ${showMenu ? 'scale-110 rotate-90' : 'hover:scale-110 hover:rotate-12'}`}>
+            <Menu className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" />
           </div>
-          <span className="text-[10px]">More</span>
+          <span className="text-[10px] group-hover:text-purple-700 transition-colors duration-300">More</span>
         </button>
       </nav>
     </>

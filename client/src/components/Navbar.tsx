@@ -57,11 +57,11 @@ const Navbar = () => {
             <Link to="/login">Sign in</Link>
           </Button>
           <Button 
-            className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-105 transition-all duration-300 font-bold px-6 py-2.5 rounded-xl ring-1 ring-white/20 group" 
+            className="bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-105 transition-all duration-300 font-extrabold px-6 py-2.5 rounded-xl ring-1 ring-white/20 group" 
             asChild
           >
-            <Link to="/register" className="flex items-center gap-2">
-              Get started
+            <Link to="/register" className="flex items-center gap-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+              <span className="font-extrabold">Get started</span>
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

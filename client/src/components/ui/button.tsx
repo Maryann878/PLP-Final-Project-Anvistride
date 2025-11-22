@@ -3,20 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-4 focus-visible:ring-purple-300/50 focus-visible:ring-offset-2 relative overflow-hidden group",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white relative overflow-hidden group",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 text-white shadow-lg shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-[1.03] hover:from-purple-700 hover:via-purple-600 hover:to-teal-600 active:scale-[0.97] ring-1 ring-white/20 hover:ring-white/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/25 before:to-white/0 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300",
+          "bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105 hover:-translate-y-0.5 active:scale-100 focus-visible:ring-purple-500/50 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/20 before:to-white/0 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
         outline:
-          "border-2 border-purple-300/70 bg-white/95 backdrop-blur-md text-purple-700 hover:bg-gradient-to-r hover:from-purple-50/90 hover:to-teal-50/90 hover:border-purple-400/80 hover:text-purple-800 shadow-md hover:shadow-xl hover:shadow-purple-200/40 hover:scale-[1.02] active:scale-[0.98] font-medium ring-1 ring-purple-100/50 hover:ring-purple-200/70 transition-all duration-300",
+          "border-2 border-purple-300 bg-white text-purple-700 shadow-sm hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 hover:border-purple-400 hover:shadow-md hover:scale-105 hover:-translate-y-0.5 active:scale-100 focus-visible:ring-purple-400/50 transition-all",
         ghost: 
-          "text-gray-700 hover:text-purple-700 hover:bg-gradient-to-r hover:from-purple-50/90 hover:to-teal-50/90 hover:shadow-lg hover:shadow-purple-100/30 active:scale-[0.98] font-medium rounded-lg transition-all duration-300",
+          "text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 hover:text-purple-700 active:bg-purple-100 focus-visible:ring-purple-400/50 hover:scale-105 transition-all",
         link: 
-          "text-purple-600 hover:text-purple-700 underline-offset-4 hover:underline font-medium transition-colors duration-200",
+          "text-[#6A0DAD] hover:text-[#8B5CF6] underline-offset-4 hover:underline p-0 h-auto focus-visible:ring-0 hover:scale-105 transition-all",
         destructive:
-          "bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white shadow-lg shadow-red-500/40 hover:shadow-2xl hover:shadow-red-500/60 hover:scale-[1.03] hover:from-red-700 hover:via-red-600 hover:to-rose-600 active:scale-[0.97] ring-1 ring-white/20 hover:ring-white/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/25 before:to-white/0 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300",
+          "bg-gradient-to-r from-red-500 via-red-600 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 hover:-translate-y-0.5 active:scale-100 focus-visible:ring-red-500/50 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/20 before:to-white/0 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
       },
       size: {
         default: "h-11 px-6 text-base",

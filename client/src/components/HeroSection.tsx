@@ -19,99 +19,95 @@ const HeroSection: React.FC = () => {
 
   return (
     <section className="relative min-h-screen overflow-hidden flex items-center py-14 md:py-30">
-      {/* Background layers */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: "url('/hero_img.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          inset: 150,
-          zIndex: 0,
-          opacity: loaded ? 0.7 : 0,
-          transition: "opacity 700ms ease-out",
-        }}
-      />
-      <div 
-        className="absolute inset-0 overflow-hidden z-[1] pointer-events-none"
-      >
+      {/* Professional Background - Matching Forgot Password Page */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Main background image - More visible for the hand */}
         <div
-          className="absolute inset-0 bg-cover bg-no-repeat md:bg-[length:135%_130%] md:bg-[center_-40px] bg-[length:135%_160%] bg-[center_-100px]"
+          className="absolute inset-0"
           style={{
-            backgroundImage: "url('/download.jpeg')",
-            opacity: loaded ? 0.6 : 0,
-            inset: 0,
-            transition: "opacity 100ms ease-out",
+            backgroundImage: "url('/hero_img.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.85,
           }}
         />
+        {/* Secondary overlay image - More visible for hand and pen */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/download.jpeg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.4,
+          }}
+        />
+        {/* Lighter gradient overlay - Less intense for better visibility */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg, rgba(106,13,173,0.25) 0%, rgba(124,58,237,0.18) 30%, rgba(26,188,156,0.15) 70%, rgba(99,102,241,0.08) 100%)",
+          }}
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/20" />
+        {/* Subtle blur orbs */}
+        <div className="absolute -right-10 top-10 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-pulse-slow" />
+        <div className="absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-teal-200/15 blur-[140px] animate-pulse-slow" style={{ animationDelay: '1s' }} />
       </div>
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(180deg, rgba(106,13,173,0.15) 0%, rgba(106,13,173,0.25) 50%, rgba(26,188,156,0.2) 100%)",
-          zIndex: 1,
-          pointerEvents: "none",
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 900ms ease-out",
-        }}
-      />
-      {/* Additional lighting effects */}
-      <div className="absolute -right-10 top-10 h-96 w-96 rounded-full bg-purple-300/15 blur-3xl z-[1]" />
-      <div className="absolute -left-16 bottom-0 h-80 w-80 rounded-full bg-teal-300/15 blur-[140px] z-[1]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-yellow-200/10 blur-3xl z-[1]" />
 
-      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-2 sm:gap-3 px-4 sm:px-6 text-center pt-14 md:pt-0 justify-center h-full py-4 sm:py-6">
-        <div className="inline-flex items-center justify-center rounded-full border-2 border-purple-200/80 bg-white/90 backdrop-blur-md px-4 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-[0.3em] text-purple-700 shadow-xl shadow-purple-200/50 leading-tight w-auto max-w-[95vw] sm:max-w-none sm:whitespace-nowrap -mt-5">
+      <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center gap-4 sm:gap-5 px-4 sm:px-6 text-center pt-14 md:pt-0 justify-center h-full py-8 sm:py-12">
+        {/* Badge - Modern & Professional - More Visible */}
+        <div className="inline-flex items-center justify-center rounded-full border-2 border-white/50 bg-white/30 backdrop-blur-xl px-5 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-white shadow-2xl shadow-black/40 leading-tight animate-slide-down">
           All-in-One Productivity Platform
         </div>
 
-        <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-6xl font-bold mb-2 sm:mb-3 mt-0 sm:mt-2 leading-tight text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)] [text-shadow:_0_2px_10px_rgba(0,0,0,0.8)]">
+        {/* Main Heading - Beautiful & Modern - Enhanced Visibility */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-3 sm:mb-4 mt-2 sm:mt-3 leading-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)] [text-shadow:_0_2px_20px_rgba(0,0,0,0.9),_0_0_40px_rgba(0,0,0,0.5)] animate-slide-up">
           Transform Your Vision Into{" "}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] block drop-shadow-[0_0_30px_rgba(255,215,0,0.8)] [text-shadow:_0_0_0px_rgba(255,215,0,0.6),_0_2px_10px_rgba(0,0,0,0.7)]">
+          <span className="block mt-2 bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,215,0,0.8)] [text-shadow:_0_0_30px_rgba(255,215,0,0.9),_0_0_50px_rgba(255,215,0,0.6)] animate-pulse-slow">
             Stride
           </span>
         </h1>
 
-        <p className="text-white/95 mb-3 sm:mb-4 max-w-2xl mx-auto text-xs sm:text-sm md:text-base leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] [text-shadow:_0_1px_5px_rgba(0,0,0,0.8)] px-2 font-medium">
+        {/* Description - Professional - Enhanced Visibility */}
+        <p className="text-white mb-6 sm:mb-8 max-w-2xl mx-auto text-sm sm:text-base md:text-lg leading-relaxed drop-shadow-[0_3px_15px_rgba(0,0,0,0.7)] [text-shadow:_0_2px_10px_rgba(0,0,0,0.8)] px-2 font-semibold animate-slide-up" style={{ animationDelay: '0.1s' }}>
           A productivity platform that combines vision planning, goal setting, task management, idea capture, journaling, and analytics in one place.
         </p>
 
-        {/* CTA Buttons - Made more prominent */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-5 mb-4 sm:mb-6 w-full px-2">
-          <Button
-            size="lg"
-            className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 text-white hover:from-purple-700 hover:via-purple-600 hover:to-teal-600 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-2xl font-bold text-base sm:text-lg md:text-xl shadow-2xl shadow-purple-600/60 hover:shadow-purple-600/80 hover:scale-110 active:scale-105 transition-all duration-300 w-full sm:w-auto border-0 ring-4 ring-white/40 hover:ring-white/60 backdrop-blur-sm group relative overflow-hidden"
-            asChild
+        {/* CTA Buttons - Matching Stats Style */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-5 mb-6 sm:mb-8 w-full px-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <Link
+            to="/register"
+            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group"
           >
-            <Link to="/register" className="flex items-center justify-center gap-3 relative z-10">
-              <span className="font-extrabold">Start Your Journey Free</span>
-              <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </Button>
+            <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
+              Start Your Journey Free
+            </span>
+            <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:translate-x-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
+          </Link>
 
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-2 border-white/95 bg-white/30 backdrop-blur-xl text-white hover:bg-white/50 hover:text-white hover:border-white px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-2xl font-bold text-base sm:text-lg md:text-xl shadow-2xl shadow-white/40 hover:shadow-white/60 hover:scale-110 active:scale-105 transition-all duration-300 w-full sm:w-auto ring-2 ring-white/30 hover:ring-white/50 group"
-            asChild
+          <Link
+            to="/demo"
+            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group"
           >
-            <Link to="/demo" className="flex items-center justify-center gap-3">
-              <Play className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 group-hover:scale-110" />
-              <span className="font-extrabold">Watch Demo</span>
-            </Link>
-          </Button>
+            <Play className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
+            <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
+              Watch Demo
+            </span>
+          </Link>
         </div>
 
-        {/* Stats - Made less prominent */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-2xl mx-auto w-full px-7 opacity-90">
-          {stats.map((stat) => (
+        {/* Stats - Subtle & Informational - Less Prominent */}
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-2xl mx-auto w-full px-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          {stats.map((stat, index) => (
             <div
               key={stat.label}
-              className="bg-white/80 backdrop-blur-sm p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl shadow-lg border border-purple-100/40 transform transition-all duration-300 hover:scale-105 hover:shadow-purple-300/30 hover:border-purple-200/60"
+              className="flex flex-col items-center gap-1 px-3 py-2"
             >
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-700 bg-clip-text text-transparent mb-0.5">{stat.number}</div>
-              <div className="text-gray-600 font-semibold text-[7px] sm:text-[8px] md:text-[10px] uppercase tracking-wider leading-tight">{stat.label}</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] [text-shadow:_0_1px_6px_rgba(0,0,0,0.7)]">{stat.number}</div>
+              <div className="text-white/80 text-[9px] sm:text-[10px] md:text-xs uppercase tracking-widest leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] [text-shadow:_0_1px_3px_rgba(0,0,0,0.7)] font-medium">{stat.label}</div>
             </div>
           ))}
         </div>

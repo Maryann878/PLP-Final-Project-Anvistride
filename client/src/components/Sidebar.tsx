@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
   }, []);
 
   return (
-    <aside className="sidebar-container fixed top-0 left-0 h-screen w-64 bg-gradient-to-br from-purple-950 via-purple-900 to-indigo-950 dark:from-purple-950 dark:via-purple-900 dark:to-indigo-950 flex flex-col justify-between shadow-2xl shadow-purple-950/50 overflow-y-auto overflow-x-hidden z-50 border-r border-purple-800/40 scroll-smooth backdrop-blur-xl">
+    <aside className="sidebar-container fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-white via-purple-50/30 to-violet-50/40 flex flex-col justify-between shadow-xl shadow-purple-500/10 border-r-2 border-purple-100/50 overflow-y-auto overflow-x-hidden z-50 scroll-smooth backdrop-blur-sm">
       {/* Scroll Indicators */}
       {canScrollUp && (
         <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-white/40 z-10">
@@ -63,22 +63,22 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
         </div>
       )}
 
-      {/* Logo Section */}
-      <div className="flex items-center justify-center py-6 border-b border-white/10 backdrop-blur-sm bg-gradient-to-r from-white/10 via-white/5 to-white/10">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/95 to-white/90 shadow-xl shadow-purple-500/20 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 ring-2 ring-white/20">
+      {/* Logo Section - Animated */}
+      <div className="flex items-center justify-center py-6 border-b border-purple-100/50">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center p-2.5 shadow-md shadow-purple-500/10 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-110 transition-all duration-300 group">
           <img
             src="/Anvistride_logo.png"
             alt="Anvistride Logo"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
         </div>
       </div>
 
-      {/* Utility Icons Section */}
-      <div className="flex items-center justify-center gap-3 px-4 py-4 border-b border-white/10 backdrop-blur-sm bg-gradient-to-r from-white/10 via-white/5 to-white/10">
+      {/* Utility Icons Section - Playful */}
+      <div className="flex items-center justify-center gap-2 px-4 py-3 border-b border-purple-100/50">
         <NavLink
           to="/app/profile"
-          className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:scale-110 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/20 ring-1 ring-white/20 hover:ring-white/30"
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 flex items-center justify-center text-purple-600 hover:text-purple-700 shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300 group"
           title="Profile"
           onClick={handleNavClick}
         >
@@ -86,43 +86,43 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
             <img
               src={user.profileImage}
               alt="Profile"
-              className="w-full h-full rounded-xl object-cover"
+              className="w-full h-full rounded-xl object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <FaUser className="h-5 w-5" />
+            <FaUser className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
           )}
         </NavLink>
         <NavLink
           to="/app/settings"
-          className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:scale-110 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/20 ring-1 ring-white/20 hover:ring-white/30"
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 flex items-center justify-center text-purple-600 hover:text-purple-700 shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300 group"
           title="Settings"
           onClick={handleNavClick}
         >
-          <FaCog className="h-5 w-5" />
+          <FaCog className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
         </NavLink>
         <NavLink
           to="/app/help"
-          className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:scale-110 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/20 ring-1 ring-white/20 hover:ring-white/30"
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 flex items-center justify-center text-purple-600 hover:text-purple-700 shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300 group"
           title="Help"
           onClick={handleNavClick}
         >
-          <FaQuestionCircle className="h-5 w-5" />
+          <FaQuestionCircle className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
         </NavLink>
         <NavLink
           to="/app/recycle-bin"
-          className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:scale-110 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/20 ring-1 ring-white/20 hover:ring-white/30"
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 flex items-center justify-center text-purple-600 hover:text-purple-700 shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300 group"
           title="Recycle Bin"
           onClick={handleNavClick}
         >
-          <FaTrash className="h-5 w-5" />
+          <FaTrash className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
         </NavLink>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
+      {/* Navigation - Animated & Playful */}
+      <nav className="flex-1 px-3 py-4">
         {/* Core Features */}
         <div>
-          <h3 className="text-[10px] font-bold uppercase text-white/60 mb-4 px-3 tracking-[0.15em] letter-spacing-wide">
+          <h3 className="text-[11px] font-bold uppercase text-purple-500 mb-4 px-3 tracking-widest">
             CORE FEATURES
           </h3>
           <div className="flex flex-col space-y-1.5">
@@ -136,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
               { to: "/app/notes", label: "Notes" },
               { to: "/app/journal", label: "Journal" },
               { to: "/app/achievements", label: "Achievements" },
-            ].map((item) => {
+            ].map((item, index) => {
               const isActive =
                 location.pathname === item.to ||
                 (item.to !== "/app" && location.pathname.startsWith(item.to));
@@ -145,19 +145,20 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "relative flex items-center px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 group",
+                    "relative flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 group overflow-hidden",
                     isActive
-                      ? "bg-gradient-to-r from-teal-500 via-purple-500 to-purple-600 text-white shadow-xl shadow-purple-500/50 scale-[1.02] ring-2 ring-white/20"
-                      : "text-white/85 hover:bg-gradient-to-r hover:from-white/20 hover:to-white/10 hover:text-white hover:shadow-lg hover:shadow-purple-500/10 hover:scale-[1.01] backdrop-blur-sm border border-transparent hover:border-white/10"
+                      ? "bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-lg shadow-purple-500/30 scale-105"
+                      : "text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 hover:text-purple-700 hover:shadow-md hover:scale-105 hover:-translate-y-0.5"
                   )}
                   onClick={handleNavClick}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <span className="tracking-wide relative z-10">{item.label}</span>
                   {isActive && (
-                    <>
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-white rounded-l-full shadow-lg" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-xl" />
-                    </>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer" />
+                  )}
+                  <span className="relative z-10">{item.label}</span>
+                  {!isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-gradient-to-b from-[#6A0DAD] to-[#8B5CF6] rounded-r-full group-hover:h-8 transition-all duration-300" />
                   )}
                 </NavLink>
               );
@@ -166,14 +167,14 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
         </div>
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-white/10 p-4 backdrop-blur-sm bg-gradient-to-r from-white/10 via-white/5 to-white/10">
+      {/* Footer - Animated */}
+      <div className="border-t border-purple-100/50 p-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 text-white bg-gradient-to-r from-red-600 via-red-500 to-rose-600 rounded-xl hover:from-red-700 hover:via-red-600 hover:to-rose-700 transition-all duration-300 font-semibold shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98] tracking-wide ring-1 ring-red-400/20 hover:ring-red-400/30 relative overflow-hidden group"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 text-white bg-gradient-to-r from-red-500 via-red-600 to-rose-600 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-rose-700 transition-all duration-300 font-semibold shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 hover:-translate-y-0.5 active:scale-100 relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-          <FaSignOutAlt className="h-4 w-4 relative z-10" />
+          <FaSignOutAlt className="h-4 w-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
           <span className="relative z-10">Log Out</span>
         </button>
       </div>

@@ -2,16 +2,19 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border border-gray-200/60 py-6 shadow-lg shadow-gray-200/20 hover:shadow-xl hover:shadow-gray-300/30 transition-all duration-300",
+        "bg-white text-gray-900 flex flex-col gap-6 rounded-2xl border border-purple-100/50 p-6 shadow-md shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200/80 hover:-translate-y-1 transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden",
         className
       )}
       {...props}
-    />
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 via-purple-50/0 to-violet-50/0 group-hover:from-purple-50/30 group-hover:via-purple-50/20 group-hover:to-violet-50/30 transition-all duration-500 pointer-events-none" />
+      <div className="relative z-10">{children}</div>
+    </div>
   )
 }
 
