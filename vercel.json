@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
+  "buildCommand": "cd client && npm run build",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install",
+  "installCommand": "npm install && cd client && npm install lightningcss --force && npm rebuild lightningcss --update-binary",
   "rewrites": [
     {
       "source": "/(.*)",

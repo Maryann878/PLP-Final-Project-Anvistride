@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "build": "node -e \"console.log('Server build complete - no compilation needed for Node.js')\"",
     "lint": "eslint . --ext js --fix",
-    "format": "prettier --write \"./**/*.{js,json,css,md}\""
+    "format": "prettier --write \"./**/*.{js,json,css,md}\"",
+    "postinstall": "npm rebuild lightningcss --update-binary"
   },
   "keywords": [],
   "author": "",
