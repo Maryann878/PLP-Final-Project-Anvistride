@@ -12,7 +12,6 @@
     "start": "npm run start -w server"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "terser": "^5.44.1"
+    "concurrently": "^8.2.2"
   }
 }
