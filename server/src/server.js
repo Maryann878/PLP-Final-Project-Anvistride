@@ -75,8 +75,32 @@ const corsOptions = {
   maxAge: 86400 // 24 hours
 };
 
-// Handle preflight requests
-app.options("*", cors(corsOptions));
+// Handle preflight requests - must be before CORS middleware
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    
+    // Check if origin is allowed
+    if (!origin) {
+      return res.status(200).end();
+    }
+    
+    const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+    const isAllowed = allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin);
+    
+    if (isAllowed) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Max-Age', '86400');
+      return res.status(200).end();
+    }
+    
+    return res.status(403).end();
+  }
+  next();
+});
 
 app.use(cors(corsOptions));
 
