@@ -42,8 +42,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userChats = await chatAPI.getUserChats();
       setChats(userChats);
     } catch (error: any) {
-      // Silently handle 401 errors (user not authenticated)
-      if (error.response?.status === 401) {
+      // Silently handle 401, CORS, and network errors
+      if (
+        error.response?.status === 401 || 
+        error.code === 'ERR_NETWORK' || 
+        error.message?.includes('CORS') ||
+        error.message?.includes('blocked')
+      ) {
         setChats([]);
         return;
       }
@@ -57,16 +62,32 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load messages for a specific chat
   const loadMessages = useCallback(async (chatId: string) => {
+    // Only load messages if user is authenticated
+    if (!user) {
+      setMessages([]);
+      return;
+    }
+    
     try {
       const { messages: chatMessages } = await chatAPI.getChatMessages(chatId);
       setMessages(chatMessages || []);
-    } catch (error) {
+    } catch (error: any) {
+      // Silently handle 401 and CORS errors
+      if (error.response?.status === 401 || error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
+        setMessages([]);
+        return;
+      }
       console.error('Failed to load messages:', error);
     }
-  }, []);
+  }, [user]);
 
   // Start private chat with a user
   const startPrivateChat = useCallback(async (userId: string) => {
+    // Only start chat if user is authenticated
+    if (!user) {
+      return;
+    }
+    
     try {
       const chat = await chatAPI.getPrivateChat(userId);
       await loadChats(); // Refresh chat list
@@ -77,10 +98,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isConnected) {
         emit('chat:join', { chatId: chat._id });
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Silently handle 401 and CORS errors
+      if (error.response?.status === 401 || error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
+        return;
+      }
       console.error('Failed to start private chat:', error);
     }
-  }, [isConnected, emit, loadChats, loadMessages]);
+  }, [user, isConnected, emit, loadChats, loadMessages]);
 
   // Send message
   const sendMessage = useCallback(async (content: string) => {
@@ -210,7 +235,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Join chat room when active chat changes
   useEffect(() => {
-    if (!isConnected || !activeChat) return;
+    if (!user || !isConnected || !activeChat) return;
 
     emit('chat:join', { chatId: activeChat._id });
     loadMessages(activeChat._id);
@@ -220,7 +245,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emit('chat:leave', { chatId: activeChat._id });
       }
     };
-  }, [activeChat, isConnected, emit, loadMessages]);
+  }, [user, activeChat, isConnected, emit, loadMessages]);
 
   // Load chats on mount or when user changes
   useEffect(() => {
@@ -236,10 +261,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Join group chat on connection
   useEffect(() => {
-    if (isConnected) {
+    if (user && isConnected) {
       emit('chat:join', { chatId: 'group' });
     }
-  }, [isConnected, emit]);
+  }, [user, isConnected, emit]);
 
   const value: ChatContextType = {
     chats,

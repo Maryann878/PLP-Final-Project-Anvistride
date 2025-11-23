@@ -50,16 +50,23 @@ API.interceptors.response.use(
     const publicPaths = ['/login', '/register', '/', '/about', '/contact', '/terms', '/privacy'];
     const isPublicPage = publicPaths.some(path => window.location.pathname === path);
     
-    // Suppress 401 errors if:
-    // - On a public page, OR
-    // - No token exists (user not logged in)
+    // Suppress errors if:
+    // - CORS error (ERR_NETWORK or CORS in message)
+    // - 401 on public page or when no token
+    // - Network errors when not authenticated
+    const isCorsError = error.code === 'ERR_NETWORK' || 
+                       error.message?.includes('CORS') || 
+                       error.message?.includes('blocked') ||
+                       !error.response; // No response usually means CORS or network error
+    
     const isUnauthenticated401 = error.response?.status === 401 && (!hasToken || isPublicPage);
+    const shouldSuppress = isCorsError || isUnauthenticated401 || (isPublicPage && !hasToken);
     
     // Only show error toast if:
     // 1. Not using localhost (production with configured API), AND
-    // 2. Not an unauthenticated 401 error, AND
+    // 2. Not a suppressed error, AND
     // 3. (Not a 401 error OR it's a 401 on a protected page with a token)
-    const shouldShowError = !isLocalhost && !isUnauthenticated401 && (error.response?.status !== 401 || !isPublicPage);
+    const shouldShowError = !isLocalhost && !shouldSuppress && (error.response?.status !== 401 || !isPublicPage);
     
     const toast = getGlobalToast();
     if (toast && shouldShowError) {

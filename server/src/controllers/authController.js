@@ -5,6 +5,9 @@ import User from "../models/User.js";
 
 // Generate JWT
 const generateToken = (userId) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined");
+  }
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
@@ -15,6 +18,12 @@ const generateToken = (userId) => {
 export const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+
+    // Check if JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("❌ JWT_SECRET is not defined in environment variables");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -47,8 +56,21 @@ export const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Registration error:", error);
+    // Provide more specific error messages
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: "Validation error",
+        errors: Object.values(error.errors).map(e => e.message)
+      });
+    }
+    if (error.name === 'MongoError' || error.name === 'MongooseError') {
+      return res.status(500).json({ message: "Database error" });
+    }
+    res.status(500).json({ 
+      message: "Server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -58,6 +80,12 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
+  
+      // Check if JWT_SECRET is configured
+      if (!process.env.JWT_SECRET) {
+        console.error("❌ JWT_SECRET is not defined in environment variables");
+        return res.status(500).json({ message: "Server configuration error" });
+      }
   
       // Find user
       const user = await User.findOne({ email });
@@ -85,8 +113,18 @@ export const loginUser = async (req, res) => {
         token,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error" });
+      console.error("Login error:", error);
+      // Provide more specific error messages
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(500).json({ message: "Token generation failed" });
+      }
+      if (error.name === 'MongoError' || error.name === 'MongooseError') {
+        return res.status(500).json({ message: "Database error" });
+      }
+      res.status(500).json({ 
+        message: "Server error",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
     
   };
