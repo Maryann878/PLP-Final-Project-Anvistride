@@ -42,87 +42,33 @@ app.use((req, res, next) => {
 // --- FIXED CORS (Railway/Vercel/Cloudflare Safe) ---
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://anvistride.pages.dev", // Cloudflare Pages production
+  "https://anvistride.pages.dev",
   "http://localhost:5173",
-  "http://localhost:3000",
-].filter(Boolean); // Remove any undefined values
+  "http://localhost:3000"
+].filter(Boolean);
 
-// Cloudflare Pages preview URL pattern (e.g., https://4a6429af.anvistride.pages.dev)
-const cloudflarePreviewPattern = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
+const cloudflarePreviewRegex = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
 
-// Helper function to check if origin is allowed
-const isOriginAllowed = (origin) => {
-  if (!origin) return true;
-  
-  // Normalize origin (remove trailing slash)
-  const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
-  
-  // Check exact match in allowed origins
-  if (allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
-    return true;
-  }
-  
-  // Check if it's a Cloudflare preview URL
-  if (cloudflarePreviewPattern.test(normalizedOrigin)) {
-    return true;
-  }
-  
-  return false;
-};
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
 
-// CORS configuration
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Normalize origin (remove trailing slash)
-    const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
-    
-    if (isOriginAllowed(normalizedOrigin)) {
-      // IMPORTANT: Return the exact origin (not true) to ensure header is set
-      callback(null, normalizedOrigin);
-    } else {
-      // Log for debugging
-      console.warn(`❌ CORS blocked origin: ${origin}`);
-      console.warn(`Allowed origins:`, allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Length', 'Content-Type'],
-  maxAge: 86400 // 24 hours
-};
+      if (
+        allowedOrigins.includes(origin) ||
+        cloudflarePreviewRegex.test(origin)
+      ) {
+        return callback(null, true);
+      }
 
-// Handle preflight requests - must be before CORS middleware
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    const origin = req.headers.origin;
-    
-    // Check if origin is allowed
-    if (!origin) {
-      return res.status(200).end();
-    }
-    
-    if (isOriginAllowed(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Max-Age', '86400');
-      return res.status(200).end();
-    }
-    
-    return res.status(403).end();
-  }
-  next();
-});
-
-app.use(cors(corsOptions));
+      console.log("❌ CORS blocked:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  })
+);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));

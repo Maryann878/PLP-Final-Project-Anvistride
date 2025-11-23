@@ -9,54 +9,32 @@ let io;
 export const initializeSocket = (server) => {
   const allowedOrigins = [
     process.env.CLIENT_URL,
-    'https://anvistride.pages.dev', // Cloudflare Pages production
+    'https://anvistride.pages.dev',
     'http://localhost:5173',
     'http://localhost:3000',
-  ].filter(Boolean); // Remove any undefined values
+  ].filter(Boolean);
 
-  // Cloudflare Pages preview URL pattern (e.g., https://4a6429af.anvistride.pages.dev)
-  const cloudflarePreviewPattern = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
-
-  // Helper function to check if origin is allowed
-  const isOriginAllowed = (origin) => {
-    if (!origin) return true;
-    
-    // Normalize origin (remove trailing slash)
-    const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
-    
-    // Check exact match in allowed origins
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
-      return true;
-    }
-    
-    // Check if it's a Cloudflare preview URL
-    if (cloudflarePreviewPattern.test(normalizedOrigin)) {
-      return true;
-    }
-    
-    return false;
-  };
+  const cloudflarePreviewRegex = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
 
   io = new Server(server, {
     cors: {
       origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, etc.)
-        if (!origin) {
-          return callback(null, true);
-        }
-        
+        if (!origin) return callback(null, true);
+
         // In development, allow all origins
         if (process.env.NODE_ENV !== 'production') {
           return callback(null, true);
         }
-        
-        // In production, check against allowed origins
-        if (isOriginAllowed(origin)) {
-          callback(null, true);
-        } else {
-          console.warn(`Socket.IO CORS blocked origin: ${origin}`);
-          callback(new Error('Not allowed by CORS'));
+
+        if (
+          allowedOrigins.includes(origin) ||
+          cloudflarePreviewRegex.test(origin)
+        ) {
+          return callback(null, true);
         }
+
+        console.log("❌ Socket.IO CORS blocked:", origin);
+        return callback(new Error("Not allowed by CORS"));
       },
       methods: ['GET', 'POST'],
       credentials: true,
