@@ -29,16 +29,33 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- FIXED CORS (Railway/Vercel Safe) ---
+// --- FIXED CORS (Railway/Vercel/Cloudflare Safe) ---
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://anvistride.pages.dev", // Cloudflare Pages
   "http://localhost:5173",
   "http://localhost:3000",
-];
+].filter(Boolean); // Remove any undefined values
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // Log for debugging
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: "10mb" }));

@@ -7,19 +7,31 @@ import Chat from "../models/Chat.js";
 let io;
 
 export const initializeSocket = (server) => {
-  const allowedOrigins = process.env.NODE_ENV === 'production' 
-    ? (process.env.CLIENT_URL ? [process.env.CLIENT_URL] : [])
-    : ['http://localhost:5173', 'http://localhost:3000'];
+  const allowedOrigins = [
+    process.env.CLIENT_URL,
+    'https://anvistride.pages.dev', // Cloudflare Pages
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ].filter(Boolean); // Remove any undefined values
 
   io = new Server(server, {
     cors: {
       origin: (origin, callback) => {
-        if (!origin || process.env.NODE_ENV !== 'production') {
+        // Allow requests with no origin (mobile apps, etc.)
+        if (!origin) {
           return callback(null, true);
         }
+        
+        // In development, allow all origins
+        if (process.env.NODE_ENV !== 'production') {
+          return callback(null, true);
+        }
+        
+        // In production, check against allowed origins
         if (allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
+          console.warn(`Socket.IO CORS blocked origin: ${origin}`);
           callback(new Error('Not allowed by CORS'));
         }
       },
