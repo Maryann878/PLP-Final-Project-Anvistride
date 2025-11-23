@@ -32,17 +32,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load all chats
   const loadChats = useCallback(async () => {
+    // Only load chats if user is authenticated
+    if (!user) {
+      setChats([]);
+      return;
+    }
+    
     try {
       const userChats = await chatAPI.getUserChats();
       setChats(userChats);
     } catch (error: any) {
-      // Only log error if API is configured, otherwise silently fail
+      // Silently handle 401 errors (user not authenticated)
+      if (error.response?.status === 401) {
+        setChats([]);
+        return;
+      }
+      // Only log other errors if API is configured
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
       if (apiUrl && apiUrl !== 'http://localhost:5000/api') {
         console.error('Failed to load chats:', error);
       }
     }
-  }, []);
+  }, [user]);
 
   // Load messages for a specific chat
   const loadMessages = useCallback(async (chatId: string) => {
@@ -211,10 +222,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [activeChat, isConnected, emit, loadMessages]);
 
-  // Load chats on mount
+  // Load chats on mount or when user changes
   useEffect(() => {
-    loadChats();
-  }, [loadChats]);
+    if (user) {
+      loadChats();
+    } else {
+      // Clear chats when user logs out
+      setChats([]);
+      setActiveChat(null);
+      setMessages([]);
+    }
+  }, [user, loadChats]);
 
   // Join group chat on connection
   useEffect(() => {

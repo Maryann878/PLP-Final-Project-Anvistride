@@ -43,14 +43,23 @@ API.interceptors.response.use(
     const apiUrl = getApiBaseUrl();
     const isLocalhost = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
     
-    // Don't show toast for 401 errors on public pages (login, register, landing, about, contact)
+    // Check if user has a token (might be expired/invalid)
+    const hasToken = !!localStorage.getItem("token");
+    
+    // Don't show toast for 401 errors on public pages or when no token exists
     const publicPaths = ['/login', '/register', '/', '/about', '/contact', '/terms', '/privacy'];
     const isPublicPage = publicPaths.some(path => window.location.pathname === path);
     
+    // Suppress 401 errors if:
+    // - On a public page, OR
+    // - No token exists (user not logged in)
+    const isUnauthenticated401 = error.response?.status === 401 && (!hasToken || isPublicPage);
+    
     // Only show error toast if:
     // 1. Not using localhost (production with configured API), AND
-    // 2. (Not a 401 error OR it's a 401 on a protected page)
-    const shouldShowError = !isLocalhost && (error.response?.status !== 401 || !isPublicPage);
+    // 2. Not an unauthenticated 401 error, AND
+    // 3. (Not a 401 error OR it's a 401 on a protected page with a token)
+    const shouldShowError = !isLocalhost && !isUnauthenticated401 && (error.response?.status !== 401 || !isPublicPage);
     
     const toast = getGlobalToast();
     if (toast && shouldShowError) {
