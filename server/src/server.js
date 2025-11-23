@@ -14,50 +14,56 @@ import { initializeSocket } from "./socket/socketServer.js";
 
 dotenv.config();
 
-// Validate required environment variables
-// Check for both MONGODB_URI and MONGO_URI (Railway sometimes uses MONGO_URI)
+// -----------------------------
+// Environment checks
+// -----------------------------
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
 const missingEnvVars = [];
-if (!mongoUri) {
-  missingEnvVars.push('MONGODB_URI (or MONGO_URI)');
-}
-if (!jwtSecret) {
-  missingEnvVars.push('JWT_SECRET');
-}
+if (!mongoUri) missingEnvVars.push("MONGODB_URI (or MONGO_URI)");
+if (!jwtSecret) missingEnvVars.push("JWT_SECRET");
 
 if (missingEnvVars.length > 0) {
-  console.error('\n❌ Missing required environment variables:');
-  missingEnvVars.forEach(varName => console.error(`   - ${varName}`));
-  console.error('\n📋 To fix this on Railway:');
-  console.error('   1. Go to your Railway project dashboard');
-  console.error('   2. Click on your service → Variables tab');
-  console.error('   3. Add the following environment variables:');
-  console.error('      - JWT_SECRET: (any secure random string, e.g., generate with: openssl rand -base64 32)');
-  console.error('      - MONGODB_URI: (your MongoDB connection string)');
-  console.error('\n💡 For local development, create a .env file in the server/ directory with:');
-  console.error('   JWT_SECRET=your-secret-key-here');
-  console.error('   MONGODB_URI=mongodb://localhost:27017/anvistride\n');
+  console.error("\n❌ Missing required environment variables:");
+  missingEnvVars.forEach((v) => console.error(`   - ${v}`));
+  console.error("\n📋 On Railway: Project → Service → Variables → add the missing values.");
+  console.error("\n💡 Local dev: create server/.env with JWT_SECRET and MONGODB_URI\n");
+  // Exit early — better than starting a server that immediately crashes later.
   process.exit(1);
 }
 
-// Set MONGODB_URI if MONGO_URI was provided (for compatibility)
+// For compatibility: if only MONGO_URI provided, set MONGODB_URI
 if (!process.env.MONGODB_URI && process.env.MONGO_URI) {
   process.env.MONGODB_URI = process.env.MONGO_URI;
 }
 
-// Connect DB (non-blocking - server will start even if DB connection fails initially)
-connectDB().catch((error) => {
-  console.error("⚠️ Initial DB connection failed, but server will continue:", error.message);
-  console.log("🔄 Will retry connection in background...");
+// -----------------------------
+// Connect DB (non-blocking startup)
+// -----------------------------
+connectDB().catch((err) => {
+  // connectDB should itself implement retries if desired; here we just log the initial failure.
+  console.error("⚠️ Initial DB connection attempt failed:", err.message);
+  console.log("🔁 The app will keep running and should reconnect in the background (check logs).");
 });
 
-// Express app
+// -----------------------------
+// Create app & server
+// -----------------------------
 const app = express();
 const httpServer = createServer(app);
 
+// -----------------------------
+// Basic request logger (helps debug incoming/front-end requests)
+// -----------------------------
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - Origin: ${req.headers.origin || "none"}`);
+  next();
+});
+
+// -----------------------------
 // Security headers
+// -----------------------------
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -66,202 +72,121 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- FIXED CORS (Railway/Vercel/Cloudflare Safe) ---
+// -----------------------------
+// CORS configuration (safe & non-throwing)
+// -----------------------------
+// Allowed origins - include your Cloudflare Pages domain and local dev hosts.
+// If you set CLIENT_URL in Railway, it will be included automatically.
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "https://anvistride.pages.dev",
-  "http://localhost:5173",
-  "http://localhost:3000"
+  process.env.CLIENT_URL,                  // optional production frontend URL from env
+  "https://anvistride.pages.dev",          // your Cloudflare Pages URL
+  "http://localhost:5173",                 // Vite default
+  "http://localhost:3000"                  // CRA default
 ].filter(Boolean);
 
-const cloudflarePreviewRegex = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
+// If you use preview domains or subdomains that follow a pattern, you can tweak this regex.
+const cloudflarePreviewRegex = /^https:\/\/[a-z0-9-]+\.pages\.dev$/;
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, etc.)
-      if (!origin) {
-        return callback(null, true);
-      }
+// Use a safe origin callback that **does not throw** (throws become 500s).
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, server-to-server, native apps)
+    if (!origin) return callback(null, true);
 
-      // Check if origin is in allowed list or matches Cloudflare pattern
-      if (
-        allowedOrigins.includes(origin) ||
-        cloudflarePreviewRegex.test(origin)
-      ) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin) || cloudflarePreviewRegex.test(origin)) {
+      return callback(null, true);
+    }
 
-      // Log blocked origins for debugging
-      console.log("❌ CORS blocked:", origin);
-      console.log("✅ Allowed origins:", allowedOrigins);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  })
-);
+    // Log blocked origin for debugging; return false (no CORS headers) rather than throwing an error.
+    console.warn(`⚠️ CORS origin not allowed: ${origin}`);
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  preflightContinue: false,
+};
 
+app.use(cors(corsOptions));
+// Optionally respond to preflight requests across the board
+app.options("*", cors(corsOptions));
+
+// -----------------------------
+// Body parsers
+// -----------------------------
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// --- Health Check Routes (Required for Railway) ---
+// -----------------------------
+// Health / readiness endpoints (Railway uses these)
+// -----------------------------
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Anvistride API is running 🚀" });
 });
 
 app.get("/health", (req, res) => {
-  // Respond immediately - don't wait for DB connection
-  // This ensures Railway healthcheck passes even during startup
-  res.status(200).json({ 
-    status: "ok", 
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
-// Also keep your API health endpoint with DB status
 app.get("/api/health", (req, res) => {
   const dbStatus = mongoose.connection.readyState;
   const dbStatusText = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  }[dbStatus] || 'unknown';
-  
-  res.status(200).json({ 
-    status: "ok", 
+    0: "disconnected",
+    1: "connected",
+    2: "connecting",
+    3: "disconnecting",
+  }[dbStatus] || "unknown";
+
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
     database: dbStatusText,
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
-// Routes
+// -----------------------------
+// Routes (mount after body parsers & CORS)
+// -----------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Errors
+// -----------------------------
+// Not-found + error middleware
+// -----------------------------
 app.use(notFound);
 app.use(errorHandler);
 
-// Socket.io
+// -----------------------------
+// Socket.io initialization
+// -----------------------------
 initializeSocket(httpServer);
 
-// Start Server
+// -----------------------------
+// Process-level uncaught error handlers (logs & graceful behavior)
+// -----------------------------
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err && err.stack ? err.stack : err);
+  // Do not exit immediately on Railway — log for now. Consider restarting after alerting.
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason && reason.stack ? reason.stack : reason);
+  // Optionally: schedule process.exit(1) if you want to crash and allow a restart.
+});
+
+// -----------------------------
+// Start server
+// -----------------------------
 const PORT = process.env.PORT || 5000;
-const HOST = '0.0.0.0'; // Listen on all interfaces for Railway/Docker
+const HOST = "0.0.0.0";
 
 httpServer.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on ${HOST}:${PORT}`);
 });
-
-
-
-
-// server/src/server.js
-// import express from "express";
-// import { createServer } from "http";
-// import dotenv from "dotenv";
-// import cors from "cors";
-// import connectDB from "./config/db.js";
-// import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
-// import authRoutes from "./routes/authRoutes.js";
-// import userRoutes from "./routes/userRoutes.js";
-// import goalRoutes from "./routes/goalRoutes.js";
-// import chatRoutes from "./routes/chatRoutes.js";
-// import { initializeSocket } from "./socket/socketServer.js";
-
-// // Load environment variables
-// dotenv.config();
-
-// // Connect to MongoDB
-// connectDB();
-
-// // Initialize Express app
-// const app = express();
-
-// // Create HTTP server for Socket.IO
-// const httpServer = createServer(app);
-
-// // Middleware
-// // Security headers
-// app.use((req, res, next) => {
-//   res.setHeader('X-Content-Type-Options', 'nosniff');
-//   res.setHeader('X-Frame-Options', 'DENY');
-//   res.setHeader('X-XSS-Protection', '1; mode=block');
-//   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-//   next();
-// });
-
-// // CORS configuration - allow all origins in development, restrict in production
-// const allowedOrigins = process.env.NODE_ENV === 'production' 
-//   ? (process.env.CLIENT_URL ? [process.env.CLIENT_URL] : [])
-//   : ['http://localhost:5173', 'http://localhost:3000', '*'];
-
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     // Allow requests with no origin (mobile apps, curl, etc.)
-//     if (!origin || process.env.NODE_ENV !== 'production') {
-//       return callback(null, true);
-//     }
-    
-//     if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
-// // Body parser with size limit
-// app.use(express.json({ limit: '10mb' }));
-// app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// // ========================
-// // 👇 Routes
-// // ========================
-// app.get("/", (req, res) => {
-//   res.status(200).json({ message: "Welcome to the Anvistride API 🚀" });
-// });
-
-// // Health check endpoint for deployment platforms
-// app.get("/api/health", (req, res) => {
-//   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
-// });
-
-
-
-// app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/goals", goalRoutes);
-// app.use("/api/chat", chatRoutes);
-
-
-// // ========================
-// // 🧩 Error Handling Middleware
-// // ========================
-// app.use(notFound);
-// app.use(errorHandler);
-
-// // ========================
-// // 🔌 Initialize Socket.IO
-// // ========================
-// initializeSocket(httpServer);
-
-// // ========================
-// // 🚀 Start Server
-// // ========================
-// const PORT = process.env.PORT || 5000;
-
-// httpServer.listen(PORT, () => {
-//   console.log(`✅ Server running on port ${PORT}`);
-//   console.log(`🔌 Socket.IO initialized`);
-// });
