@@ -23,7 +23,7 @@ services:
   # Backend API Server
   backend:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
       target: runner
     container_name: anvistride-backend
@@ -31,18 +31,19 @@ services:
     ports:
       - "5000:5000"
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 5000
       MONGODB_URI: mongodb://admin:password@mongodb:27017/anvistride?authSource=admin
-      JWT_SECRET: ${JWT_SECRET:-change-this-secret-in-production}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
       CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - anvistride-network
+    # Healthcheck fixed
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -55,4 +56,3 @@ volumes:
 networks:
   anvistride-network:
     driver: bridge
-

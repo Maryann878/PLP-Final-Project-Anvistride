@@ -81,6 +81,11 @@ export const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
   
+      // Log for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Login attempt - email:', email, 'password provided:', !!password);
+      }
+  
       // Check if JWT_SECRET is configured
       if (!process.env.JWT_SECRET) {
         console.error("❌ JWT_SECRET is not defined in environment variables");
@@ -90,12 +95,18 @@ export const loginUser = async (req, res) => {
       // Find user
       const user = await User.findOne({ email });
       if (!user) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User not found for email:', email);
+        }
         return res.status(400).json({ message: "Invalid email or password" });
       }
   
       // Compare passwords
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Password mismatch for user:', email);
+        }
         return res.status(400).json({ message: "Invalid email or password" });
       }
   

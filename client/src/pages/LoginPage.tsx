@@ -57,7 +57,6 @@ const LoginPage: React.FC = () => {
           title: "Please fix form errors",
           description: "Ensure email and password are valid before submitting.",
           variant: "destructive",
-          duration: 4000,
         });
       }
       return;
@@ -75,6 +74,8 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await loginUser({ email, password });
+      console.log("Sending login request with:", { email, password });
+
       // localStorage.setItem("token", data.token); // Moved to AuthContext
       await login(data.token); // Call the login function from AuthContext
       const toast = getGlobalToast(); // Get the global toast instance
@@ -82,8 +83,6 @@ const LoginPage: React.FC = () => {
         toast({
           title: "Login successful",
           variant: "success",
-          duration: 2000,
-          hideProgress: true,
         });
       }
       // Don't clear email if remember me is checked

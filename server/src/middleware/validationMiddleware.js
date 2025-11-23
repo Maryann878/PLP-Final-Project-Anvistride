@@ -48,8 +48,25 @@ export const validateRegister = (req, res, next) => {
 export const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
 
+  // Log for debugging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Login validation - Request body:', JSON.stringify(req.body));
+    console.log('Login validation - email:', email ? `"${email}"` : 'missing', 'password:', password ? 'provided' : 'missing');
+  }
+
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    const missing = [];
+    if (!email) missing.push('email');
+    if (!password) missing.push('password');
+    return res.status(400).json({ 
+      message: `Missing required fields: ${missing.join(', ')}`,
+      missing: missing
+    });
+  }
+
+  // Check if email is a string
+  if (typeof email !== 'string') {
+    return res.status(400).json({ message: 'Email must be a string' });
   }
 
   if (!validateEmail(email)) {

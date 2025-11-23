@@ -12,14 +12,9 @@ type ToasterToast = {
   className?: string
   variant?: "default" | "destructive" | "success"
   hideProgress?: boolean
-} & (
-  | {
-      duration?: number
-    }
-  | {
-      onOpenChange?: (open: boolean) => void
-    }
-)
+  duration?: number
+  onOpenChange?: (open: boolean) => void
+}
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
