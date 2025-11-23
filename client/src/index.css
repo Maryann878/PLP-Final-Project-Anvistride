@@ -3,6 +3,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Dynamic utility patterns for Tailwind v4 - prevents purging */
+@layer utilities {
+  /* Color gradient backgrounds */
+  .bg-gradient-purple-50 {
+    @apply bg-gradient-to-br from-purple-50 to-white;
+  }
+  
+  .bg-gradient-teal-50 {
+    @apply bg-gradient-to-br from-teal-50 to-white;
+  }
+  
+  /* Color borders */
+  .border-purple-200 {
+    @apply border border-purple-200;
+  }
+  
+  .border-teal-200 {
+    @apply border border-teal-200;
+  }
+}
+
 /* ==================== Custom Theme Values (CSS Variables) ==================== */
 :root {
   /* Animated & Playful Typography - Clean and Sophisticated */

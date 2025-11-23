@@ -148,15 +148,21 @@ export default function OnboardingPage() {
             </p>
             <div className="space-y-3">
               {[
-                { icon: "⏰", text: "Think 5-10 years ahead", color: "purple" },
-                { icon: "🎨", text: "Be specific but not limiting", color: "teal" },
-                { icon: "❤️", text: "Make it personally meaningful", color: "purple" },
-              ].map((tip, index) => (
-                <div key={index} className={`flex items-center gap-4 p-4 bg-gradient-to-br from-${tip.color}-50 to-white border border-${tip.color}-200 rounded-xl hover:shadow-lg hover:translate-x-2 transition-all duration-300`}>
-                  <span className="text-2xl flex-shrink-0">{tip.icon}</span>
-                  <span className="text-gray-800 font-semibold">{tip.text}</span>
-                </div>
-              ))}
+                { icon: "⏰", text: "Think 5-10 years ahead", colorClass: "purple" },
+                { icon: "🎨", text: "Be specific but not limiting", colorClass: "teal" },
+                { icon: "❤️", text: "Make it personally meaningful", colorClass: "purple" },
+              ].map((tip, index) => {
+                const colorMap = {
+                  purple: "bg-gradient-purple-50 border-purple-200",
+                  teal: "bg-gradient-teal-50 border-teal-200",
+                };
+                return (
+                  <div key={index} className={`flex items-center gap-4 p-4 ${colorMap[tip.colorClass as keyof typeof colorMap]} rounded-xl hover:shadow-lg hover:translate-x-2 transition-all duration-300`}>
+                    <span className="text-2xl flex-shrink-0">{tip.icon}</span>
+                    <span className="text-gray-800 font-semibold">{tip.text}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -453,19 +459,25 @@ export default function OnboardingPage() {
               <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">What's Next?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { icon: "📊", title: "Explore Dashboard", desc: "See your progress at a glance", color: "purple" },
-                  { icon: "➕", title: "Add More Content", desc: "Create more visions, goals, and tasks", color: "teal" },
-                  { icon: "🔍", title: "Use Search", desc: "Find your content quickly", color: "purple" },
-                  { icon: "⚙️", title: "Customize Settings", desc: "Personalize your experience", color: "teal" },
-                ].map((step, index) => (
-                  <div key={index} className={`flex items-center gap-4 p-4 bg-gradient-to-br from-${step.color}-50 to-white border border-${step.color}-200 rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}>
-                    <span className="text-3xl flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-md">{step.icon}</span>
-                    <div className="text-left">
-                      <h4 className="font-bold text-gray-900 text-base mb-1">{step.title}</h4>
-                      <p className="text-sm text-gray-600">{step.desc}</p>
+                  { icon: "📊", title: "Explore Dashboard", desc: "See your progress at a glance", colorClass: "purple" },
+                  { icon: "➕", title: "Add More Content", desc: "Create more visions, goals, and tasks", colorClass: "teal" },
+                  { icon: "🔍", title: "Use Search", desc: "Find your content quickly", colorClass: "purple" },
+                  { icon: "⚙️", title: "Customize Settings", desc: "Personalize your experience", colorClass: "teal" },
+                ].map((step, index) => {
+                  const colorMap = {
+                    purple: "bg-gradient-purple-50 border-purple-200",
+                    teal: "bg-gradient-teal-50 border-teal-200",
+                  };
+                  return (
+                    <div key={index} className={`flex items-center gap-4 p-4 ${colorMap[step.colorClass as keyof typeof colorMap]} rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}>
+                      <span className="text-3xl flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-md">{step.icon}</span>
+                      <div className="text-left">
+                        <h4 className="font-bold text-gray-900 text-base mb-1">{step.title}</h4>
+                        <p className="text-sm text-gray-600">{step.desc}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
