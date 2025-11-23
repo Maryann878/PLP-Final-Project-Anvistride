@@ -74,12 +74,14 @@ RUN apk add --no-cache curl
 # Switch to non-root user
 USER nodejs
 
-# Expose backend port
+# Expose backend port (Railway will map their PORT to this)
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+# Uses PORT env var if set (Railway provides this), otherwise defaults to 5000
+# The server listens on 0.0.0.0:PORT, so healthcheck must match
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD sh -c 'curl -f http://localhost:${PORT:-5000}/health || exit 1'
 
 # Start the server
 CMD ["node", "src/server.js"]

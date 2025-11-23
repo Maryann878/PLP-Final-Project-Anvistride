@@ -79,7 +79,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res.status(200).send("OK");
+  // Respond immediately - don't wait for DB connection
+  // This ensures Railway healthcheck passes even during startup
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Also keep your API health endpoint
@@ -102,9 +108,10 @@ initializeSocket(httpServer);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Listen on all interfaces for Railway/Docker
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+httpServer.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
 });
 
 
