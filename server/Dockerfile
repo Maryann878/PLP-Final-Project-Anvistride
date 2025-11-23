@@ -8,8 +8,8 @@ WORKDIR /app
 FROM base AS deps
 # Copy package files
 COPY package*.json ./
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (use npm install if package-lock.json doesn't exist)
+RUN if [ -f package-lock.json ]; then npm ci --omit=dev && npm cache clean --force; else npm install --omit=dev && npm cache clean --force; fi
 
 # Development stage
 FROM base AS dev
@@ -21,7 +21,7 @@ CMD ["npm", "run", "dev"]
 # Production build stage
 FROM base AS builder
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+RUN if [ -f package-lock.json ]; then npm ci && npm cache clean --force; else npm install && npm cache clean --force; fi
 COPY . .
 
 # Production stage
