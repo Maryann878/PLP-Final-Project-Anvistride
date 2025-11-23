@@ -59,7 +59,12 @@ export default defineConfig({
 
         entryFileNames: "assets/js/[name]-[hash].js",
 
-        assetFileNames: "assets/[name]-[hash][extname]",
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return 'assets/css/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
 
 
 

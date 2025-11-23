@@ -18,14 +18,18 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Skip error handling if API URL is localhost (development only, backend not available)
+    const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    const isLocalhost = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
+    
     // Don't show toast for 401 errors on public pages (login, register, landing, about, contact)
     const publicPaths = ['/login', '/register', '/', '/about', '/contact', '/terms', '/privacy'];
     const isPublicPage = publicPaths.some(path => window.location.pathname === path);
     
     // Only show error toast if:
-    // 1. Not a 401 error, OR
-    // 2. It's a 401 but we're on a protected page (user is logged in and trying to access something)
-    const shouldShowError = error.response?.status !== 401 || !isPublicPage;
+    // 1. Not using localhost (production with configured API), AND
+    // 2. (Not a 401 error OR it's a 401 on a protected page)
+    const shouldShowError = !isLocalhost && (error.response?.status !== 401 || !isPublicPage);
     
     const toast = getGlobalToast();
     if (toast && shouldShowError) {

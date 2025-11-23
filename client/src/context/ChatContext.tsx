@@ -35,8 +35,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userChats = await chatAPI.getUserChats();
       setChats(userChats);
-    } catch (error) {
-      console.error('Failed to load chats:', error);
+    } catch (error: any) {
+      // Only log error if API is configured, otherwise silently fail
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      if (apiUrl && apiUrl !== 'http://localhost:5000/api') {
+        console.error('Failed to load chats:', error);
+      }
     }
   }, []);
 
