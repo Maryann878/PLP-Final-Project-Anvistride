@@ -14,13 +14,36 @@ import { initializeSocket } from "./socket/socketServer.js";
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName] && !process.env[varName.replace('MONGODB_URI', 'MONGO_URI')]);
+// Check for both MONGODB_URI and MONGO_URI (Railway sometimes uses MONGO_URI)
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+const jwtSecret = process.env.JWT_SECRET;
+
+const missingEnvVars = [];
+if (!mongoUri) {
+  missingEnvVars.push('MONGODB_URI (or MONGO_URI)');
+}
+if (!jwtSecret) {
+  missingEnvVars.push('JWT_SECRET');
+}
 
 if (missingEnvVars.length > 0) {
-  console.error(`❌ Missing required environment variables: ${missingEnvVars.join(', ')}`);
-  console.error('Please set these variables in your Railway environment settings.');
+  console.error('\n❌ Missing required environment variables:');
+  missingEnvVars.forEach(varName => console.error(`   - ${varName}`));
+  console.error('\n📋 To fix this on Railway:');
+  console.error('   1. Go to your Railway project dashboard');
+  console.error('   2. Click on your service → Variables tab');
+  console.error('   3. Add the following environment variables:');
+  console.error('      - JWT_SECRET: (any secure random string, e.g., generate with: openssl rand -base64 32)');
+  console.error('      - MONGODB_URI: (your MongoDB connection string)');
+  console.error('\n💡 For local development, create a .env file in the server/ directory with:');
+  console.error('   JWT_SECRET=your-secret-key-here');
+  console.error('   MONGODB_URI=mongodb://localhost:27017/anvistride\n');
   process.exit(1);
+}
+
+// Set MONGODB_URI if MONGO_URI was provided (for compatibility)
+if (!process.env.MONGODB_URI && process.env.MONGO_URI) {
+  process.env.MONGODB_URI = process.env.MONGO_URI;
 }
 
 // Connect DB
