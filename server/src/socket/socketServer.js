@@ -9,10 +9,33 @@ let io;
 export const initializeSocket = (server) => {
   const allowedOrigins = [
     process.env.CLIENT_URL,
-    'https://anvistride.pages.dev', // Cloudflare Pages
+    'https://anvistride.pages.dev', // Cloudflare Pages production
     'http://localhost:5173',
     'http://localhost:3000',
   ].filter(Boolean); // Remove any undefined values
+
+  // Cloudflare Pages preview URL pattern (e.g., https://4a6429af.anvistride.pages.dev)
+  const cloudflarePreviewPattern = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
+
+  // Helper function to check if origin is allowed
+  const isOriginAllowed = (origin) => {
+    if (!origin) return true;
+    
+    // Normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+    
+    // Check exact match in allowed origins
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
+      return true;
+    }
+    
+    // Check if it's a Cloudflare preview URL
+    if (cloudflarePreviewPattern.test(normalizedOrigin)) {
+      return true;
+    }
+    
+    return false;
+  };
 
   io = new Server(server, {
     cors: {
@@ -28,7 +51,7 @@ export const initializeSocket = (server) => {
         }
         
         // In production, check against allowed origins
-        if (allowedOrigins.includes(origin)) {
+        if (isOriginAllowed(origin)) {
           callback(null, true);
         } else {
           console.warn(`Socket.IO CORS blocked origin: ${origin}`);
