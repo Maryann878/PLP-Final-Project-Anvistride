@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import dotenv from "dotenv";
 import cors from "cors";
+import mongoose from "mongoose";
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -46,8 +47,11 @@ if (!process.env.MONGODB_URI && process.env.MONGO_URI) {
   process.env.MONGODB_URI = process.env.MONGO_URI;
 }
 
-// Connect DB
-connectDB();
+// Connect DB (non-blocking - server will start even if DB connection fails initially)
+connectDB().catch((error) => {
+  console.error("⚠️ Initial DB connection failed, but server will continue:", error.message);
+  console.log("🔄 Will retry connection in background...");
+});
 
 // Express app
 const app = express();
@@ -75,8 +79,12 @@ const cloudflarePreviewRegex = /^https:\/\/[a-z0-9-]+\.anvistride\.pages\.dev$/;
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
 
+      // Check if origin is in allowed list or matches Cloudflare pattern
       if (
         allowedOrigins.includes(origin) ||
         cloudflarePreviewRegex.test(origin)
@@ -84,7 +92,9 @@ app.use(
         return callback(null, true);
       }
 
+      // Log blocked origins for debugging
       console.log("❌ CORS blocked:", origin);
+      console.log("✅ Allowed origins:", allowedOrigins);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
@@ -111,9 +121,22 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Also keep your API health endpoint
+// Also keep your API health endpoint with DB status
 app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  const dbStatus = mongoose.connection.readyState;
+  const dbStatusText = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  }[dbStatus] || 'unknown';
+  
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    database: dbStatusText,
+    uptime: process.uptime()
+  });
 });
 
 // Routes

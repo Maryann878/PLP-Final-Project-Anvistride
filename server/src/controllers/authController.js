@@ -57,6 +57,8 @@ export const registerUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Registration error:", error);
+    console.error("Error stack:", error.stack);
+    
     // Provide more specific error messages
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
@@ -64,9 +66,25 @@ export const registerUser = async (req, res) => {
         errors: Object.values(error.errors).map(e => e.message)
       });
     }
-    if (error.name === 'MongoError' || error.name === 'MongooseError') {
-      return res.status(500).json({ message: "Database error" });
+    
+    // Check for MongoDB connection errors
+    if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('Mongo')) {
+      console.error("❌ Database connection issue:", error.message);
+      return res.status(500).json({ 
+        message: "Database connection error. Please try again.",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
+    
+    // Check for network/timeout errors
+    if (error.message?.includes('timeout') || error.message?.includes('ECONNREFUSED')) {
+      console.error("❌ Database connection timeout:", error.message);
+      return res.status(500).json({ 
+        message: "Database connection timeout. Please try again.",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+    
     res.status(500).json({ 
       message: "Server error",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -125,13 +143,31 @@ export const loginUser = async (req, res) => {
       });
     } catch (error) {
       console.error("Login error:", error);
+      console.error("Error stack:", error.stack);
+      
       // Provide more specific error messages
       if (error.name === 'JsonWebTokenError') {
         return res.status(500).json({ message: "Token generation failed" });
       }
-      if (error.name === 'MongoError' || error.name === 'MongooseError') {
-        return res.status(500).json({ message: "Database error" });
+      
+      // Check for MongoDB connection errors
+      if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('Mongo')) {
+        console.error("❌ Database connection issue:", error.message);
+        return res.status(500).json({ 
+          message: "Database connection error. Please try again.",
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
       }
+      
+      // Check for network/timeout errors
+      if (error.message?.includes('timeout') || error.message?.includes('ECONNREFUSED')) {
+        console.error("❌ Database connection timeout:", error.message);
+        return res.status(500).json({ 
+          message: "Database connection timeout. Please try again.",
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+      }
+      
       res.status(500).json({ 
         message: "Server error",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
