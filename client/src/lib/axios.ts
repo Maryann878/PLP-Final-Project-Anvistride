@@ -1,8 +1,29 @@
 import axios from "axios";
 import { getGlobalToast } from "@/lib/toast"; // Import getGlobalToast
 
+// Helper function to normalize API base URL
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) {
+    return "http://localhost:5000/api";
+  }
+  
+  // If URL doesn't start with http:// or https://, add https://
+  let baseURL = envUrl.trim();
+  if (!baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
+    baseURL = `https://${baseURL}`;
+  }
+  
+  // Ensure it ends with /api
+  if (!baseURL.endsWith('/api')) {
+    baseURL = baseURL.endsWith('/') ? `${baseURL}api` : `${baseURL}/api`;
+  }
+  
+  return baseURL;
+};
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: getApiBaseUrl(),
 });
 
 // Automatically attach token if logged in
@@ -19,7 +40,7 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     // Skip error handling if API URL is localhost (development only, backend not available)
-    const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    const apiUrl = getApiBaseUrl();
     const isLocalhost = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
     
     // Don't show toast for 401 errors on public pages (login, register, landing, about, contact)

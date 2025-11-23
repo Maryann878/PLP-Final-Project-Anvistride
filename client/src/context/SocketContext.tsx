@@ -36,7 +36,18 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     // Get server URL from environment or use default
     // Extract base URL from API base URL (remove /api suffix if present)
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+    let apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+    
+    // Normalize URL - add protocol if missing
+    if (apiBaseUrl && !apiBaseUrl.startsWith('http://') && !apiBaseUrl.startsWith('https://')) {
+      apiBaseUrl = `https://${apiBaseUrl}`;
+    }
+    
+    // Ensure it ends with /api for consistency
+    if (!apiBaseUrl.endsWith('/api')) {
+      apiBaseUrl = apiBaseUrl.endsWith('/') ? `${apiBaseUrl}api` : `${apiBaseUrl}/api`;
+    }
+    
     const serverUrl = apiBaseUrl.replace('/api', '') || 'http://localhost:5000';
 
     // Initialize Socket.IO connection
