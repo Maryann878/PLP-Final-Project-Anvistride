@@ -48,6 +48,7 @@ RUN if [ -f package-lock.json ]; then npm ci && npm cache clean --force; \
     else npm install && npm cache clean --force; fi
 
 # Copy application code
+# Copy everything from build context (should be server/ directory)
 COPY . .
 
 # ======================
@@ -66,8 +67,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy application code from builder stage
-# Copy everything except node_modules (which we already copied from deps)
+# Copy everything from builder except node_modules (which we already have from deps)
 COPY --from=builder /app/package.json ./package.json
+# Copy src directory - this must exist in builder stage
 COPY --from=builder /app/src ./src
 
 # Install curl for healthcheck (must be before USER switch)
