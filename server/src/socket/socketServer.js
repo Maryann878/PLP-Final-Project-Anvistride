@@ -33,8 +33,10 @@ export const initializeSocket = (server) => {
           return callback(null, true);
         }
 
-        console.log("❌ Socket.IO CORS blocked:", origin);
-        return callback(new Error("Not allowed by CORS"));
+        // Log blocked origin but don't throw - return false to deny without error
+        // Throwing errors in CORS callbacks causes 500 errors instead of proper CORS denial
+        console.warn("⚠️ Socket.IO CORS origin not allowed:", origin);
+        return callback(null, false);
       },
       methods: ['GET', 'POST'],
       credentials: true,

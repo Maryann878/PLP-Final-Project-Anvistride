@@ -1,12 +1,19 @@
 import mongoose from "mongoose";
 
 let isConnected = false;
+let retryTimeout = null; // Track retry timeout to prevent memory leaks
 
 const connectDB = async () => {
   // If already connected, return
   if (isConnected) {
     console.log("✅ MongoDB already connected");
     return;
+  }
+
+  // Clear any existing retry timeout to prevent multiple retries
+  if (retryTimeout) {
+    clearTimeout(retryTimeout);
+    retryTimeout = null;
   }
 
   try {
@@ -25,6 +32,12 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI, options);
     isConnected = true;
     console.log("✅ MongoDB Connected");
+    
+    // Clear retry timeout on successful connection
+    if (retryTimeout) {
+      clearTimeout(retryTimeout);
+      retryTimeout = null;
+    }
     
     // Handle connection events
     mongoose.connection.on('error', (err) => {
@@ -45,11 +58,14 @@ const connectDB = async () => {
     console.error("❌ MongoDB Connection Failed:", error.message);
     // Don't exit - let the server start and retry connection
     isConnected = false;
-    // Retry connection after 5 seconds
-    setTimeout(() => {
-      console.log("🔄 Retrying MongoDB connection...");
-      connectDB();
-    }, 5000);
+    // Retry connection after 5 seconds (only if not already retrying)
+    if (!retryTimeout) {
+      retryTimeout = setTimeout(() => {
+        retryTimeout = null; // Clear reference before retry
+        console.log("🔄 Retrying MongoDB connection...");
+        connectDB();
+      }, 5000);
+    }
   }
 };
 

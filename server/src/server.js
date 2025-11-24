@@ -172,13 +172,23 @@ initializeSocket(httpServer);
 // Process-level uncaught error handlers (logs & graceful behavior)
 // -----------------------------
 process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err && err.stack ? err.stack : err);
-  // Do not exit immediately on Railway — log for now. Consider restarting after alerting.
+  console.error("❌ Uncaught Exception:", err && err.stack ? err.stack : err);
+  // In production, exit to allow Railway to restart the service
+  // In development, continue running for debugging
+  if (process.env.NODE_ENV === 'production') {
+    console.error("🔄 Exiting process to allow Railway to restart...");
+    process.exit(1);
+  }
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason && reason.stack ? reason.stack : reason);
-  // Optionally: schedule process.exit(1) if you want to crash and allow a restart.
+  console.error("❌ Unhandled Rejection at:", promise, "reason:", reason && reason.stack ? reason.stack : reason);
+  // In production, exit to allow Railway to restart the service
+  // In development, continue running for debugging
+  if (process.env.NODE_ENV === 'production') {
+    console.error("🔄 Exiting process to allow Railway to restart...");
+    process.exit(1);
+  }
 });
 
 // -----------------------------

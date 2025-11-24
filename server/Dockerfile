@@ -79,9 +79,10 @@ EXPOSE 5000
 
 # Health check
 # Uses PORT env var if set (Railway provides this), otherwise defaults to 5000
-# The server listens on 0.0.0.0:PORT, so healthcheck must match
+# The server listens on 0.0.0.0:PORT, so healthcheck must use 0.0.0.0 or 127.0.0.1
+# Using 127.0.0.1 is safer than localhost (avoids DNS resolution issues)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD sh -c 'curl -f http://localhost:${PORT:-5000}/health || exit 1'
+  CMD sh -c 'curl -f http://127.0.0.1:${PORT:-5000}/health || exit 1'
 
 # Start the server
 CMD ["node", "src/server.js"]
