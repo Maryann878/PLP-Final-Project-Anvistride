@@ -12,7 +12,8 @@ WORKDIR /app
 FROM base AS deps
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+# Railway builds from root, so copy from server/ subdirectory
+COPY server/package*.json ./
 
 # Install production dependencies only
 RUN if [ -f package-lock.json ]; then npm ci --omit=dev && npm cache clean --force; \
@@ -41,15 +42,17 @@ CMD ["npm", "run", "dev"]
 FROM base AS builder
 
 # Copy package files
-COPY package*.json ./
+# Railway builds from root, so copy from server/ subdirectory
+COPY server/package*.json ./
 
 # Install all dependencies
 RUN if [ -f package-lock.json ]; then npm ci && npm cache clean --force; \
     else npm install && npm cache clean --force; fi
 
 # Copy application code
-# Copy everything from build context (should be server/ directory)
-COPY . .
+# Railway builds from root, so copy from server/ subdirectory
+COPY server/src ./src
+COPY server/package.json ./package.json
 
 # ======================
 # Production runner stage
