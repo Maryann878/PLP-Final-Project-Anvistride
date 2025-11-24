@@ -81,10 +81,11 @@ async function waitForBackend(maxAttempts = 30, delay = 2000) {
 
 // Start Docker containers
 async function startDocker() {
-  log('🐳 Starting Docker containers...', 'blue');
+  log('🐳 Starting Docker containers (using MongoDB Atlas)...', 'blue');
   
   return new Promise((resolve, reject) => {
-    dockerComposeProcess = spawn('docker', ['compose', 'up', '-d'], {
+    // Use docker-compose.atlas.yml for MongoDB Atlas
+    dockerComposeProcess = spawn('docker', ['compose', '-f', 'docker-compose.atlas.yml', 'up', '-d'], {
       cwd: rootDir,
       stdio: 'inherit',
       shell: true,
@@ -147,7 +148,7 @@ async function cleanup() {
   // Always stop Docker containers
   log('🐳 Stopping Docker containers...', 'yellow');
   try {
-    await execAsync('docker compose down', { cwd: rootDir });
+    await execAsync('docker compose -f docker-compose.atlas.yml down', { cwd: rootDir });
     log('✅ Docker containers stopped', 'green');
   } catch (error) {
     log(`⚠️  Error stopping Docker: ${error.message}`, 'yellow');

@@ -1,7 +1,16 @@
+# Example docker-compose.yml configuration
+# 
+# Option 1: Use MongoDB Atlas (recommended for production-like local dev)
+# - Set MONGODB_URI in .env file to your Atlas connection string
+# - The local MongoDB service will still start but won't be used
+#
+# Option 2: Use Local Docker MongoDB
+# - Don't set MONGODB_URI in .env
+# - Backend will use: mongodb://admin:password@mongodb:27017/anvistride?authSource=admin
+
 services:
-  # MongoDB Database (Local Docker MongoDB)
-  # Only needed if NOT using MongoDB Atlas
-  # To use MongoDB Atlas instead, use: docker-compose -f docker-compose.atlas.yml up -d
+  # MongoDB Database (only needed if NOT using MongoDB Atlas)
+  # If using Atlas, you can comment out this service to save resources
   mongodb:
     image: mongo:7
     container_name: anvistride-mongodb
@@ -39,13 +48,11 @@ services:
       MONGODB_URI: ${MONGODB_URI:-mongodb://admin:password@mongodb:27017/anvistride?authSource=admin}
       JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
       CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
-    # Only depend on local MongoDB if using local MongoDB (not Atlas)
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - anvistride-network
-    # Healthcheck fixed
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -60,3 +67,4 @@ volumes:
 networks:
   anvistride-network:
     driver: bridge
+

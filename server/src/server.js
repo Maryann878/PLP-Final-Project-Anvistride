@@ -20,6 +20,17 @@ dotenv.config();
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
+// Debug: Log available environment variables (for troubleshooting)
+if (process.env.NODE_ENV === 'development') {
+  console.log("\n🔍 Environment Variables Debug:");
+  console.log("   - PORT:", process.env.PORT || "not set (will use 5000)");
+  console.log("   - NODE_ENV:", process.env.NODE_ENV || "not set");
+  console.log("   - MONGODB_URI:", mongoUri ? "✅ set" : "❌ not set");
+  console.log("   - MONGO_URI:", process.env.MONGO_URI ? "✅ set" : "❌ not set");
+  console.log("   - JWT_SECRET:", jwtSecret ? "✅ set" : "❌ not set");
+  console.log("   - CLIENT_URL:", process.env.CLIENT_URL || "not set");
+}
+
 const missingEnvVars = [];
 if (!mongoUri) missingEnvVars.push("MONGODB_URI (or MONGO_URI)");
 if (!jwtSecret) missingEnvVars.push("JWT_SECRET");
@@ -28,7 +39,12 @@ if (missingEnvVars.length > 0) {
   console.error("\n❌ Missing required environment variables:");
   missingEnvVars.forEach((v) => console.error(`   - ${v}`));
   console.error("\n📋 On Railway: Project → Service → Variables → add the missing values.");
-  console.error("\n💡 Local dev: create server/.env with JWT_SECRET and MONGODB_URI\n");
+  console.error("   Go to: Railway Dashboard → Your Project → Your Service → Variables tab");
+  console.error("\n💡 Local dev: create server/.env with JWT_SECRET and MONGODB_URI");
+  console.error("\n🔍 Debug Info:");
+  console.error("   - Working Directory:", process.cwd());
+  console.error("   - Node Version:", process.version);
+  console.error("   - Platform:", process.platform);
   // Exit early — better than starting a server that immediately crashes later.
   process.exit(1);
 }

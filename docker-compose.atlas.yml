@@ -1,0 +1,41 @@
+# Docker Compose for MongoDB Atlas (no local MongoDB)
+# Use this when you want to use MongoDB Atlas instead of local Docker MongoDB
+# 
+# Usage: docker-compose -f docker-compose.atlas.yml up -d
+
+services:
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: runner
+    container_name: anvistride-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    # Load environment variables from server/.env file
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5000
+      # Variables loaded from server/.env via env_file above
+      # Can also override here if needed
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
+    # No depends_on - we're using MongoDB Atlas, not local MongoDB
+    networks:
+      - anvistride-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  anvistride-network:
+    driver: bridge
+
