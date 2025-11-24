@@ -124,8 +124,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// Optionally respond to preflight requests across the board
-app.options("*", cors(corsOptions));
+// CORS middleware already handles OPTIONS requests automatically
+// No need for explicit app.options("*") in Express 5
 
 // -----------------------------
 // Body parsers

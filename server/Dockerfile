@@ -65,8 +65,10 @@ WORKDIR /app
 # Copy production dependencies
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy application code
-COPY --from=builder /app ./
+# Copy application code from builder stage
+# Copy everything except node_modules (which we already copied from deps)
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/src ./src
 
 # Install curl for healthcheck (must be before USER switch)
 RUN apk add --no-cache curl
