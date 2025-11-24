@@ -25,13 +25,16 @@ const connectDB = async () => {
     }
 
     const options = {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      serverSelectionTimeoutMS: 10000, // Increased to 10s for Railway/Atlas
       socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+      connectTimeoutMS: 10000, // Connection timeout
     };
 
     await mongoose.connect(mongoURI, options);
     isConnected = true;
     console.log("✅ MongoDB Connected");
+    console.log("✅ Database Name:", mongoose.connection.db?.databaseName || "unknown");
+    console.log("✅ Connection State:", mongoose.connection.readyState === 1 ? "connected" : "not connected");
     
     // Clear retry timeout on successful connection
     if (retryTimeout) {
@@ -55,7 +58,11 @@ const connectDB = async () => {
       isConnected = true;
     });
   } catch (error) {
-    console.error("❌ MongoDB Connection Failed:", error.message);
+    console.error("❌ MongoDB Connection Failed:");
+    console.error("   Error message:", error.message);
+    console.error("   Error name:", error.name);
+    console.error("   Error code:", error.code);
+    if (error.stack) console.error("   Stack:", error.stack);
     // Don't exit - let the server start and retry connection
     isConnected = false;
     // Retry connection after 5 seconds (only if not already retrying)

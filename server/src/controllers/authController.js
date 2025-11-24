@@ -56,8 +56,15 @@ export const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Registration error:", error);
-    console.error("Error stack:", error.stack);
+    // Always log full error details for Railway debugging
+    console.error("❌ Registration error:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      keyPattern: error.keyPattern,
+      keyValue: error.keyValue,
+    });
     
     // Provide more specific error messages
     if (error.name === 'ValidationError') {
@@ -67,8 +74,23 @@ export const registerUser = async (req, res) => {
       });
     }
     
+    // Check for MongoDB duplicate key errors
+    if (error.code === 11000 || error.name === 'MongoServerError') {
+      const field = Object.keys(error.keyPattern || {})[0];
+      console.error("❌ MongoDB duplicate key error:", field, error.keyValue);
+      if (field === 'email') {
+        return res.status(400).json({ 
+          message: "User with this email already exists"
+        });
+      }
+      return res.status(400).json({ 
+        message: "Duplicate entry",
+        field: field
+      });
+    }
+    
     // Check for MongoDB connection errors
-    if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('Mongo')) {
+    if (error.name === 'MongooseError' || error.message?.includes('Mongo') || error.message?.includes('connection')) {
       console.error("❌ Database connection issue:", error.message);
       return res.status(500).json({ 
         message: "Database connection error. Please try again.",
@@ -85,8 +107,10 @@ export const registerUser = async (req, res) => {
       });
     }
     
+    // Generic error - log everything for debugging
+    console.error("❌ Unexpected registration error:", error);
     res.status(500).json({ 
-      message: "Server error",
+      message: "Server error during registration",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -142,16 +166,22 @@ export const loginUser = async (req, res) => {
         token,
       });
     } catch (error) {
-      console.error("Login error:", error);
-      console.error("Error stack:", error.stack);
+      // Always log full error details for Railway debugging
+      console.error("❌ Login error:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+      });
       
       // Provide more specific error messages
       if (error.name === 'JsonWebTokenError') {
+        console.error("❌ JWT error:", error.message);
         return res.status(500).json({ message: "Token generation failed" });
       }
       
       // Check for MongoDB connection errors
-      if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('Mongo')) {
+      if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('Mongo') || error.message?.includes('connection')) {
         console.error("❌ Database connection issue:", error.message);
         return res.status(500).json({ 
           message: "Database connection error. Please try again.",
@@ -168,8 +198,10 @@ export const loginUser = async (req, res) => {
         });
       }
       
+      // Generic error - log everything for debugging
+      console.error("❌ Unexpected login error:", error);
       res.status(500).json({ 
-        message: "Server error",
+        message: "Server error during login",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }

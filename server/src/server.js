@@ -60,7 +60,9 @@ if (!process.env.MONGODB_URI && process.env.MONGO_URI) {
 connectDB().catch((err) => {
   // connectDB should itself implement retries if desired; here we just log the initial failure.
   console.error("⚠️ Initial DB connection attempt failed:", err.message);
+  console.error("⚠️ Full error:", err);
   console.log("🔁 The app will keep running and should reconnect in the background (check logs).");
+  console.log("⚠️ WARNING: API endpoints will fail until database is connected!");
 });
 
 // -----------------------------
