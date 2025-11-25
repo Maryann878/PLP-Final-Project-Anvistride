@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { UserCircle2, Mail, Calendar, Edit3, Save, X, Camera, Trash2, Settings, HelpCircle, Recycle, LogOut, Eye, Target, CheckSquare2, Lightbulb } from "lucide-react";
+import { UserCircle2, Mail, Calendar, Edit3, Save, X, Camera, Trash2, Eye, Target, CheckSquare2, Lightbulb } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
@@ -236,7 +236,7 @@ export default function ProfilePage() {
               />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900 mt-4">{user?.username || 'User'}</CardTitle>
-            <p className="text-gray-600">{user?.email}</p>
+            <p className="text-gray-600 break-all px-2">{user?.email}</p>
             {isEditing && (
               <p className="text-xs text-gray-500 italic mt-2">Click the camera icon to upload a profile image</p>
             )}
@@ -248,10 +248,10 @@ export default function ProfilePage() {
             <h3 className="text-lg font-semibold text-gray-900 pb-2 border-b-2 border-purple-600 inline-block">Account Information</h3>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <Label className="flex items-center gap-2 text-gray-700 font-semibold min-w-[150px]">
-                  <UserCircle2 className="h-4 w-4 text-purple-600" />
-                  Username
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 py-3 border-b border-gray-200">
+                <Label className="flex items-center gap-2 text-gray-700 font-semibold sm:min-w-[150px]">
+                  <UserCircle2 className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                  <span>Username</span>
                 </Label>
                 {isEditing ? (
                   <Input
@@ -259,17 +259,17 @@ export default function ProfilePage() {
                     value={editData.username}
                     onChange={handleChange}
                     disabled={isLoading}
-                    className="flex-1 ml-4"
+                    className="flex-1 sm:ml-4"
                   />
                 ) : (
-                  <span className="text-gray-600 font-medium text-right flex-1 ml-4">{user?.username || 'N/A'}</span>
+                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-words">{user?.username || 'N/A'}</span>
                 )}
               </div>
 
-              <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <Label className="flex items-center gap-2 text-gray-700 font-semibold min-w-[150px]">
-                  <Mail className="h-4 w-4 text-purple-600" />
-                  Email Address
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 py-3 border-b border-gray-200">
+                <Label className="flex items-center gap-2 text-gray-700 font-semibold sm:min-w-[150px]">
+                  <Mail className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                  <span>Email Address</span>
                 </Label>
                 {isEditing ? (
                   <Input
@@ -278,19 +278,19 @@ export default function ProfilePage() {
                     value={editData.email}
                     onChange={handleChange}
                     disabled={isLoading}
-                    className="flex-1 ml-4"
+                    className="flex-1 sm:ml-4"
                   />
                 ) : (
-                  <span className="text-gray-600 font-medium text-right flex-1 ml-4">{user?.email || 'N/A'}</span>
+                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-all">{user?.email || 'N/A'}</span>
                 )}
               </div>
 
-              <div className="flex items-center justify-between py-3">
-                <Label className="flex items-center gap-2 text-gray-700 font-semibold min-w-[150px]">
-                  <Calendar className="h-4 w-4 text-purple-600" />
-                  Member Since
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 py-3">
+                <Label className="flex items-center gap-2 text-gray-700 font-semibold sm:min-w-[150px]">
+                  <Calendar className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                  <span>Member Since</span>
                 </Label>
-                <span className="text-gray-600 font-medium text-right flex-1 ml-4">
+                <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4">
                   {formatDate(user?.createdAt)}
                 </span>
               </div>
@@ -362,59 +362,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Account Actions */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 pb-2 border-b-2 border-purple-600 inline-block">Account Management</h3>
-            
-            <div className="space-y-3">
-              <button
-                onClick={() => navigate('/app/settings')}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all group text-left"
-              >
-                <Settings className="h-6 w-6 text-purple-600 group-hover:text-white group-hover:scale-110 transition-all" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 group-hover:text-white transition-colors">Settings</p>
-                  <p className="text-sm text-gray-600 group-hover:text-white/80 transition-colors">Manage your app preferences and notifications</p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => navigate('/app/help')}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all group text-left"
-              >
-                <HelpCircle className="h-6 w-6 text-purple-600 group-hover:text-white group-hover:scale-110 transition-all" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 group-hover:text-white transition-colors">Help & Support</p>
-                  <p className="text-sm text-gray-600 group-hover:text-white/80 transition-colors">Get help, view tutorials, and contact support</p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => navigate('/app/recycle-bin')}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all group text-left"
-              >
-                <Recycle className="h-6 w-6 text-purple-600 group-hover:text-white group-hover:scale-110 transition-all" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 group-hover:text-white transition-colors">Recycle Bin</p>
-                  <p className="text-sm text-gray-600 group-hover:text-white/80 transition-colors">View and restore deleted items</p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  logout();
-                  navigate('/', { replace: true });
-                }}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-white border border-red-200 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all group text-left"
-              >
-                <LogOut className="h-6 w-6 text-red-600 group-hover:text-white group-hover:scale-110 transition-all" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 group-hover:text-white transition-colors">Log Out</p>
-                  <p className="text-sm text-gray-600 group-hover:text-white/80 transition-colors">Sign out of your account</p>
-                </div>
-              </button>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -97,7 +97,7 @@ const NavbarMobile = () => {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="block px-4 py-3.5 text-base font-semibold text-gray-800 rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-teal-50 hover:text-purple-600 hover:shadow-md active:scale-[0.98] border border-transparent hover:border-purple-200/50"
+              className="block px-4 py-3.5 text-base font-semibold text-gray-800 rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-teal-50 hover:text-purple-600 hover:shadow-md active:scale-[0.98] border border-transparent hover:border-purple-200/50 [&::after]:hidden outline-none focus-visible:ring-0"
               style={{
                 animationDelay: open ? `${index * 50}ms` : "0ms",
               }}

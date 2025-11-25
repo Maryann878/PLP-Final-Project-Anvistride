@@ -24,6 +24,7 @@ const getApiBaseUrl = () => {
 
 const API = axios.create({
   baseURL: getApiBaseUrl(),
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Automatically attach token if logged in
@@ -39,38 +40,36 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Skip error handling if API URL is localhost (development only, backend not available)
     const apiUrl = getApiBaseUrl();
     const isLocalhost = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
     
-    // Check if user has a token (might be expired/invalid)
     const hasToken = !!localStorage.getItem("token");
     
-    // Don't show toast for 401 errors on public pages or when no token exists
-    const publicPaths = ['/login', '/register', '/', '/about', '/contact', '/terms', '/privacy'];
+    // Pages with inline error display (don't show toast here - inline errors are better)
+    const pagesWithInlineErrors = ['/login', '/register', '/forgot-password', '/reset-password'];
+    const hasInlineErrorDisplay = pagesWithInlineErrors.some(path => window.location.pathname === path);
+    
+    // Public pages where we DON'T want to show errors
+    const publicPaths = ['/', '/about', '/contact', '/terms', '/privacy'];
     const isPublicPage = publicPaths.some(path => window.location.pathname === path);
     
-    // Suppress errors if:
-    // - CORS error (ERR_NETWORK or CORS in message)
-    // - 401 on public page or when no token
-    // - Network errors when not authenticated
+    // Suppress CORS errors
     const isCorsError = error.code === 'ERR_NETWORK' || 
                        error.message?.includes('CORS') || 
                        error.message?.includes('blocked') ||
-                       !error.response; // No response usually means CORS or network error
+                       (!error.response && error.code !== 'ECONNABORTED'); // Timeout errors should be shown
     
-    const isUnauthenticated401 = error.response?.status === 401 && (!hasToken || isPublicPage);
-    const shouldSuppress = isCorsError || isUnauthenticated401 || (isPublicPage && !hasToken);
-    
-    // Only show error toast if:
-    // 1. Not using localhost (production with configured API), AND
-    // 2. Not a suppressed error, AND
-    // 3. (Not a 401 error OR it's a 401 on a protected page with a token)
-    const shouldShowError = !isLocalhost && !shouldSuppress && (error.response?.status !== 401 || !isPublicPage);
+    // Show toast errors on protected pages (not on login/register where we have inline errors)
+    const shouldShowError = !isLocalhost && 
+                           !isCorsError && 
+                           !hasInlineErrorDisplay && // Don't show toast if page has inline errors
+                           (!isPublicPage && hasToken);
     
     const toast = getGlobalToast();
-    if (toast && shouldShowError) {
-      // For 401 errors on protected pages, show a more specific message
+    if (toast && shouldShowError && error.response) {
+      const errorMessage = error.response?.data?.message || "An unexpected error occurred.";
+      
+      // Show user-friendly messages
       if (error.response?.status === 401) {
         toast({
           title: "Session Expired",
@@ -78,10 +77,17 @@ API.interceptors.response.use(
           variant: "destructive",
           duration: 5000,
         });
+      } else if (error.code === 'ECONNABORTED') {
+        toast({
+          title: "Request Timeout",
+          description: "The request took too long. Please try again.",
+          variant: "destructive",
+          duration: 5000,
+        });
       } else {
         toast({
-          title: "Error!",
-          description: error.response?.data?.message || "An unexpected error occurred.",
+          title: "Error",
+          description: errorMessage,
           variant: "destructive",
           duration: 5000,
         });

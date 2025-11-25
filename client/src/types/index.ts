@@ -1,3 +1,12 @@
+export interface VisionProgressUpdate {
+  id: string;
+  progress: number;
+  status: string;
+  updateText: string;
+  timestamp: string;
+  savedToJournal?: boolean;
+}
+
 export interface VisionType {
   id: string;
   title: string;
@@ -10,6 +19,7 @@ export interface VisionType {
   progress?: number;
   lastUpdate?: string;
   updates?: string[];
+  progressHistory?: VisionProgressUpdate[];
 }
 
 export interface GoalType {

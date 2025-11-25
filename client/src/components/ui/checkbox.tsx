@@ -8,11 +8,24 @@ export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElemen
 }
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, checked, onCheckedChange, onChange, ...props }, ref) => {
+  ({ className, checked, onCheckedChange, onChange, disabled, ...props }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newChecked = e.target.checked
       onCheckedChange?.(newChecked)
       onChange?.(e)
+    }
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (disabled) return
+      e.preventDefault()
+      const newChecked = !checked
+      onCheckedChange?.(newChecked)
+      // Create a synthetic event for onChange
+      const syntheticEvent = {
+        target: { checked: newChecked },
+        currentTarget: { checked: newChecked },
+      } as React.ChangeEvent<HTMLInputElement>
+      onChange?.(syntheticEvent)
     }
 
     return (
@@ -22,20 +35,27 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           ref={ref}
           checked={checked}
           onChange={handleChange}
-          className="peer sr-only"
+          disabled={disabled}
+          className="sr-only"
           {...props}
         />
         <div
+          onClick={handleClick}
           className={cn(
-            "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            checked && "bg-primary text-primary-foreground",
+            "h-5 w-5 shrink-0 rounded-md border-2 transition-all duration-200 cursor-pointer flex items-center justify-center",
+            "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
+            disabled && "cursor-not-allowed opacity-50",
+            checked
+              ? "bg-gradient-to-br from-green-500 to-green-600 border-green-600 text-white shadow-md"
+              : "border-gray-300 bg-white hover:border-purple-400 hover:bg-purple-50/50",
             className
           )}
+          role="checkbox"
+          aria-checked={checked}
+          aria-disabled={disabled}
         >
           {checked && (
-            <div className="flex items-center justify-center text-current">
-              <Check className="h-4 w-4" />
-            </div>
+            <Check className="h-4 w-4 text-white stroke-[3]" />
           )}
         </div>
       </div>

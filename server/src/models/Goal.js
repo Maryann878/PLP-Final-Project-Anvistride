@@ -25,6 +25,11 @@ const goalSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for better query performance
+goalSchema.index({ user: 1, createdAt: -1 }); // Get user's goals, newest first
+goalSchema.index({ user: 1, completed: 1 }); // Filter by completion status
+goalSchema.index({ user: 1 }); // General user lookup
+
 const Goal = mongoose.model("Goal", goalSchema);
 
 export default Goal;

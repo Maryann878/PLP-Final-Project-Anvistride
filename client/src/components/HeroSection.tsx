@@ -80,7 +80,7 @@ const HeroSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-5 mb-6 sm:mb-8 w-full px-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <Link
             to="/register"
-            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group"
+            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
           >
             <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
               Start Your Journey Free
@@ -90,7 +90,7 @@ const HeroSection: React.FC = () => {
 
           <Link
             to="/demo"
-            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group"
+            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
           >
             <Play className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
             <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">

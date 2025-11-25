@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 import mongoose from "mongoose";
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -80,15 +81,16 @@ app.use((req, res, next) => {
 });
 
 // -----------------------------
-// Security headers
+// Security headers with Helmet.js
 // -----------------------------
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-XSS-Protection", "1; mode=block");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  next();
-});
+// Using Helmet for comprehensive security headers
+// CSP is disabled initially to ensure Socket.IO WebSocket connections work
+// You can enable CSP later with proper configuration for your app
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled for Socket.IO compatibility - enable later with proper config
+  crossOriginEmbedderPolicy: false, // Needed for Socket.IO WebSocket connections
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin resources
+}));
 
 // -----------------------------
 // CORS configuration (safe & non-throwing)

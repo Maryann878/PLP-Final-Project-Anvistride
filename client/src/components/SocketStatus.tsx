@@ -1,13 +1,15 @@
 // client/src/components/SocketStatus.tsx
 import React from 'react';
 import { useSocket } from '@/context/SocketContext';
+import { useAuth } from '@/context/AuthContext';
 import { Wifi, WifiOff } from 'lucide-react';
 
 const SocketStatus: React.FC = () => {
   const { isConnected } = useSocket();
+  const { user } = useAuth();
 
-  // Only show on mobile or in development
-  if (window.innerWidth > 768 && import.meta.env.PROD) {
+  // Only show when user is logged in and on mobile
+  if (!user || (window.innerWidth > 768 && import.meta.env.PROD)) {
     return null;
   }
 
@@ -17,9 +19,9 @@ const SocketStatus: React.FC = () => {
         className={`flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg backdrop-blur-md border transition-all duration-300 ${
           isConnected
             ? 'bg-green-50/90 border-green-200 text-green-700'
-            : 'bg-red-50/90 border-red-200 text-red-700'
+            : 'bg-amber-50/90 border-amber-200 text-amber-700'
         }`}
-        title={isConnected ? 'Real-time sync active' : 'Real-time sync disconnected'}
+        title={isConnected ? 'Real-time sync active' : 'Connecting to server...'}
       >
         {isConnected ? (
           <Wifi className="h-4 w-4" />
@@ -27,7 +29,7 @@ const SocketStatus: React.FC = () => {
           <WifiOff className="h-4 w-4" />
         )}
         <span className="text-xs font-semibold">
-          {isConnected ? 'Synced' : 'Offline'}
+          {isConnected ? 'Synced' : 'Connecting...'}
         </span>
       </div>
     </div>

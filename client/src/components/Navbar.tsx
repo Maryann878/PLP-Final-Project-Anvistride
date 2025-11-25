@@ -40,10 +40,10 @@ const Navbar = () => {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="relative px-4 py-2 text-sm font-medium text-gray-700 rounded-lg transition-all duration-200 hover:text-purple-600 hover:bg-purple-50/50 group"
+              className="relative px-4 py-2 text-sm font-medium text-gray-700 rounded-lg transition-all duration-200 hover:text-purple-600 hover:bg-purple-50/50 group outline-none focus-visible:ring-0 [&::after]:hidden"
             >
               {link.label}
-              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-teal-400 transition-all duration-300 group-hover:w-3/4 group-hover:left-1/8 -translate-x-1/2"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-teal-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
           ))}
         </nav>
@@ -51,13 +51,13 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
-            className="text-gray-700 hover:text-purple-600 font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 hover:shadow-md" 
+            className="text-gray-700 hover:text-purple-600 font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 hover:shadow-md focus-visible:ring-2 focus-visible:ring-purple-400/50" 
             asChild
           >
             <Link to="/login">Sign in</Link>
           </Button>
           <Button 
-            className="bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-105 transition-all duration-300 font-extrabold px-6 py-2.5 rounded-xl ring-1 ring-white/20 group" 
+            className="bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-105 transition-all duration-300 font-extrabold px-6 py-2.5 rounded-xl ring-1 ring-white/20 group focus-visible:ring-2 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2" 
             asChild
           >
             <Link to="/register" className="flex items-center gap-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">

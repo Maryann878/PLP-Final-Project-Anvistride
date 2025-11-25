@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
   // Validate token on mount
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function ResetPasswordPage() {
       ...prev,
       [name]: value
     }));
-    if (error) setError('');
+    if (error) setError(''); // Clear error when user starts typing
   };
 
   const validateForm = () => {
@@ -109,6 +111,10 @@ export default function ResetPasswordPage() {
       setIsSuccess(true);
     } catch {
       setError('Failed to reset password. Please try again.');
+      // Focus password field on error for better UX
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+      }, 100);
     } finally {
       setIsLoading(false);
     }
@@ -220,7 +226,12 @@ export default function ResetPasswordPage() {
 
           <CardContent className="space-y-4">
             {error && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+              <div 
+                id="reset-password-error"
+                role="alert" 
+                aria-live="polite"
+                className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm animate-in fade-in-0"
+              >
                 <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -310,16 +321,6 @@ export default function ResetPasswordPage() {
   // Main form
   return (
     <div className="relative flex items-center justify-center min-h-screen px-4 py-8 overflow-hidden">
-      {/* Home Button */}
-      <Link
-        to="/"
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white/90 backdrop-blur-md hover:bg-white border border-gray-200/60 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-gray-700 hover:text-gray-900 group"
-        aria-label="Go to home"
-      >
-        <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-        <span className="text-xs sm:text-sm font-medium">Home</span>
-      </Link>
-
       {/* Background matching login/register */}
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -376,15 +377,18 @@ export default function ResetPasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
+                  ref={passwordInputRef}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your new password"
-                  className="h-12 text-base pl-11 pr-11 rounded-xl"
+                  className="h-12 text-base pl-11 pr-11 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                   disabled={isLoading}
+                  aria-describedby={error ? "reset-password-error" : undefined}
+                  aria-invalid={!!error}
                 />
                 <button
                   type="button"
@@ -436,15 +440,18 @@ export default function ResetPasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
+                  ref={confirmPasswordInputRef}
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm your new password"
-                  className="h-12 text-base pl-11 pr-11 rounded-xl"
+                  className="h-12 text-base pl-11 pr-11 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                   disabled={isLoading}
+                  aria-describedby={error ? "reset-password-error" : undefined}
+                  aria-invalid={!!error}
                 />
                 <button
                   type="button"

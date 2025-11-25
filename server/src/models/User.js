@@ -22,4 +22,9 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Indexes for better query performance
+// Email already has unique index, but explicit index helps with lookups
+userSchema.index({ email: 1 }); // For login queries
+userSchema.index({ createdAt: -1 }); // For sorting users by creation date
+
 export default mongoose.model("User", userSchema);

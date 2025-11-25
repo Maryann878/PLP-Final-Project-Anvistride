@@ -16,9 +16,11 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   // Load saved email if remember me was previously checked
   useEffect(() => {
@@ -48,6 +50,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
     
     // Prevent submission if form is invalid
     if (!isFormValid) {
@@ -74,26 +77,28 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await loginUser({ email, password });
-      console.log("Sending login request with:", { email, password });
 
       // localStorage.setItem("token", data.token); // Moved to AuthContext
       await login(data.token); // Call the login function from AuthContext
-      const toast = getGlobalToast(); // Get the global toast instance
-      if (toast) {
-        toast({
-          title: "Login successful",
-          variant: "success",
-        });
-      }
+      
       // Don't clear email if remember me is checked
       if (!rememberMe) {
         setEmail("");
       }
       setPassword(""); // Always clear password on successful login
-      navigate("/app"); // redirect after login
+      navigate("/app"); // redirect after login - the redirect itself is sufficient feedback
     } catch (error: any) {
-      console.error(error);
-      // The Axios interceptor will now handle the toast for errors.
+      // Only log errors in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Login error:', error);
+      }
+      const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials and try again.";
+      setError(errorMessage);
+      // Focus password field on error for better UX
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+      }, 100);
+      // No toast here - inline error display is sufficient
     } finally {
       setLoading(false);
     }
@@ -101,16 +106,6 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="relative flex items-center justify-center min-h-screen px-4 py-8 overflow-hidden">
-      {/* Home Button */}
-      <Link
-        to="/"
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white/90 backdrop-blur-md hover:bg-white border border-gray-200/60 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-gray-700 hover:text-gray-900 group"
-        aria-label="Go to home"
-      >
-        <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-        <span className="text-xs sm:text-sm font-medium">Home</span>
-      </Link>
-
       {/* Background matching Forgot Password Page */}
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -180,9 +175,15 @@ const LoginPage: React.FC = () => {
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError(null); // Clear error when user starts typing
+                  }}
                   required
-                  className={`h-12 text-base border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 pl-11 rounded-xl bg-white ${
+                  disabled={loading}
+                  aria-describedby={error ? "login-error" : undefined}
+                  aria-invalid={!!error}
+                  className={`h-12 text-base border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 pl-11 rounded-xl bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
                     email && !isValidEmail(email) ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : ""
                   }`}
                 />
@@ -208,13 +209,20 @@ const LoginPage: React.FC = () => {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Input
+                  ref={passwordInputRef}
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError(null); // Clear error when user starts typing
+                  }}
                   required
-                  className="h-12 text-base border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 pl-11 pr-11 rounded-xl bg-white"
+                  disabled={loading}
+                  aria-describedby={error ? "login-error" : undefined}
+                  aria-invalid={!!error}
+                  className="h-12 text-base border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 pl-11 pr-11 rounded-xl bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
@@ -231,6 +239,21 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div 
+                id="login-error"
+                role="alert" 
+                aria-live="polite"
+                className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 animate-in fade-in-0"
+              >
+                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800">{error}</p>
+                </div>
+              </div>
+            )}
+
             {/* Remember me and Forgot password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -238,6 +261,7 @@ const LoginPage: React.FC = () => {
                   id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  disabled={loading}
                 />
                 <Label
                   htmlFor="remember"

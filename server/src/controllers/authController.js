@@ -28,7 +28,10 @@ export const registerUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(409).json({ 
+        message: "An account with this email already exists. Please log in instead.",
+        code: "EMAIL_EXISTS"
+      });
     }
 
     // Hash password
@@ -79,8 +82,9 @@ export const registerUser = async (req, res) => {
       const field = Object.keys(error.keyPattern || {})[0];
       console.error("❌ MongoDB duplicate key error:", field, error.keyValue);
       if (field === 'email') {
-        return res.status(400).json({ 
-          message: "User with this email already exists"
+        return res.status(409).json({ 
+          message: "An account with this email already exists. Please log in instead.",
+          code: "EMAIL_EXISTS"
         });
       }
       return res.status(400).json({ 
@@ -140,7 +144,10 @@ export const loginUser = async (req, res) => {
         if (process.env.NODE_ENV === 'development') {
           console.log('User not found for email:', email);
         }
-        return res.status(400).json({ message: "Invalid email or password" });
+        return res.status(401).json({ 
+          message: "No account found with this email address.",
+          code: "USER_NOT_FOUND"
+        });
       }
   
       // Compare passwords
@@ -149,7 +156,10 @@ export const loginUser = async (req, res) => {
         if (process.env.NODE_ENV === 'development') {
           console.log('Password mismatch for user:', email);
         }
-        return res.status(400).json({ message: "Invalid email or password" });
+        return res.status(401).json({ 
+          message: "Incorrect password. Please try again.",
+          code: "INVALID_PASSWORD"
+        });
       }
   
       // Generate token

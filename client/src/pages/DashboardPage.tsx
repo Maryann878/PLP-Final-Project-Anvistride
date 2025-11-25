@@ -37,6 +37,7 @@ import {
   Bell,
   ChevronUp,
   ChevronDown,
+  ChevronRight,
   Info,
   Star,
   Check,
@@ -410,7 +411,57 @@ export default function DashboardPage() {
   const glassClass = "backdrop-blur-xl bg-white/90 border border-gray-200/60 shadow-2xl shadow-gray-900/10 rounded-2xl ring-1 ring-white/50";
 
   return (
-    <div className="relative space-y-8 pb-12 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 overflow-hidden">
+    <div className="relative space-y-4 sm:space-y-8 pb-12 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 overflow-hidden">
+      {/* Mobile Daily Inspiration - Show at top on mobile */}
+      {showDailyInspiration && (
+        <div className="lg:hidden px-4 pt-4 sm:pt-6">
+          <Card
+            onClick={() => setShowInspirationModal(true)}
+            className={`${glassClass} rounded-2xl p-4 sm:p-5 shadow-lg border border-purple-200/50 hover:border-teal-200/50 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
+          >
+            <div className="flex items-start gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-teal-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                <Quote className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-purple-600">Daily Inspiration</h3>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newValue = false;
+                      setShowDailyInspiration(newValue);
+                      localStorage.setItem(DAILY_INSPIRATION_KEY, JSON.stringify(newValue));
+                    }}
+                    className="w-6 h-6 bg-red-500/90 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-md transition-colors duration-200 flex-shrink-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+                <blockquote className="text-sm font-medium text-gray-900 italic leading-relaxed line-clamp-2">
+                  &quot;{currentQuote.text}&quot;
+                </blockquote>
+              </div>
+            </div>
+            <cite className="text-xs text-gray-600 not-italic block text-right font-medium mb-2">
+              — {currentQuote.author}
+            </cite>
+            <div className="flex items-center justify-between pt-2 border-t border-purple-200/30">
+              <span className="text-xs text-purple-600 font-medium">Tap to view full quote</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  shuffleQuote();
+                }}
+                className="w-7 h-7 rounded-lg bg-purple-100 hover:bg-purple-200 active:bg-purple-300 flex items-center justify-center text-purple-600 transition-colors"
+                title="Shuffle quote"
+              >
+                <Shuffle className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
       {/* Animated background elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -519,55 +570,68 @@ export default function DashboardPage() {
           setShowNotificationModal(false);
         }
       }}>
-        <DialogContent className={`${glassClass} rounded-2xl max-w-lg mx-auto max-h-[80vh] overflow-hidden flex flex-col`}>
+        <DialogContent className={`${glassClass} rounded-2xl max-w-2xl mx-auto max-h-[85vh] overflow-hidden flex flex-col`}>
           <DialogHeader className="flex-shrink-0 pb-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                <Bell className="h-5 w-5 text-purple-600" />
-                Notifications
-                {unreadCount > 0 && (
-                  <Badge className="bg-red-500 text-white">{unreadCount}</Badge>
-                )}
+            <div className="flex items-center justify-between mb-4">
+              <DialogTitle className="flex items-center gap-3 text-xl font-bold">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <Bell className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                      <Badge className="bg-red-500 text-white">{unreadCount}</Badge>
+                    )}
+                  </div>
+                </div>
               </DialogTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNotificationModal(false)}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    className="h-8"
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Mark All Read
+                  </Button>
+                )}
+              </div>
             </div>
           </DialogHeader>
+          
+          {/* Filter tabs */}
           <div className="flex-shrink-0 py-3 border-b border-gray-200">
             <div className="flex gap-2">
               <Button
-                variant="outline"
+                variant={notificationFilter === 'all' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setNotificationFilter('all')}
-                className={notificationFilter === 'all' ? 'bg-gradient-to-r from-purple-600 to-teal-500 text-white' : ''}
+                className={notificationFilter === 'all' ? "bg-gradient-to-r from-purple-600 to-teal-500 text-white" : ""}
               >
                 All ({notifications.length})
               </Button>
               <Button
-                variant="outline"
+                variant={notificationFilter === 'unread' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setNotificationFilter('unread')}
-                className={notificationFilter === 'unread' ? 'bg-gradient-to-r from-purple-600 to-teal-500 text-white' : ''}
+                className={notificationFilter === 'unread' ? "bg-gradient-to-r from-purple-600 to-teal-500 text-white" : ""}
               >
                 Unread ({unreadCount})
               </Button>
               <Button
-                variant="outline"
+                variant={notificationFilter === 'urgent' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setNotificationFilter('urgent')}
-                className={notificationFilter === 'urgent' ? 'bg-gradient-to-r from-purple-600 to-teal-500 text-white' : ''}
+                className={notificationFilter === 'urgent' ? "bg-gradient-to-r from-purple-600 to-teal-500 text-white" : ""}
               >
                 Urgent ({notifications.filter(n => n.priority === 'high' && !n.isRead).length})
               </Button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto py-4 space-y-2">
+          <div className="flex-1 overflow-y-auto py-4 space-y-3">
             {(() => {
               const filtered = notificationFilter === 'all' 
                 ? notifications 
@@ -575,73 +639,138 @@ export default function DashboardPage() {
                 ? notifications.filter(n => !n.isRead)
                 : notifications.filter(n => n.priority === 'high' && !n.isRead);
               
+              const formatTimestamp = (timestamp: string) => {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diffMs = now.getTime() - date.getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+                if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                return date.toLocaleDateString();
+              };
+
+              const getNotificationIcon = (type: string) => {
+                switch (type) {
+                  case 'system':
+                    return <Info className="h-5 w-5 text-blue-600" />;
+                  case 'reminder':
+                    return <Clock className="h-5 w-5 text-amber-600" />;
+                  case 'update':
+                    return <Bell className="h-5 w-5 text-purple-600" />;
+                  case 'achievement':
+                    return <Star className="h-5 w-5 text-amber-600" />;
+                  default:
+                    return <Bell className="h-5 w-5 text-gray-600" />;
+                }
+              };
+
+              const getPriorityColor = (priority: string) => {
+                switch (priority) {
+                  case 'high':
+                    return 'bg-red-500';
+                  case 'medium':
+                    return 'bg-amber-500';
+                  case 'low':
+                    return 'bg-green-500';
+                  default:
+                    return 'bg-gray-500';
+                }
+              };
+              
               return filtered.length === 0 ? (
                 <div className="text-center py-12">
                   <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No notifications</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No notifications found</h3>
+                  <p className="text-gray-600">
+                    {notificationFilter === 'unread' 
+                      ? 'All caught up! No unread notifications'
+                      : notificationFilter === 'urgent'
+                      ? 'No urgent notifications'
+                      : "You don't have any notifications yet"}
+                  </p>
                 </div>
               ) : (
                 filtered.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 rounded-lg border ${!notification.isRead ? 'border-purple-200 bg-purple-50/50' : 'border-gray-200 bg-white'} hover:shadow-md transition-all cursor-pointer`}
-                  onClick={() => {
-                    markAsRead(notification.id);
-                    if (notification.actionUrl) {
-                      setShowNotificationModal(false);
-                      navigate(notification.actionUrl);
-                    }
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-1">
-                      {notification.type === 'system' && <Info className="h-5 w-5 text-blue-600" />}
-                      {notification.type === 'reminder' && <Clock className="h-5 w-5 text-amber-600" />}
-                      {notification.type === 'update' && <Bell className="h-5 w-5 text-purple-600" />}
-                      {notification.type === 'achievement' && <Star className="h-5 w-5 text-amber-600" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-gray-900 text-sm">{notification.title}</h4>
-                        {!notification.isRead && (
-                          <div className="w-2 h-2 rounded-full bg-purple-600 flex-shrink-0 mt-1" />
-                        )}
+                  <Card
+                    key={notification.id}
+                    className={`${glassClass} ${!notification.isRead ? 'border-l-4 border-l-purple-500' : ''} hover:shadow-xl transition-all duration-300 cursor-pointer`}
+                    onClick={() => {
+                      if (!notification.isRead) {
+                        markAsRead(notification.id);
+                      }
+                      if (notification.actionUrl) {
+                        setShowNotificationModal(false);
+                        navigate(notification.actionUrl);
+                      }
+                    }}
+                  >
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-teal-100 flex items-center justify-center">
+                            {getNotificationIcon(notification.type)}
+                          </div>
+                          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getPriorityColor(notification.priority)}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold text-gray-900">{notification.title}</h4>
+                                {!notification.isRead && (
+                                  <div className="w-2 h-2 rounded-full bg-purple-600" />
+                                )}
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                {notification.type}
+                              </Badge>
+                            </div>
+                            <span className="text-xs text-gray-500 whitespace-nowrap">
+                              {formatTimestamp(notification.timestamp)}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 text-sm mb-3">{notification.message}</p>
+                          {notification.actionUrl && notification.actionText && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(notification.id);
+                                setShowNotificationModal(false);
+                                navigate(notification.actionUrl!);
+                              }}
+                            >
+                              {notification.actionText}
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(notification.timestamp).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    </CardContent>
+                  </Card>
                 ))
               );
             })()}
           </div>
-          <div className="flex-shrink-0 pt-4 border-t border-gray-200 flex gap-2">
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markAllAsRead}
-                className="flex-1"
-              >
-                <Check className="h-4 w-4 mr-2" />
-                Mark All Read
-              </Button>
-            )}
-            {notifications.some(n => n.isRead) && (
+          {notifications.some(n => n.isRead) && (
+            <div className="flex-shrink-0 pt-4 border-t border-gray-200 flex justify-center">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={clearAllRead}
-                className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                className="text-red-600 border-red-200 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Clear All
+                Clear Read Notifications
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
