@@ -167,23 +167,34 @@ export default function HelpPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="faq" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm border border-gray-200 p-1 rounded-xl shadow-md">
-          <TabsTrigger value="faq" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white">
-            <HelpCircle className="h-4 w-4" />
-            FAQ
-          </TabsTrigger>
-          <TabsTrigger value="tutorials" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white">
-            <Book className="h-4 w-4" />
-            Tutorials
-          </TabsTrigger>
-          <TabsTrigger value="contact" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white">
-            <Mail className="h-4 w-4" />
-            Contact
-          </TabsTrigger>
-        </TabsList>
+        <Card className={`${glassClass} border-purple-200/50 p-2 sm:p-3`}>
+          <TabsList className="grid w-full grid-cols-3 bg-transparent p-0 gap-2 h-auto">
+            <TabsTrigger 
+              value="faq" 
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50/80 data-[state=inactive]:hover:scale-[1.01] active:scale-[0.98]"
+            >
+              <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>FAQ</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tutorials" 
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50/80 data-[state=inactive]:hover:scale-[1.01] active:scale-[0.98]"
+            >
+              <Book className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Tutorials</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="contact" 
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50/80 data-[state=inactive]:hover:scale-[1.01] active:scale-[0.98]"
+            >
+              <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Contact</span>
+            </TabsTrigger>
+          </TabsList>
+        </Card>
 
         {/* FAQ Tab */}
-        <TabsContent value="faq" className="space-y-6 mt-6">
+        <TabsContent value="faq" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           <Card className={glassClass}>
             <CardHeader>
               <CardTitle className="text-xl font-bold text-gray-900">Frequently Asked Questions</CardTitle>
@@ -206,7 +217,7 @@ export default function HelpPage() {
         </TabsContent>
 
         {/* Tutorials Tab */}
-        <TabsContent value="tutorials" className="space-y-6 mt-6">
+        <TabsContent value="tutorials" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">Video Tutorials & Guides</h2>
             <p className="text-sm text-gray-600 mb-6">Learn how to use Anvistride effectively</p>
@@ -245,7 +256,7 @@ export default function HelpPage() {
         </TabsContent>
 
         {/* Contact Tab */}
-        <TabsContent value="contact" className="space-y-6 mt-6">
+        <TabsContent value="contact" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Contact Info */}
             <Card className={glassClass}>

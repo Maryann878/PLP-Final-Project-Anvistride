@@ -14,9 +14,9 @@ const SocketStatus: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 md:hidden">
+    <div className="fixed bottom-24 left-4 z-40 md:hidden">
       <div
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg backdrop-blur-md border transition-all duration-300 ${
+        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg shadow-md backdrop-blur-md border transition-all duration-300 ${
           isConnected
             ? 'bg-green-50/90 border-green-200 text-green-700'
             : 'bg-amber-50/90 border-amber-200 text-amber-700'
@@ -24,11 +24,11 @@ const SocketStatus: React.FC = () => {
         title={isConnected ? 'Real-time sync active' : 'Connecting to server...'}
       >
         {isConnected ? (
-          <Wifi className="h-4 w-4" />
+          <Wifi className="h-3.5 w-3.5" />
         ) : (
-          <WifiOff className="h-4 w-4" />
+          <WifiOff className="h-3.5 w-3.5" />
         )}
-        <span className="text-xs font-semibold">
+        <span className="text-[10px] font-medium">
           {isConnected ? 'Synced' : 'Connecting...'}
         </span>
       </div>

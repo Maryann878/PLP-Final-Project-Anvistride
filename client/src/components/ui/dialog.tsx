@@ -31,11 +31,14 @@ const Dialog = ({ open = false, onOpenChange, children }: DialogProps) => {
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"
+      document.body.setAttribute("data-modal-open", "true")
     } else {
       document.body.style.overflow = ""
+      document.body.removeAttribute("data-modal-open")
     }
     return () => {
       document.body.style.overflow = ""
+      document.body.removeAttribute("data-modal-open")
     }
   }, [isOpen])
 
@@ -88,7 +91,7 @@ const DialogOverlay = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in-0",
+        "fixed inset-0 z-[55] bg-black/70 backdrop-blur-sm animate-in fade-in-0",
         className
       )}
       onClick={() => onOpenChange(false)}
@@ -112,7 +115,7 @@ const DialogContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200/80 bg-white p-6 shadow-xl duration-200 animate-in fade-in-0 zoom-in-95 sm:rounded-xl",
+          "fixed left-[50%] top-[50%] z-[60] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200/80 bg-white p-6 shadow-xl duration-200 animate-in fade-in-0 zoom-in-95 sm:rounded-xl",
           className
         )}
         onClick={(e) => e.stopPropagation()}

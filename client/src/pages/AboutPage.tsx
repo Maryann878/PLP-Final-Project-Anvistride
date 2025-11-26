@@ -1,5 +1,5 @@
 // client/src/pages/AboutPage.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +7,15 @@ import { ArrowLeft, Target, Users, Zap, Shield, Heart, Rocket, Award, Eye, Quote
 import Navbar from "@/components/Navbar";
 import NavbarMobile from "@/components/NavbarMobile";
 import Footer from "@/components/Footer";
+import ScrollButtons from "@/components/ScrollButtons";
 
 const AboutPage: React.FC = () => {
   const glassClass = "backdrop-blur-xl bg-white/90 border border-gray-200/60 shadow-2xl shadow-gray-900/10 rounded-2xl ring-1 ring-white/50";
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const values = [
     {
@@ -360,6 +366,7 @@ const AboutPage: React.FC = () => {
       </main>
 
       <Footer />
+      <ScrollButtons />
     </div>
   );
 };

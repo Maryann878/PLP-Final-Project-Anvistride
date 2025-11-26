@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import API from '@/lib/axios';
 import { getGlobalToast } from '@/lib/toast';
 
 const ChatPage: React.FC = () => {
-  const { activeChat, setActiveChat, startPrivateChat, loadChats } = useChat();
+  const { activeChat, setActiveChat, startPrivateChat, loadChats, chats } = useChat();
   const { user } = useAuth();
   const [showNewChat, setShowNewChat] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,37 +103,77 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] flex flex-col p-0 gap-0 -m-4 sm:m-0 md:m-0 sm:p-2 md:p-4 lg:p-6 sm:gap-2 md:gap-4">
-      {/* Header - Hidden on mobile when chat is active */}
-      {(!activeChat || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
-        <Card className={`${glassClass} p-3 sm:p-4 md:p-6 m-2 sm:m-0 md:m-0`}>
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center shadow-xl flex-shrink-0">
-                <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+    <div className="space-y-6 p-4 md:p-6">
+      {/* Header - FamzStride - Creative Branded Design */}
+      <Card className={`${glassClass} border-purple-200/50 dark:border-purple-800/50 overflow-hidden relative`}>
+        {/* Decorative gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-transparent to-teal-50/50 dark:from-purple-900/10 dark:to-teal-900/10 pointer-events-none"></div>
+        <CardContent className="p-6 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="flex items-center gap-5">
+              {/* Creative Logo Container with Gold Accent */}
+              <div className="relative group">
+                {/* Main logo container with gradient border */}
+                <div className="relative">
+                  <div className="absolute -inset-0.5 bg-gradient-to-br from-purple-600 via-amber-500 to-teal-500 rounded-2xl blur-sm opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center shadow-xl shadow-purple-500/30 ring-2 ring-white/20 overflow-hidden">
+                    {/* Animated pulsing glow effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 via-purple-400/20 to-teal-400/30 rounded-2xl animate-pulse-slow"></div>
+                    {/* Logo - maintaining uniformity */}
+                    <div className="relative z-10 flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform duration-500">
+                      <img 
+                        src="/Anvistride_logo.png" 
+                        alt="Anvistride" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* Modern message icon badge - Professional design */}
+                <div className="absolute -top-0.5 -right-0.5 w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 border-2 border-white dark:border-gray-900 flex items-center justify-center shadow-xl shadow-amber-500/50 ring-1 ring-amber-400/30">
+                  <MessageCircle className="h-3 w-3 text-white stroke-[2.5]" />
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent truncate">
-                  Chat
-                </h1>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
-                  Connect with the community and accountability partners
+              <div className="flex-1">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                    <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent">Famz</span>
+                    <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm">Stride</span>
+                  </h1>
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-900/30 dark:via-yellow-900/20 dark:to-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px] sm:text-xs font-bold rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                    FS
+                  </span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base font-medium leading-relaxed">
+                  Your stride family - connect with accountability partners and the community
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => setShowNewChat(true)}
-              className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white flex-shrink-0 text-sm sm:text-base px-3 sm:px-4"
-            >
-              <UserPlus className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">New Chat</span>
-            </Button>
           </div>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
+
+      {/* Chat Statistics - Compact */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-50 via-amber-50/50 to-teal-50 dark:from-purple-900/20 dark:via-amber-900/10 dark:to-teal-900/20 border border-purple-200/50 dark:border-purple-800/50 shadow-sm">
+          <div className="relative">
+            <MessageCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
+          </div>
+          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{chats.length}</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Famz Members</span>
+        </div>
+        <Button
+          onClick={() => setShowNewChat(true)}
+          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <UserPlus className="h-5 w-5" />
+          New Chat
+        </Button>
+      </div>
 
       {/* Chat Interface */}
-      <div className="flex-1 flex gap-0 sm:gap-2 md:gap-4 min-h-0 relative overflow-hidden">
+      <div className="h-[calc(100vh-20rem)] md:h-[calc(100vh-18rem)] flex gap-0 sm:gap-2 md:gap-4 min-h-0 relative overflow-hidden">
         {/* Chat List - Desktop always visible, mobile toggle */}
         <div
           className={`${
@@ -142,7 +182,7 @@ const ChatPage: React.FC = () => {
         >
           {/* Mobile header with back button - only show if we're in chat list view */}
           {showChatList && (
-            <div className="md:hidden p-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-teal-50 flex items-center gap-3 flex-shrink-0">
+            <div className="md:hidden p-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20 flex items-center gap-3 flex-shrink-0">
               <h2 className="font-semibold text-gray-900 flex-1 text-base">Conversations</h2>
               <Button
                 onClick={() => setShowNewChat(true)}
@@ -156,7 +196,7 @@ const ChatPage: React.FC = () => {
             </div>
           )}
 
-          <div className="p-3 sm:p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-teal-50">
+          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20">
             <div className="flex items-center justify-between mb-3 hidden md:flex">
               <h2 className="font-semibold text-gray-900">Conversations</h2>
             </div>
@@ -186,16 +226,22 @@ const ChatPage: React.FC = () => {
               }}
             />
           ) : (
-            <Card className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-none sm:rounded-xl md:rounded-2xl m-0">
-              <div className="text-center text-gray-500 px-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto mb-3 sm:mb-4 rounded-full bg-gradient-to-br from-purple-100 to-teal-100 flex items-center justify-center">
-                  <MessageCircle className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-purple-400" />
+            <Card className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900 dark:to-purple-900/10 rounded-none sm:rounded-xl md:rounded-2xl m-0">
+              <div className="text-center text-gray-500 dark:text-gray-400 px-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mx-auto mb-4 sm:mb-6 rounded-2xl bg-gradient-to-br from-purple-100 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center p-4 shadow-lg border-2 border-purple-200/50 dark:border-purple-800/50">
+                  <img 
+                    src="/Anvistride_logo.png" 
+                    alt="Anvistride" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <p className="text-base sm:text-lg md:text-xl font-semibold mb-1 sm:mb-2 text-gray-700">No chat selected</p>
-                <p className="text-xs sm:text-sm md:text-base text-gray-500 mb-3 sm:mb-4 px-2">Choose a conversation or start a new one</p>
+                <p className="text-base sm:text-lg md:text-xl font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300">
+                  Join Your <span className="bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent">Famz</span>
+                </p>
+                <p className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 mb-3 sm:mb-4 px-2">Connect with your stride family, accountability partners, or choose a conversation to continue your journey</p>
                 <Button
                   onClick={() => setShowNewChat(true)}
-                  className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white text-sm sm:text-base"
+                  className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white text-sm sm:text-base shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Start New Chat
@@ -239,7 +285,7 @@ const ChatPage: React.FC = () => {
                 {searchResults.map((result) => (
                   <div
                     key={result.id}
-                    className="flex items-center gap-3 p-3 sm:p-4 rounded-xl hover:bg-purple-50 cursor-pointer transition-all duration-200 border border-transparent hover:border-purple-200"
+                    className="flex items-center gap-3 p-3 sm:p-4 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer transition-all duration-200 border border-transparent hover:border-purple-200 dark:hover:border-purple-800"
                     onClick={() => handleStartChat(result.id)}
                   >
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">

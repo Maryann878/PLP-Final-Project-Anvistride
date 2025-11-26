@@ -35,8 +35,6 @@ import {
   Flame,
   Medal,
   Bell,
-  ChevronUp,
-  ChevronDown,
   ChevronRight,
   Info,
   Star,
@@ -411,13 +409,13 @@ export default function DashboardPage() {
   const glassClass = "backdrop-blur-xl bg-white/90 border border-gray-200/60 shadow-2xl shadow-gray-900/10 rounded-2xl ring-1 ring-white/50";
 
   return (
-    <div className="relative space-y-4 sm:space-y-8 pb-12 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 overflow-hidden">
+    <div className="relative space-y-3 sm:space-y-6 md:space-y-8 pb-8 sm:pb-12 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 overflow-hidden">
       {/* Mobile Daily Inspiration - Show at top on mobile */}
       {showDailyInspiration && (
-        <div className="lg:hidden px-4 pt-4 sm:pt-6">
+        <div className="lg:hidden px-3 sm:px-4 pt-3 sm:pt-4 md:pt-6">
           <Card
             onClick={() => setShowInspirationModal(true)}
-            className={`${glassClass} rounded-2xl p-4 sm:p-5 shadow-lg border border-purple-200/50 hover:border-teal-200/50 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
+            className={`${glassClass} rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-lg border border-purple-200/50 hover:border-teal-200/50 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
           >
             <div className="flex items-start gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-teal-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
@@ -466,20 +464,6 @@ export default function DashboardPage() {
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-      {/* Notification Bell - Top Right */}
-      <div className="fixed top-4 right-4 z-50">
-        <button
-          onClick={() => setShowNotificationModal(true)}
-          className="relative w-12 h-12 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-300 text-gray-700 hover:text-purple-600"
-        >
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          )}
-        </button>
       </div>
 
       {/* Floating Inspiration Widget - Right Side */}
@@ -774,38 +758,37 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Scroll Buttons - Right Side */}
-      <div className="fixed right-4 bottom-32 z-40 hidden lg:flex flex-col gap-3 animate-fade-in">
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-180"
-        >
-          <ChevronUp className="h-5 w-5" />
-        </button>
-        <button
-          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
-          className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-purple-600 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-180"
-        >
-          <ChevronDown className="h-5 w-5" />
-        </button>
-      </div>
 
       {/* Welcome Section - Enhanced with gradient and glass */}
-      <section className="relative">
-        <Card className={`${glassClass} rounded-2xl border-purple-200/50 overflow-hidden`}>
-          <CardContent className="p-8">
-            <div className="flex items-start gap-6 relative z-10">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 via-teal-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 shadow-lg ring-2 ring-white/20">
-                {user?.name?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || "A"}
-              </div>
+      <section className="relative px-3 sm:px-4 md:px-6">
+        <Card className={`${glassClass} rounded-xl sm:rounded-2xl border-purple-200/50 overflow-hidden`}>
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div className="flex items-start gap-3 sm:gap-4 md:gap-6 relative z-10">
+              <button
+                onClick={() => navigate('/app/profile')}
+                className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/20 overflow-hidden transition-all duration-300 cursor-pointer"
+                title="View Profile"
+              >
+                {user?.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user?.username || user?.name || "Profile"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-600 via-teal-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+                    {user?.name?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || "A"}
+                  </div>
+                )}
+              </button>
               <div className="flex-1 min-w-0">
-                <h1 className="text-4xl font-extrabold text-gray-900 mb-3 leading-tight tracking-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-3 leading-tight tracking-tight">
                   {getGreeting()} <span className="bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent">{user?.username || user?.name || "there"}</span>
                 </h1>
-                <p className="text-sm font-medium text-gray-600 bg-white/90 px-4 py-2.5 rounded-xl inline-block mb-5 backdrop-blur-sm border border-gray-200/60 shadow-sm">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 bg-white/90 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl inline-block mb-3 sm:mb-4 md:mb-5 backdrop-blur-sm border border-gray-200/60 shadow-sm">
                   {user?.email || "user@anvistride.com"}
                 </p>
-                <p className="text-lg font-medium text-gray-800 leading-relaxed tracking-wide">
+                <p className="text-sm sm:text-base md:text-lg font-medium text-gray-800 leading-relaxed tracking-wide">
                   Ready to turn your <span className="bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent font-bold">vision</span> into{" "}
                   <span className="bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent font-bold">stride</span>? Here's your personalized dashboard with all your progress and upcoming tasks.
                 </p>
@@ -818,7 +801,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Statistics Cards - Grid with brand colors */}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-3 sm:gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-4 px-3 sm:px-4 md:px-6">
         <StatCard
           icon={<Eye className="h-6 w-6 text-white" />}
           value={visions.length}

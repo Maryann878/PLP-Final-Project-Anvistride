@@ -317,26 +317,37 @@ export default function AchievementsPage() {
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 via-amber-400 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-amber-500/30 ring-2 ring-white/20">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 via-amber-400 to-purple-500 flex items-center justify-center text-white shadow-xl shadow-amber-500/30 ring-2 ring-white/20">
                 <Trophy className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-purple-600 bg-clip-text text-transparent mb-1">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
                   Your Achievements
                 </h1>
-                <p className="text-gray-600 text-sm font-medium">Track accomplishments and build your growth portfolio</p>
+                <p className="text-gray-500 text-sm font-medium">
+                  Track accomplishments and build your growth portfolio
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={openCreateModal} 
-              className="flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <PlusCircle className="h-5 w-5" />
-              Add Achievement
-            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Achievements Statistics - Compact */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-50 to-purple-50 border border-amber-200/50">
+          <Trophy className="h-4 w-4 text-amber-600" />
+          <span className="text-lg font-bold text-gray-900">{achievements.length}</span>
+          <span className="text-xs text-gray-600 font-medium">Total Achievements</span>
+        </div>
+        <Button 
+          onClick={openCreateModal} 
+          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <PlusCircle className="h-5 w-5" />
+          Add Achievement
+        </Button>
+      </div>
 
       {/* Filters & Search - Only show when items exist */}
       {achievements.length > 0 && (
@@ -477,11 +488,24 @@ export default function AchievementsPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredAchievements.map((achievement: any) => {
             const isExpanded = expandedDesc === achievement.id;
-            const displayDesc = isExpanded ? achievement.description : (achievement.description || "").substring(0, 150) + "...";
+            const displayDesc = isExpanded ? achievement.description : (achievement.description || "").substring(0, 100) + "...";
             const TypeIcon = typeIcons[achievement.type as keyof typeof typeIcons] || FileText;
 
+            const formatDate = (dateString: string) => {
+              const date = new Date(dateString);
+              const now = new Date();
+              const diffTime = Math.abs(now.getTime() - date.getTime());
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 0) return "Today";
+              if (diffDays === 1) return "Yesterday";
+              if (diffDays < 7) return `${diffDays}d ago`;
+              if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+            };
+
             return (
-              <Card key={achievement.id} className={`${glassClass} hover:shadow-xl transition-all duration-300 border-amber-200/30 relative overflow-hidden`}>
+              <Card key={achievement.id} className={`${glassClass} hover:shadow-lg transition-all duration-300 border border-gray-200/80 overflow-hidden flex flex-col`}>
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-purple-600"></div>
                 
                 {/* Image Display */}
@@ -498,93 +522,131 @@ export default function AchievementsPage() {
                   </div>
                 )}
                 
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2 flex-1">
-                      <TypeIcon className="h-5 w-5 text-amber-500" />
-                      <CardTitle className="text-lg font-bold text-gray-900">{achievement.title}</CardTitle>
+                {/* Header Section */}
+                <CardHeader className="pb-3 px-5 pt-5">
+                  <div className="flex justify-between items-start gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <TypeIcon className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                      <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 leading-tight pr-2">{achievement.title}</CardTitle>
                     </div>
+                    <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => openEditModal(achievement)}
+                        className="h-8 w-8 p-0 hover:bg-gray-100 text-gray-600 hover:text-gray-700"
+                        title="Edit Achievement"
+                      >
+                        <Edit3 size={16} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => handleDelete(achievement.id)}
+                        className="h-8 w-8 p-0 hover:bg-red-50 text-red-600 hover:text-red-700"
+                        title="Delete Achievement"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Badges Row */}
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <Badge className={`${badgeVariants.type[achievement.type as keyof typeof badgeVariants.type] || "bg-gray-100 text-gray-700"} text-xs font-semibold px-2.5 py-1 rounded-full`}>
+                      {achievement.type}
+                    </Badge>
+                    {achievement.category && (
+                      <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full text-amber-600 border-amber-200 bg-amber-50">
+                        {achievement.category}
+                      </Badge>
+                    )}
                     {achievement.isPublic && (
-                      <Badge variant="outline" className="text-green-600 border-green-200">
+                      <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full text-green-600 border-green-200 bg-green-50">
                         <Eye className="h-3 w-3 mr-1" />
                         Public
                       </Badge>
                     )}
+                    <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full border-blue-200 text-blue-700 bg-blue-50">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {new Date(achievement.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(achievement.date).toLocaleDateString()}
-                    </span>
-                  </div>
-          </CardHeader>
-                <CardContent className="space-y-4">
+                </CardHeader>
+
+                {/* Description */}
+                <CardContent className="px-5 pt-0 pb-4 flex-1">
                   {achievement.description && (
-                    <p 
-                      className="text-gray-600 text-sm cursor-pointer hover:text-purple-600"
-                      onClick={() => toggleDesc(achievement.id)}
-                    >
+                    <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
                       {displayDesc}
-                      {achievement.description.length > 150 && (
-                        <span className="text-purple-600 font-medium ml-1">
-                          {isExpanded ? " Show less" : " Show more"}
-                        </span>
+                      {achievement.description.length > 100 && (
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          onClick={() => toggleDesc(achievement.id)} 
+                          className="h-auto p-0 ml-1 text-amber-600 font-medium text-sm"
+                        >
+                          {isExpanded ? "Show Less" : "...Read More"}
+                        </Button>
                       )}
                     </p>
                   )}
-
-                  {/* Badges */}
-                  <div className="flex gap-2 flex-wrap">
-                    <Badge className={badgeVariants.type[achievement.type as keyof typeof badgeVariants.type] || "bg-gray-100 text-gray-700"}>
-                      {achievement.type}
-                    </Badge>
-                    {achievement.category && (
-                      <Badge variant="outline" className="text-purple-600 border-purple-200">
-                        {achievement.category}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Metadata */}
-                  <div className="space-y-1 text-xs text-gray-500">
-                    {achievement.issuer && (
-                      <p className="flex items-center gap-1">
-                        <Building className="h-3 w-3" />
-                        {achievement.issuer}
-                      </p>
-                    )}
-                    {achievement.documentUrl && (
-                      <p className="flex items-center gap-1">
-                        <FileText className="h-3 w-3" />
-                        Document attached
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Linked Items */}
-                  {(achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId) && (
-                    <div className="text-xs text-gray-500 p-3 rounded-lg bg-amber-50 border border-amber-200">
-                      {achievement.linkedVisionId && <p>Vision: {visions.find((v: any) => v.id === achievement.linkedVisionId)?.title || "Linked"}</p>}
-                      {achievement.linkedGoalId && <p>Goal: {goals.find((g: any) => g.id === achievement.linkedGoalId)?.title || "Linked"}</p>}
-                      {achievement.linkedTaskId && <p>Task: {tasks.find((t: any) => t.id === achievement.linkedTaskId)?.title || "Linked"}</p>}
-                    </div>
+                  {!achievement.description && (
+                    <p className="text-sm text-gray-400 italic">No description</p>
                   )}
                 </CardContent>
-                <CardFooter className="pt-4 border-t border-gray-200 flex justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditModal(achievement)}>
-                    <Edit3 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleDelete(achievement.id)}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
-                </CardFooter>
+
+                {/* Metadata */}
+                {(achievement.issuer || achievement.documentUrl) && (
+                  <div className="px-5 pb-4 space-y-1">
+                    {achievement.issuer && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                        <Building className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span>{achievement.issuer}</span>
+                      </div>
+                    )}
+                    {achievement.documentUrl && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                        <FileText className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span>Document attached</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Linked Items */}
+                {(achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId) && (
+                  <div className="px-5 pb-4">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {achievement.linkedVisionId && (
+                        <span className="px-2 py-1 rounded bg-purple-50 border border-purple-200 text-purple-700">
+                          Vision: {visions.find((v: any) => v.id === achievement.linkedVisionId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {achievement.linkedGoalId && (
+                        <span className="px-2 py-1 rounded bg-teal-50 border border-teal-200 text-teal-700">
+                          Goal: {goals.find((g: any) => g.id === achievement.linkedGoalId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {achievement.linkedTaskId && (
+                        <span className="px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700">
+                          Task: {tasks.find((t: any) => t.id === achievement.linkedTaskId)?.title || "Linked"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 mx-5"></div>
+
+                {/* Date at Bottom */}
+                <div className="px-5 pt-3 pb-2">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="font-medium">{formatDate(achievement.createdAt)}</span>
+                  </div>
+                </div>
               </Card>
             );
           })}
@@ -598,7 +660,7 @@ export default function AchievementsPage() {
         }
       }}>
         <DialogContent className="backdrop-blur-xl bg-white/95 border-2 border-rose-200/60 shadow-2xl shadow-rose-900/20 rounded-3xl max-w-2xl mx-auto max-h-[90vh] overflow-y-auto p-0">
-          <div className="bg-gradient-to-r from-rose-600 via-rose-500 to-purple-500 p-6 rounded-t-3xl">
+          <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-purple-500 p-6 rounded-t-3xl">
             <DialogHeader className="text-left">
               <div className="flex items-center gap-4 mb-3">
                 <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-xl ring-2 ring-white/30">
@@ -618,7 +680,7 @@ export default function AchievementsPage() {
           <form onSubmit={handleSubmit} className="space-y-6 p-6 pt-8">
             <div className="space-y-2.5">
               <Label htmlFor="title" className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                 Title <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -626,14 +688,14 @@ export default function AchievementsPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Completed Full Stack Developer Certification"
-                className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl transition-all"
+                className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl transition-all"
                 required
               />
               <p className="text-xs text-gray-500 font-medium">Give your achievement a clear and descriptive title</p>
             </div>
             <div className="space-y-2.5">
               <Label htmlFor="description" className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                 Description
               </Label>
               <Textarea
@@ -641,17 +703,17 @@ export default function AchievementsPage() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Provide details about what you accomplished..."
-                className="min-h-[120px] text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl transition-all resize-none"
+                className="min-h-[120px] text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl transition-all resize-none"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2.5">
                 <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Type
                 </Label>
                 <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value as typeof typeOptions[number] })}>
-                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl">
+                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -663,7 +725,7 @@ export default function AchievementsPage() {
               </div>
               <div className="space-y-2.5">
                 <Label htmlFor="date" className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Date <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -671,7 +733,7 @@ export default function AchievementsPage() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl transition-all"
+                  className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl transition-all"
                   required
                 />
               </div>
@@ -679,7 +741,7 @@ export default function AchievementsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2.5">
                 <Label htmlFor="issuer" className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Issuer/Organization
                 </Label>
                 <Input
@@ -687,16 +749,16 @@ export default function AchievementsPage() {
                   value={formData.issuer}
                   onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
                   placeholder="Who issued this achievement?"
-                  className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl transition-all"
+                  className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl transition-all"
                 />
               </div>
               <div className="space-y-2.5">
                 <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Category
                 </Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl">
+                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -710,11 +772,11 @@ export default function AchievementsPage() {
             {/* Image Upload */}
             <div className="space-y-2.5">
               <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                 Image Upload
               </Label>
               {!imagePreview ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-rose-400 transition-all cursor-pointer bg-gray-50 hover:bg-rose-50/50">
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-amber-400 transition-all cursor-pointer bg-gray-50 hover:bg-amber-50/50">
                   <ImageIcon className="h-10 w-10 text-gray-400 mx-auto mb-3" />
                   <p className="text-sm font-medium text-gray-700 mb-2">Upload an image of your achievement</p>
                   <input
@@ -724,14 +786,14 @@ export default function AchievementsPage() {
                     style={{ display: 'none' }}
                     id="image-upload"
                   />
-                  <Label htmlFor="image-upload" className="cursor-pointer bg-gradient-to-r from-rose-100 to-purple-100 hover:from-rose-200 hover:to-purple-200 text-rose-700 font-semibold px-6 py-2.5 rounded-xl inline-block transition-all shadow-sm hover:shadow-md">
+                  <Label htmlFor="image-upload" className="cursor-pointer bg-gradient-to-r from-amber-100 to-purple-100 hover:from-amber-200 hover:to-purple-200 text-amber-700 font-semibold px-6 py-2.5 rounded-xl inline-block transition-all shadow-sm hover:shadow-md">
                     Choose Image
                   </Label>
                   <p className="text-xs text-gray-500 mt-3 font-medium">Max 5MB</p>
                 </div>
               ) : (
                 <div className="flex items-center gap-3 p-4 bg-rose-50 border-2 border-rose-200 rounded-xl">
-                  <ImageIcon className="h-6 w-6 text-rose-600" />
+                  <ImageIcon className="h-6 w-6 text-amber-600" />
                   <span className="flex-1 text-sm font-semibold text-gray-700">Image uploaded</span>
                   <Button type="button" variant="ghost" size="sm" onClick={removeImage} className="h-8 w-8 p-0">
                     <X className="h-4 w-4" />
@@ -742,11 +804,11 @@ export default function AchievementsPage() {
             {/* Document Upload */}
             <div className="space-y-2.5">
               <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                 Document Upload
               </Label>
               {!documentPreview ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-rose-400 transition-all cursor-pointer bg-gray-50 hover:bg-rose-50/50">
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-amber-400 transition-all cursor-pointer bg-gray-50 hover:bg-amber-50/50">
                   <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
                   <p className="text-sm font-medium text-gray-700 mb-2">Upload a document (PDF, DOC, DOCX, TXT)</p>
                   <input
@@ -756,14 +818,14 @@ export default function AchievementsPage() {
                     style={{ display: 'none' }}
                     id="document-upload"
                   />
-                  <Label htmlFor="document-upload" className="cursor-pointer bg-gradient-to-r from-rose-100 to-purple-100 hover:from-rose-200 hover:to-purple-200 text-rose-700 font-semibold px-6 py-2.5 rounded-xl inline-block transition-all shadow-sm hover:shadow-md">
+                  <Label htmlFor="document-upload" className="cursor-pointer bg-gradient-to-r from-amber-100 to-purple-100 hover:from-amber-200 hover:to-purple-200 text-amber-700 font-semibold px-6 py-2.5 rounded-xl inline-block transition-all shadow-sm hover:shadow-md">
                     Choose Document
                   </Label>
                   <p className="text-xs text-gray-500 mt-3 font-medium">Max 10MB</p>
                 </div>
               ) : (
                 <div className="flex items-center gap-3 p-4 bg-rose-50 border-2 border-rose-200 rounded-xl">
-                  <FileText className="h-6 w-6 text-rose-600" />
+                  <FileText className="h-6 w-6 text-amber-600" />
                   <span className="flex-1 text-sm font-semibold text-gray-700">{documentPreview}</span>
                   <Button type="button" variant="ghost" size="sm" onClick={removeDocument} className="h-8 w-8 p-0">
                     <X className="h-4 w-4" />
@@ -787,11 +849,11 @@ export default function AchievementsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <div className="space-y-2.5">
                 <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Link to Vision
                 </Label>
                 <Select value={formData.linkedVisionId} onValueChange={(value) => setFormData({ ...formData, linkedVisionId: value })}>
-                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl">
+                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl">
                     <SelectValue placeholder="Vision" />
                   </SelectTrigger>
                   <SelectContent>
@@ -804,11 +866,11 @@ export default function AchievementsPage() {
               </div>
               <div className="space-y-2.5">
                 <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Link to Goal
                 </Label>
                 <Select value={formData.linkedGoalId} onValueChange={(value) => setFormData({ ...formData, linkedGoalId: value })}>
-                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl">
+                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl">
                     <SelectValue placeholder="Goal" />
                   </SelectTrigger>
                   <SelectContent>
@@ -821,11 +883,11 @@ export default function AchievementsPage() {
               </div>
               <div className="space-y-2.5">
                 <Label className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-600 to-purple-500"></span>
                   Link to Task
                 </Label>
                 <Select value={formData.linkedTaskId} onValueChange={(value) => setFormData({ ...formData, linkedTaskId: value })}>
-                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-rose-500 focus:ring-rose-500/20 rounded-xl">
+                  <SelectTrigger className="h-12 text-base border-gray-300 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl">
                     <SelectValue placeholder="Task" />
                   </SelectTrigger>
                   <SelectContent>
@@ -841,7 +903,7 @@ export default function AchievementsPage() {
               <Button type="button" variant="outline" onClick={handleCloseCreateModal} className="w-full sm:w-auto h-12 text-base font-semibold border-2 border-gray-300 hover:border-gray-400 rounded-xl">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto h-12 text-base font-bold bg-gradient-to-r from-rose-600 via-rose-500 to-purple-500 text-white hover:from-rose-700 hover:via-rose-600 hover:to-purple-600 shadow-lg shadow-rose-600/30 hover:shadow-xl hover:shadow-rose-600/40 transition-all duration-300 rounded-xl">
+              <Button type="submit" className="w-full sm:w-auto h-12 text-base font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-purple-500 text-white hover:from-amber-700 hover:via-amber-600 hover:to-purple-600 shadow-lg shadow-amber-600/30 hover:shadow-xl hover:shadow-amber-600/40 transition-all duration-300 rounded-xl">
                 {editingAchievement ? "Update Achievement" : "Add Achievement"}
               </Button>
             </DialogFooter>

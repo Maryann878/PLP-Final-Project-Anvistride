@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { useSocket } from './SocketContext';
+import { saveToRecycleBin } from '@/lib/recycleBin';
 import type {
   VisionType,
   GoalType,
@@ -142,7 +143,7 @@ interface AppContextType extends AppState {
   
   addTask: (item: TaskType) => void;
   updateTask: (id: string, data: Partial<TaskType>) => void;
-  deleteTask: (id: string) => void;
+  deleteTask: (id: string, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => void;
   
   addIdea: (item: IdeaType) => void;
   updateIdea: (id: string, data: Partial<IdeaType>) => void;
@@ -271,6 +272,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'visions', itemId: id });
     },
     deleteVision: (id) => {
+      const vision = state.visions.find(v => v.id === id);
+      if (vision) {
+        saveToRecycleBin(vision, 'vision');
+      }
       dispatch({ type: 'DELETE_VISIONS', payload: id });
       emitSync('entity:delete', { entity: 'visions', id });
       emitSync('activity:create', { type: 'delete', entity: 'visions', itemId: id });
@@ -287,6 +292,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'goals', itemId: id });
     },
     deleteGoal: (id) => {
+      const goal = state.goals.find(g => g.id === id);
+      if (goal) {
+        saveToRecycleBin(goal, 'goal', {
+          parentId: goal.visionId,
+          parentType: goal.visionId ? 'vision' : undefined,
+        });
+      }
       dispatch({ type: 'DELETE_GOALS', payload: id });
       emitSync('entity:delete', { entity: 'goals', id });
       emitSync('activity:create', { type: 'delete', entity: 'goals', itemId: id });
@@ -302,7 +314,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('entity:update', { entity: 'tasks', id, data });
       emitSync('activity:create', { type: 'update', entity: 'tasks', itemId: id });
     },
-    deleteTask: (id) => {
+    deleteTask: (id, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) {
+        saveToRecycleBin(task, 'task', {
+          parentId: metadata?.parentId || task.goalId || task.visionId,
+          parentType: metadata?.parentType || (task.goalId ? 'goal' : task.visionId ? 'vision' : undefined),
+          originalLocation: metadata?.originalLocation,
+        });
+      }
       dispatch({ type: 'DELETE_TASKS', payload: id });
       emitSync('entity:delete', { entity: 'tasks', id });
       emitSync('activity:create', { type: 'delete', entity: 'tasks', itemId: id });
@@ -319,6 +339,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'ideas', itemId: id });
     },
     deleteIdea: (id) => {
+      const idea = state.ideas.find(i => i.id === id);
+      if (idea) {
+        saveToRecycleBin(idea, 'idea', {
+          parentId: idea.visionId || idea.goalId || idea.taskId,
+          parentType: idea.visionId ? 'vision' : idea.goalId ? 'goal' : idea.taskId ? 'task' : undefined,
+        });
+      }
       dispatch({ type: 'DELETE_IDEAS', payload: id });
       emitSync('entity:delete', { entity: 'ideas', id });
       emitSync('activity:create', { type: 'delete', entity: 'ideas', itemId: id });
@@ -335,6 +362,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'notes', itemId: id });
     },
     deleteNote: (id) => {
+      const note = state.notes.find(n => n.id === id);
+      if (note) {
+        saveToRecycleBin(note, 'note', {
+          parentId: note.visionId || note.goalId || note.taskId,
+          parentType: note.visionId ? 'vision' : note.goalId ? 'goal' : note.taskId ? 'task' : undefined,
+        });
+      }
       dispatch({ type: 'DELETE_NOTES', payload: id });
       emitSync('entity:delete', { entity: 'notes', id });
       emitSync('activity:create', { type: 'delete', entity: 'notes', itemId: id });
@@ -351,6 +385,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'journal', itemId: id });
     },
     deleteJournal: (id) => {
+      const journal = state.journal.find(j => j.id === id);
+      if (journal) {
+        saveToRecycleBin(journal, 'journal', {
+          parentId: journal.linkedVisionId || journal.linkedGoalId || journal.linkedTaskId,
+          parentType: journal.linkedVisionId ? 'vision' : journal.linkedGoalId ? 'goal' : journal.linkedTaskId ? 'task' : undefined,
+        });
+      }
       dispatch({ type: 'DELETE_JOURNAL', payload: id });
       emitSync('entity:delete', { entity: 'journal', id });
       emitSync('activity:create', { type: 'delete', entity: 'journal', itemId: id });
@@ -367,6 +408,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('activity:create', { type: 'update', entity: 'achievements', itemId: id });
     },
     deleteAchievement: (id) => {
+      const achievement = state.achievements.find(a => a.id === id);
+      if (achievement) {
+        saveToRecycleBin(achievement, 'achievement', {
+          parentId: achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId,
+          parentType: achievement.linkedVisionId ? 'vision' : achievement.linkedGoalId ? 'goal' : achievement.linkedTaskId ? 'task' : undefined,
+        });
+      }
       dispatch({ type: 'DELETE_ACHIEVEMENTS', payload: id });
       emitSync('entity:delete', { entity: 'achievements', id });
       emitSync('activity:create', { type: 'delete', entity: 'achievements', itemId: id });

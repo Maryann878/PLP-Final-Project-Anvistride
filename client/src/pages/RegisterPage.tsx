@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Loader2, Eye, EyeOff, Mail, Lock, User, Check, X, ArrowLeft, AlertCircle } from "lucide-react";
 import { registerUser } from "@/api/auth";
 import { getGlobalToast } from "@/lib/toast";
+import { useAuth } from "@/context/AuthContext";
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -16,6 +17,7 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -116,7 +118,8 @@ const RegisterPage: React.FC = () => {
     try {
       const data = await registerUser({ username, email, password });
       if (data?.token) {
-        localStorage.setItem("token", data.token);
+        // Update auth context and then navigate to onboarding
+        await login(data.token);
         navigate("/onboarding"); // redirect to onboarding - the redirect itself is sufficient feedback
       } else {
         throw new Error("Invalid registration response.");

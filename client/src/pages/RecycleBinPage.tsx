@@ -18,13 +18,7 @@ import {
 import { useAppContext } from "@/context/AppContext";
 import { Recycle, RefreshCcw, Trash2, AlertCircle, Eye, Target, CheckSquare2, Lightbulb, StickyNote, BookOpen, Trophy } from "lucide-react";
 import { getGlobalToast } from "@/lib/toast";
-
-type DeletedItem = {
-  id: string;
-  type: "vision" | "goal" | "task" | "idea" | "note" | "journal" | "achievement";
-  data: any;
-  deletedAt: string;
-};
+import { getRecycleBinItems, removeFromRecycleBin, type RecycleItem } from "@/lib/recycleBin";
 
 const typeIcons = {
   vision: Eye,
@@ -47,66 +41,67 @@ const typeBadgeColors = {
 };
 
 export default function RecycleBinPage() {
-  const { addVision, addGoal, addTask, addIdea, addNote, addJournal, addAchievement } = useAppContext();
+  const { addVision, addGoal, addTask, addIdea, addNote, addJournal, addAchievement, goals, visions } = useAppContext();
   
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<DeletedItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<RecycleItem | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Mock deleted items from localStorage (since AppContext doesn't have deletedX arrays yet)
-  const deletedItems = useMemo<DeletedItem[]>(() => {
-    const stored = localStorage.getItem('anvistride-deleted-items');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  }, []);
+  // Get deleted items from recycle bin utility
+  const deletedItems = useMemo<RecycleItem[]>(() => {
+    return getRecycleBinItems();
+  }, [refreshKey]);
 
-  const saveDeletedItems = (items: DeletedItem[]) => {
-    localStorage.setItem('anvistride-deleted-items', JSON.stringify(items));
+  const refreshItems = () => {
+    setRefreshKey(prev => prev + 1);
   };
 
-  const restoreItem = (item: DeletedItem) => {
+  const restoreItem = (item: RecycleItem) => {
     try {
-      // Restore to appropriate context
+      // Restore to appropriate context with relationship preservation
       switch (item.type) {
         case "vision":
-          (addVision as any)(item.data);
+          addVision(item.data);
           break;
         case "goal":
-          (addGoal as any)(item.data);
+          // Restore goal, preserving vision relationship if it exists
+          addGoal(item.data);
           break;
         case "task":
-          (addTask as any)(item.data);
+          // Restore task, preserving goal/vision relationship if it exists
+          // The metadata will help identify where it came from
+          addTask(item.data);
           break;
         case "idea":
-          (addIdea as any)(item.data);
+          addIdea(item.data);
           break;
         case "note":
-          (addNote as any)(item.data);
+          addNote(item.data);
           break;
         case "journal":
-          (addJournal as any)(item.data);
+          addJournal(item.data);
           break;
         case "achievement":
-          (addAchievement as any)(item.data);
+          addAchievement(item.data);
           break;
       }
       
-      // Remove from deleted items
-      const updated = deletedItems.filter(d => d.id !== item.id);
-      saveDeletedItems(updated);
+      // Remove from recycle bin
+      removeFromRecycleBin(item.id);
+      refreshItems();
       
       const toast = getGlobalToast();
+      const locationInfo = item.metadata?.originalLocation 
+        ? ` (restored to ${item.metadata.originalLocation})`
+        : item.metadata?.parentType 
+        ? ` (restored under ${item.metadata.parentType})`
+        : '';
+      
       toast?.({
         title: "Success!",
-        description: `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} restored successfully!`,
-        variant: "success",
+        description: `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} restored successfully${locationInfo}!`,
+        variant: "default",
       });
-      window.location.reload();
     } catch (error) {
       console.error('Restore error:', error);
       const toast = getGlobalToast();
@@ -118,7 +113,7 @@ export default function RecycleBinPage() {
     }
   };
 
-  const deletePermanently = (item: DeletedItem) => {
+  const deletePermanently = (item: RecycleItem) => {
     setItemToDelete(item);
     setShowConfirmDelete(true);
   };
@@ -126,8 +121,8 @@ export default function RecycleBinPage() {
   const confirmPermanentDelete = () => {
     if (!itemToDelete) return;
     
-    const updated = deletedItems.filter(d => d.id !== itemToDelete.id);
-    saveDeletedItems(updated);
+    removeFromRecycleBin(itemToDelete.id);
+    refreshItems();
     
     const toast = getGlobalToast();
     toast?.({
@@ -137,10 +132,27 @@ export default function RecycleBinPage() {
     });
     setShowConfirmDelete(false);
     setItemToDelete(null);
-    window.location.reload();
   };
 
-  const renderItemSummary = (item: DeletedItem) => {
+  const getParentInfo = (item: RecycleItem): string | null => {
+    if (!item.metadata?.parentId || !item.metadata?.parentType) return null;
+    
+    const parentType = item.metadata.parentType;
+    const parentId = item.metadata.parentId;
+    
+    if (parentType === 'goal') {
+      const parent = goals.find(g => g.id === parentId);
+      return parent ? `Goal: ${parent.title}` : null;
+    }
+    if (parentType === 'vision') {
+      const parent = visions.find(v => v.id === parentId);
+      return parent ? `Vision: ${parent.title}` : null;
+    }
+    
+    return `${parentType}: ${parentId}`;
+  };
+
+  const renderItemSummary = (item: RecycleItem) => {
     const data = item.data;
     
     switch (item.type) {
@@ -211,11 +223,11 @@ export default function RecycleBinPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center text-white shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg">
             <Recycle className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent">
               Recycle Bin
             </h1>
             <p className="text-gray-600">Restore deleted items or permanently remove them</p>
@@ -281,6 +293,13 @@ export default function RecycleBinPage() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {renderItemSummary(item)}
+                  {getParentInfo(item) && (
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <p className="text-xs text-gray-500">
+                        <span className="font-medium">From:</span> {getParentInfo(item)}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="pt-4 border-t border-gray-200 flex gap-2">
                   <Button

@@ -76,24 +76,26 @@ const HeroSection: React.FC = () => {
           A productivity platform that combines vision planning, goal setting, task management, idea capture, journaling, and analytics in one place.
         </p>
 
-        {/* CTA Buttons - Matching Stats Style */}
+        {/* CTA Buttons - Enhanced & Improved */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-5 mb-6 sm:mb-8 w-full px-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <Link
             to="/register"
-            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
+            className="relative bg-gradient-to-r from-white/40 via-white/35 to-white/40 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/50 transform transition-all duration-300 hover:scale-[1.05] hover:bg-gradient-to-r hover:from-white/50 hover:via-white/45 hover:to-white/50 hover:shadow-2xl hover:shadow-black/40 hover:border-white/60 active:scale-[0.98] flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600 overflow-hidden no-underline"
           >
-            <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+            <span className="relative z-10 font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
               Start Your Journey Free
             </span>
-            <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:translate-x-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
+            <ArrowRight className="relative z-10 h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:translate-x-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
           </Link>
 
           <Link
             to="/demo"
-            className="bg-white/35 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/40 transform transition-all duration-300 hover:scale-105 hover:bg-white/45 hover:shadow-2xl hover:shadow-black/40 flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
+            className="relative bg-gradient-to-r from-white/40 via-white/35 to-white/40 backdrop-blur-xl px-8 sm:px-10 md:px-14 py-5 sm:py-6 md:py-7 rounded-xl shadow-2xl shadow-black/30 border-[2px] border-white/50 transform transition-all duration-300 hover:scale-[1.05] hover:bg-gradient-to-r hover:from-white/50 hover:via-white/45 hover:to-white/50 hover:shadow-2xl hover:shadow-black/40 hover:border-white/60 active:scale-[0.98] flex items-center justify-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600 overflow-hidden no-underline"
           >
-            <Play className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
-            <span className="font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+            <Play className="relative z-10 h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]" />
+            <span className="relative z-10 font-extrabold text-white text-base sm:text-lg md:text-xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] [text-shadow:_0_2px_8px_rgba(0,0,0,0.8)]">
               Watch Demo
             </span>
           </Link>

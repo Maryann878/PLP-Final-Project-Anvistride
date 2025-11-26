@@ -57,14 +57,15 @@ const Navbar = () => {
             <Link to="/login">Sign in</Link>
           </Button>
           <Button 
-            className="bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-105 transition-all duration-300 font-extrabold px-6 py-2.5 rounded-xl ring-1 ring-white/20 group focus-visible:ring-2 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2" 
+            className="bg-gradient-to-r from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] hover:from-[#7B1DBD] hover:via-[#9B6CF6] hover:to-[#B78BFA] text-white shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/60 hover:scale-[1.05] active:scale-[0.98] transition-all duration-300 font-extrabold px-6 py-2.5 rounded-xl ring-2 ring-white/20 hover:ring-white/30 group focus-visible:ring-2 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2 relative overflow-hidden" 
             asChild
           >
-            <Link to="/register" className="flex items-center gap-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-              <span className="font-extrabold">Get started</span>
+            <Link to="/register" className="flex items-center gap-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] relative z-10 no-underline">
+              <span className="font-bold">Get started</span>
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
             </Link>
           </Button>
         </div>

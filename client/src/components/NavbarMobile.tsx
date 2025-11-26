@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useNotifications } from "@/context/NotificationContext";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -12,6 +14,9 @@ const navLinks = [
 
 const NavbarMobile = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   useEffect(() => {
     if (open) {
@@ -39,6 +44,39 @@ const NavbarMobile = () => {
     }
   };
 
+  // For logged-in users, show simplified navbar (logo + notification only)
+  if (user) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-sm md:hidden">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center">
+            <img
+              src="/Anvistride_logo.png"
+              alt="Anvistride Logo"
+              className="h-12 w-auto"
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              navigate('/app/notifications');
+            }}
+            className="relative w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-all duration-200 active:scale-95"
+            title="Notifications"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold animate-pulse">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </nav>
+    );
+  }
+
+  // For non-logged-in users, show full landing page navbar
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-sm md:hidden">
       <div className="flex items-center justify-between px-4 py-3">
@@ -54,25 +92,27 @@ const NavbarMobile = () => {
           />
         </Link>
 
-        <button
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Toggle navigation menu"
-          className="relative rounded-lg p-2 text-gray-700 transition-all duration-200 hover:bg-purple-50 hover:text-purple-600 active:scale-95"
-        >
-          <span className="sr-only">Toggle menu</span>
-          <div className="relative w-6 h-6">
-            <Menu 
-              className={`absolute inset-0 h-6 w-6 transition-all duration-300 ${
-                open ? "opacity-0 rotate-90" : "opacity-100 rotate-0"
-              }`}
-            />
-            <X 
-              className={`absolute inset-0 h-6 w-6 transition-all duration-300 ${
-                open ? "opacity-100 rotate-0" : "opacity-0 -rotate-90"
-              }`}
-            />
-          </div>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label="Toggle navigation menu"
+            className="relative rounded-lg p-2 text-gray-700 transition-all duration-200 hover:bg-purple-50 hover:text-purple-600 active:scale-95"
+          >
+            <span className="sr-only">Toggle menu</span>
+            <div className="relative w-6 h-6">
+              <Menu 
+                className={`absolute inset-0 h-6 w-6 transition-all duration-300 ${
+                  open ? "opacity-0 rotate-90" : "opacity-100 rotate-0"
+                }`}
+              />
+              <X 
+                className={`absolute inset-0 h-6 w-6 transition-all duration-300 ${
+                  open ? "opacity-100 rotate-0" : "opacity-0 -rotate-90"
+                }`}
+              />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -121,7 +161,7 @@ const NavbarMobile = () => {
               asChild
             >
               <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                <span className="font-extrabold">Get started</span>
+                <span className="font-bold">Get started</span>
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>

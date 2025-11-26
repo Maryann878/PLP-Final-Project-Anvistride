@@ -273,22 +273,33 @@ export default function JournalPage() {
                 <BookOpen className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-1">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
                   Daily Journal
                 </h1>
-                <p className="text-gray-600 text-sm font-medium">Reflect on your day and track your mood</p>
+                <p className="text-gray-500 text-sm font-medium">
+                  Reflect on your day and track your mood
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={openCreateModal} 
-              className="flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <PlusCircle className="h-5 w-5" />
-              New Entry
-            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Journal Statistics - Compact */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200/50">
+          <BookOpen className="h-4 w-4 text-blue-600" />
+          <span className="text-lg font-bold text-gray-900">{journal.length}</span>
+          <span className="text-xs text-gray-600 font-medium">Total Entries</span>
+        </div>
+        <Button 
+          onClick={openCreateModal} 
+          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <PlusCircle className="h-5 w-5" />
+          New Entry
+        </Button>
+      </div>
 
       {/* Filters & Search - Only show when items exist */}
       {journal.length > 0 && (
@@ -409,74 +420,133 @@ export default function JournalPage() {
         <div className="space-y-6">
           {filteredEntries.map((entry: any) => {
             const isExpanded = expandedContent === entry.id;
-            const displayContent = isExpanded ? entry.content : (entry.content || "").substring(0, 200) + "...";
+            const displayContent = isExpanded ? entry.content : (entry.content || "").substring(0, 100) + "...";
+
+            const formatDate = (dateString: string) => {
+              const date = new Date(dateString);
+              const now = new Date();
+              const diffTime = Math.abs(now.getTime() - date.getTime());
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 0) return "Today";
+              if (diffDays === 1) return "Yesterday";
+              if (diffDays < 7) return `${diffDays}d ago`;
+              if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+            };
 
             return (
-              <Card key={entry.id} className={`${glassClass} hover:shadow-xl transition-all duration-300 border-purple-200/30 relative overflow-hidden`}>
+              <Card key={entry.id} className={`${glassClass} hover:shadow-lg transition-all duration-300 border border-gray-200/80 overflow-hidden flex flex-col`}>
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-teal-500"></div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg font-bold text-gray-900">{entry.title || "Untitled Entry"}</CardTitle>
-                      <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(entry.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</span>
-                      </div>
+                {/* Header Section */}
+                <CardHeader className="pb-3 px-5 pt-5">
+                  <div className="flex justify-between items-start gap-2 sm:gap-3">
+                    <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 flex-1 leading-tight pr-2">{entry.title || "Untitled Entry"}</CardTitle>
+                    <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => openEditModal(entry)}
+                        className="h-8 w-8 p-0 hover:bg-gray-100 text-gray-600 hover:text-gray-700"
+                        title="Edit Entry"
+                      >
+                        <Edit3 size={16} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => handleDelete(entry.id)}
+                        className="h-8 w-8 p-0 hover:bg-red-50 text-red-600 hover:text-red-700"
+                        title="Delete Entry"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
                     </div>
-                    <Badge className={moodColors[entry.mood as keyof typeof moodColors] || "bg-gray-100 text-gray-700"}>
+                  </div>
+                  
+                  {/* Badges Row */}
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <Badge className={`${moodColors[entry.mood as keyof typeof moodColors] || "bg-gray-100 text-gray-700"} text-xs font-semibold px-2.5 py-1 rounded-full`}>
                       <span className="mr-1">{moodIcons[entry.mood as keyof typeof moodIcons]}</span>
                       {entry.mood}
                     </Badge>
+                    <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full border-blue-200 text-blue-700 bg-blue-50">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div 
-                    className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap cursor-pointer hover:text-purple-600 p-4 rounded-lg bg-purple-50/50 border-l-4 border-purple-500"
-                    onClick={() => toggleContent(entry.id)}
-                  >
-                    {displayContent}
-                    {entry.content && entry.content.length > 200 && (
-                      <span className="text-purple-600 font-medium ml-1">
-                        {isExpanded ? " Show less" : " Show more"}
-                      </span>
-                    )}
-                  </div>
 
-                  {/* Tags */}
-                  {entry.tags && entry.tags.length > 0 && (
+                {/* Description */}
+                <CardContent className="px-5 pt-0 pb-4 flex-1">
+                  {entry.content && (
+                    <div 
+                      className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap line-clamp-3 p-4 rounded-lg bg-purple-50/50 border-l-4 border-purple-500"
+                    >
+                      {displayContent}
+                      {entry.content.length > 100 && (
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          onClick={() => toggleContent(entry.id)} 
+                          className="h-auto p-0 ml-1 text-purple-600 font-medium text-sm"
+                        >
+                          {isExpanded ? "Show Less" : "...Read More"}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  {!entry.content && (
+                    <p className="text-sm text-gray-400 italic">No content</p>
+                  )}
+                </CardContent>
+
+                {/* Tags */}
+                {entry.tags && entry.tags.length > 0 && (
+                  <div className="px-5 pb-4">
                     <div className="flex flex-wrap gap-2">
                       {entry.tags.map((tag: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                        <Badge key={index} variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full text-purple-600 border-purple-200 bg-purple-50">
                           {tag}
                         </Badge>
                       ))}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Linked Items */}
-                  {(entry.linkedVisionId || entry.linkedGoalId || entry.linkedTaskId) && (
-                    <div className="text-xs text-gray-500 p-3 rounded-lg bg-teal-50 border border-teal-200">
-                      {entry.linkedVisionId && <p>Vision: {visions.find((v: any) => v.id === entry.linkedVisionId)?.title || "Linked"}</p>}
-                      {entry.linkedGoalId && <p>Goal: {goals.find((g: any) => g.id === entry.linkedGoalId)?.title || "Linked"}</p>}
-                      {entry.linkedTaskId && <p>Task: {tasks.find((t: any) => t.id === entry.linkedTaskId)?.title || "Linked"}</p>}
+                {/* Linked Items */}
+                {(entry.linkedVisionId || entry.linkedGoalId || entry.linkedTaskId) && (
+                  <div className="px-5 pb-4">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {entry.linkedVisionId && (
+                        <span className="px-2 py-1 rounded bg-purple-50 border border-purple-200 text-purple-700">
+                          Vision: {visions.find((v: any) => v.id === entry.linkedVisionId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {entry.linkedGoalId && (
+                        <span className="px-2 py-1 rounded bg-teal-50 border border-teal-200 text-teal-700">
+                          Goal: {goals.find((g: any) => g.id === entry.linkedGoalId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {entry.linkedTaskId && (
+                        <span className="px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700">
+                          Task: {tasks.find((t: any) => t.id === entry.linkedTaskId)?.title || "Linked"}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </CardContent>
-                <CardFooter className="pt-4 border-t border-gray-200 flex justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditModal(entry)}>
-                    <Edit3 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleDelete(entry.id)}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
-                </CardFooter>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 mx-5"></div>
+
+                {/* Date at Bottom */}
+                <div className="px-5 pt-3 pb-2">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="font-medium">{formatDate(entry.createdAt)}</span>
+                  </div>
+                </div>
               </Card>
             );
           })}

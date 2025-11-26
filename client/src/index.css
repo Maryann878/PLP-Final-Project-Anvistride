@@ -630,9 +630,84 @@
     }
   }
 
-  * { cursor: default; }
-  button, a, [role="button"], [tabindex], [contenteditable], input, textarea, select { cursor: pointer; }
-  input, textarea { cursor: text; }
+  /* CRITICAL: Prevent text cursor on all non-input elements */
+  /* Images, SVGs, and media should NEVER have text cursor */
+  img, svg, picture, video, canvas, iframe, object, embed {
+    cursor: default !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  
+  /* All text and layout elements should have default cursor (NOT text cursor) */
+  div, span, p, h1, h2, h3, h4, h5, h6, section, article, aside, header, footer, nav, main, 
+  ul, ol, li, blockquote, pre, code, table, thead, tbody, tfoot, tr, td, th,
+  label, legend, fieldset, dl, dt, dd, em, strong, small, sub, sup, mark, del, ins {
+    cursor: default !important;
+  }
+  
+  /* Images inside clickable elements should have pointer */
+  a img, button img, [role="button"] img, [tabindex]:not([tabindex="-1"]) img,
+  a svg, button svg, [role="button"] svg, a picture, button picture {
+    cursor: pointer !important;
+  }
+  
+  /* Pointer cursor for interactive elements */
+  button, a, [role="button"], select {
+    cursor: pointer !important;
+  }
+  
+  /* Text cursor ONLY for actual input fields - MUST be after other rules */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  textarea {
+    cursor: text !important;
+  }
+  
+  /* Only explicitly contenteditable elements get text cursor */
+  [contenteditable="true"] {
+    cursor: text !important;
+  }
+  
+  /* All other contenteditable should be default */
+  [contenteditable]:not([contenteditable="true"]),
+  [contenteditable="false"] {
+    cursor: default !important;
+  }
+  
+  /* Pointer for other input types (checkbox, radio, etc.) */
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="file"],
+  input[type="image"],
+  input[type="color"],
+  input[type="range"] {
+    cursor: pointer !important;
+  }
+  
+  /* Pointer for tabindex elements that are not inputs */
+  [tabindex]:not([tabindex="-1"]):not(input):not(textarea):not(select) {
+    cursor: pointer !important;
+  }
+  
+  /* Override any Tailwind or other utility classes that might set cursor */
+  [class*="cursor-text"]:not(input):not(textarea):not([contenteditable="true"]) {
+    cursor: default !important;
+  }
 
   button:focus, input:focus, textarea:focus, select:focus, a:focus, [tabindex]:focus, [contenteditable]:focus {
     outline: 2px solid var(--color-primary);
@@ -1282,6 +1357,13 @@
     color: #9ca3af !important; /* gray-400 */
     opacity: 1 !important;
   }
+
+  /* Hide bottom bar when modal is open */
+  body[data-modal-open] .bottom-bar-nav {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 /* tiny helper in case some utilities are missing */
@@ -1290,6 +1372,54 @@
   color: black !important;
   padding: 8px;
   border: 2px solid red;
+}
+
+/* FINAL OVERRIDE: Ensure text cursor NEVER appears on non-input elements */
+/* This must be at the end to override everything */
+*:not(input):not(textarea):not([contenteditable="true"]) {
+  cursor: default !important;
+}
+
+/* Explicitly override for common elements that browsers might treat as text */
+header *, footer *, nav *, section *, article *, aside *, main *,
+div:not(input):not(textarea), span:not(input):not(textarea),
+h1, h2, h3, h4, h5, h6, p, li, td, th, label, legend {
+  cursor: default !important;
+}
+
+/* Images and media - absolute override */
+img, svg, picture, video, canvas, iframe {
+  cursor: default !important;
+}
+
+/* Only actual input fields get text cursor */
+input[type="text"]:not([readonly]),
+input[type="email"]:not([readonly]),
+input[type="password"]:not([readonly]),
+input[type="search"]:not([readonly]),
+input[type="url"]:not([readonly]),
+input[type="tel"]:not([readonly]),
+input[type="number"]:not([readonly]),
+input[type="date"]:not([readonly]),
+input[type="time"]:not([readonly]),
+input[type="datetime-local"]:not([readonly]),
+textarea:not([readonly]),
+[contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* Interactive elements get pointer */
+a, button, [role="button"], select,
+input[type="checkbox"], input[type="radio"], input[type="button"],
+input[type="submit"], input[type="reset"], input[type="file"],
+input[type="image"], input[type="color"], input[type="range"],
+[tabindex]:not([tabindex="-1"]):not(input):not(textarea):not(select) {
+  cursor: pointer !important;
+}
+
+/* Images inside links/buttons get pointer */
+a img, button img, [role="button"] img, a svg, button svg {
+  cursor: pointer !important;
 }
 
 

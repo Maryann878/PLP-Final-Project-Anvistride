@@ -46,7 +46,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
             disabled && "cursor-not-allowed opacity-50",
             checked
-              ? "bg-gradient-to-br from-green-500 to-green-600 border-green-600 text-white shadow-md"
+              ? "bg-gradient-to-br from-purple-600 to-purple-700 border-purple-700 text-white shadow-md"
               : "border-gray-300 bg-white hover:border-purple-400 hover:bg-purple-50/50",
             className
           )}

@@ -23,8 +23,8 @@ const features = [
   {
     icon: <MessageCircle className="h-6 w-6" />,
     title: "Community Chat",
-    desc: "Connect with others in group chat or find accountability partners.",
-    tags: ["Group Chat", "Private Messaging"],
+    desc: "Connect with others in group chat or find accountability partners with FamzStride.",
+    tags: ["Group Chat", "Private Messaging", "FamzStride"],
   },
   {
     icon: <Lightbulb className="h-6 w-6" />,

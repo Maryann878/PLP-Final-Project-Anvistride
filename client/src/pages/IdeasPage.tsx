@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Lightbulb, Edit3, Trash2, ChevronDown, ChevronUp, PlusCircle, Plus, X, CheckCircle, Play, Pause, Flag } from "lucide-react";
+import { Search, Filter, Lightbulb, Edit3, Trash2, ChevronDown, ChevronUp, PlusCircle, Plus, X, CheckCircle, Play, Pause, Flag, Calendar } from "lucide-react";
 import { useAppContext } from "@/context/AppContext";
 import { getGlobalToast } from "@/lib/toast";
 import type { IdeaType } from "@/types";
@@ -245,22 +245,33 @@ export default function IdeasPage() {
                 <Lightbulb className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 via-yellow-500 to-purple-500 bg-clip-text text-transparent mb-1">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
                   Your Ideas
                 </h1>
-                <p className="text-gray-600 text-sm font-medium">Capture and organize spontaneous inspiration</p>
+                <p className="text-gray-500 text-sm font-medium">
+                  Capture and organize spontaneous inspiration
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={openCreateModal} 
-              className="flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <PlusCircle className="h-5 w-5" />
-              Capture Idea
-            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Ideas Statistics - Compact */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-50 to-purple-50 border border-yellow-200/50">
+          <Lightbulb className="h-4 w-4 text-yellow-600" />
+          <span className="text-lg font-bold text-gray-900">{ideas.length}</span>
+          <span className="text-xs text-gray-600 font-medium">Total Ideas</span>
+        </div>
+        <Button 
+          onClick={openCreateModal} 
+          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <PlusCircle className="h-5 w-5" />
+          Capture Idea
+        </Button>
+      </div>
 
       {/* Filters & Search - Only show when items exist */}
       {ideas.length > 0 && (
@@ -364,15 +375,18 @@ export default function IdeasPage() {
       {/* Ideas Grid or Empty State */}
       {filteredIdeas.length === 0 && ideas.length === 0 ? (
         <Card className={glassClass}>
-          <CardContent className="p-12 text-center">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-100 to-teal-100 flex items-center justify-center">
-              <Lightbulb className="h-12 w-12 text-purple-600" />
+          <CardContent className="p-12 sm:p-16 text-center">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-purple-100 dark:from-yellow-900/30 dark:to-purple-900/30 flex items-center justify-center shadow-lg shadow-yellow-500/10 animate-pulse-slow">
+              <Lightbulb className="h-14 w-14 sm:h-16 sm:w-16 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">No Ideas Yet</h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Ideas Yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
               Capture your spontaneous ideas and organize them for future implementation.
             </p>
-            <Button onClick={openCreateModal} className="bg-gradient-to-r from-purple-600 to-teal-500 text-white px-8 py-3 rounded-xl shadow-lg">
+            <Button 
+              onClick={openCreateModal} 
+              className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-purple-500 hover:from-yellow-600 hover:via-yellow-500 hover:to-purple-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+            >
               Capture Your First Idea
             </Button>
           </CardContent>
@@ -388,135 +402,193 @@ export default function IdeasPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredIdeas.map((idea: any) => {
             const isExpanded = expandedDesc === idea.id;
-            const displayDesc = isExpanded ? idea.description : (idea.description || "").substring(0, 150) + "...";
+            const displayDesc = isExpanded ? idea.description : (idea.description || "").substring(0, 100) + "...";
             const isImplemented = idea.status === "Implemented";
 
+            const formatDate = (dateString: string) => {
+              const date = new Date(dateString);
+              const now = new Date();
+              const diffTime = Math.abs(now.getTime() - date.getTime());
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 0) return "Today";
+              if (diffDays === 1) return "Yesterday";
+              if (diffDays < 7) return `${diffDays}d ago`;
+              if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+            };
+
             return (
-              <Card key={idea.id} className={`${glassClass} hover:shadow-xl transition-all duration-300 ${isImplemented ? 'border-purple-400/50 bg-gradient-to-br from-purple-50/50 to-teal-50/30' : 'border-purple-200/30'}`}>
+              <Card key={idea.id} className={`${glassClass} hover:shadow-lg transition-all duration-300 border border-gray-200/80 overflow-hidden flex flex-col ${isImplemented ? 'bg-gradient-to-br from-purple-50/30 to-teal-50/20' : ''}`}>
                 {isImplemented && (
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-teal-500"></div>
                 )}
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg font-bold text-gray-900">{idea.title || "Untitled Idea"}</CardTitle>
+                {/* Header Section */}
+                <CardHeader className="pb-3 px-5 pt-5">
+                  <div className="flex justify-between items-start gap-2 sm:gap-3">
+                    <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 flex-1 leading-tight pr-2">{idea.title || "Untitled Idea"}</CardTitle>
+                    <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => openEditModal(idea)}
+                        className="h-8 w-8 p-0 hover:bg-gray-100 text-gray-600 hover:text-gray-700"
+                        title="Edit Idea"
+                      >
+                        <Edit3 size={16} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => handleDelete(idea.id)}
+                        className="h-8 w-8 p-0 hover:bg-red-50 text-red-600 hover:text-red-700"
+                        title="Delete Idea"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{new Date(idea.createdAt).toLocaleDateString()}</span>
-                    {idea.implementedAt && <span className="text-purple-600 font-medium">Implemented: {new Date(idea.implementedAt).toLocaleDateString()}</span>}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {idea.description && (
-                    <p 
-                      className="text-gray-600 text-sm cursor-pointer hover:text-purple-600"
-                      onClick={() => toggleDesc(idea.id)}
-                    >
-                      {displayDesc}
-                      {idea.description.length > 150 && (
-                        <span className="text-purple-600 font-medium ml-1">
-                          {isExpanded ? " Show less" : " Show more"}
-                        </span>
-                      )}
-                    </p>
-                  )}
-
-                  {/* Badges */}
-                  <div className="flex gap-2 flex-wrap">
-                    <Badge className={badgeVariants.status[idea.status as keyof typeof badgeVariants.status] || "bg-gray-100 text-gray-700"}>
+                  
+                  {/* Badges Row */}
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <Badge className={`${badgeVariants.status[idea.status as keyof typeof badgeVariants.status] || "bg-gray-100 text-gray-700"} text-xs font-semibold px-2.5 py-1 rounded-full`}>
                       {idea.status}
                     </Badge>
                     {idea.priority && (
-                      <Badge className={badgeVariants.priority[idea.priority as keyof typeof badgeVariants.priority] || "bg-gray-100 text-gray-700"}>
-                        {idea.priority} Priority
+                      <Badge className={`${badgeVariants.priority[idea.priority as keyof typeof badgeVariants.priority] || "bg-gray-100 text-gray-700"} text-xs font-semibold px-2.5 py-1 rounded-full`}>
+                        {idea.priority}
                       </Badge>
                     )}
                     {idea.category && (
-                      <Badge variant="outline" className="text-purple-600 border-purple-200">
+                      <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full text-amber-600 border-amber-200 bg-amber-50">
                         {idea.category}
                       </Badge>
                     )}
+                    {idea.implementedAt && (
+                      <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 rounded-full text-purple-600 border-purple-200 bg-purple-50">
+                        Implemented: {new Date(idea.implementedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </Badge>
+                    )}
                   </div>
+                </CardHeader>
 
-                  {/* Implementation Notes */}
-                  {idea.implementationNotes && (
+                {/* Description */}
+                <CardContent className="px-5 pt-0 pb-4 flex-1">
+                  {idea.description && (
+                    <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
+                      {displayDesc}
+                      {idea.description.length > 100 && (
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          onClick={() => toggleDesc(idea.id)} 
+                          className="h-auto p-0 ml-1 text-amber-600 font-medium text-sm"
+                        >
+                          {isExpanded ? "Show Less" : "...Read More"}
+                        </Button>
+                      )}
+                    </p>
+                  )}
+                  {!idea.description && (
+                    <p className="text-sm text-gray-400 italic">No description</p>
+                  )}
+                </CardContent>
+
+                {/* Implementation Notes */}
+                {idea.implementationNotes && (
+                  <div className="px-5 pb-4">
                     <div className="p-3 rounded-lg bg-purple-50 border border-purple-200">
                       <p className="text-xs font-semibold text-purple-700 mb-1">Implementation Notes:</p>
                       <p className="text-sm text-gray-700">{idea.implementationNotes}</p>
                     </div>
-                  )}
-
-                  {/* Linked Items */}
-                  {(idea.linkedVisionId || idea.linkedGoalId || idea.linkedTaskId) && (
-                    <div className="text-xs text-gray-500 space-y-1">
-                      {idea.linkedVisionId && <p>Vision: {visions.find((v: any) => v.id === idea.linkedVisionId)?.title || "Linked"}</p>}
-                      {idea.linkedGoalId && <p>Goal: {goals.find((g: any) => g.id === idea.linkedGoalId)?.title || "Linked"}</p>}
-                      {idea.linkedTaskId && <p>Task: {tasks.find((t: any) => t.id === idea.linkedTaskId)?.title || "Linked"}</p>}
-                    </div>
-                  )}
-
-                  {/* Quick Status Actions */}
-                  <div className="flex gap-2">
-                    {idea.status === "Draft" && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleStatusChange(idea.id, "Exploring")}
-                        className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50"
-                      >
-                        <Play className="h-3 w-3 mr-1" />
-                        Start Exploring
-                      </Button>
-                    )}
-                    {idea.status === "Exploring" && (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleStatusChange(idea.id, "Ready")}
-                          className="flex-1 text-green-600 border-green-200 hover:bg-green-50"
-                        >
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Mark Ready
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleStatusChange(idea.id, "Draft")}
-                          className="flex-1 text-gray-600 border-gray-200 hover:bg-gray-50"
-                        >
-                          <Pause className="h-3 w-3 mr-1" />
-                          Pause
-                        </Button>
-                      </>
-                    )}
-                    {idea.status === "Ready" && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleStatusChange(idea.id, "Implemented")}
-                        className="flex-1 text-purple-600 border-purple-200 hover:bg-purple-50"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Mark Implemented
-                      </Button>
-                    )}
                   </div>
-                </CardContent>
-                <CardFooter className="pt-4 border-t border-gray-200 flex justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditModal(idea)}>
-                    <Edit3 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleDelete(idea.id)}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
-                </CardFooter>
+                )}
+
+                {/* Linked Items */}
+                {(idea.linkedVisionId || idea.linkedGoalId || idea.linkedTaskId) && (
+                  <div className="px-5 pb-4">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {idea.linkedVisionId && (
+                        <span className="px-2 py-1 rounded bg-purple-50 border border-purple-200 text-purple-700">
+                          Vision: {visions.find((v: any) => v.id === idea.linkedVisionId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {idea.linkedGoalId && (
+                        <span className="px-2 py-1 rounded bg-teal-50 border border-teal-200 text-teal-700">
+                          Goal: {goals.find((g: any) => g.id === idea.linkedGoalId)?.title || "Linked"}
+                        </span>
+                      )}
+                      {idea.linkedTaskId && (
+                        <span className="px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700">
+                          Task: {tasks.find((t: any) => t.id === idea.linkedTaskId)?.title || "Linked"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Status Actions */}
+                {(idea.status === "Draft" || idea.status === "Exploring" || idea.status === "Ready") && (
+                  <div className="px-5 pb-4">
+                    <div className="flex gap-2">
+                      {idea.status === "Draft" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleStatusChange(idea.id, "Exploring")}
+                          className="flex-1 text-xs font-medium border-blue-200 text-blue-600 hover:bg-blue-50 h-9"
+                        >
+                          <Play className="h-3.5 w-3.5 mr-1.5" />
+                          Start Exploring
+                        </Button>
+                      )}
+                      {idea.status === "Exploring" && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleStatusChange(idea.id, "Ready")}
+                            className="flex-1 text-xs font-medium border-green-200 text-green-600 hover:bg-green-50 h-9"
+                          >
+                            <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                            Mark Ready
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleStatusChange(idea.id, "Draft")}
+                            className="flex-1 text-xs font-medium border-gray-200 text-gray-600 hover:bg-gray-50 h-9"
+                          >
+                            <Pause className="h-3.5 w-3.5 mr-1.5" />
+                            Pause
+                          </Button>
+                        </>
+                      )}
+                      {idea.status === "Ready" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleStatusChange(idea.id, "Implemented")}
+                          className="flex-1 text-xs font-medium border-purple-200 text-purple-600 hover:bg-purple-50 h-9"
+                        >
+                          <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                          Mark Implemented
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 mx-5"></div>
+
+                {/* Date at Bottom */}
+                <div className="px-5 pt-3 pb-2">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="font-medium">{formatDate(idea.createdAt)}</span>
+                  </div>
+                </div>
               </Card>
             );
           })}

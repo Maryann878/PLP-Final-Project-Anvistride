@@ -5,7 +5,7 @@ const features = [
   { 
     icon: <MessageCircle className="h-5 w-5" />, 
     title: "Real-time Chat", 
-    desc: "Connect with the community in group chat or find accountability partners through private messaging. Stay motivated together." 
+    desc: "Connect with the community in group chat or find accountability partners through private messaging with FamzStride. Stay motivated together." 
   },
   { 
     icon: <Wifi className="h-5 w-5" />, 

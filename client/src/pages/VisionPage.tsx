@@ -31,7 +31,6 @@ import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getGlobalToast } from "@/lib/toast";
-import BackButton from "@/components/BackButton";
 import {
   Search,
   Filter,
@@ -554,7 +553,7 @@ export default function VisionPage() {
   const hasChanges = progressFormData.progress !== initialProgress || progressFormData.updateText.trim().length > 0;
   const canSave = hasChanges && progressFormData.updateText.trim().length > 0;
 
-  const glassClass = "bg-white border border-gray-200/80 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl";
+  const glassClass = "backdrop-blur-xl bg-white/90 border border-gray-200/60 shadow-2xl shadow-gray-900/10 rounded-2xl ring-1 ring-white/50";
 
   return (
     <div className="space-y-8 p-4 md:p-6">
@@ -567,80 +566,115 @@ export default function VisionPage() {
                 <Eye className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent mb-1">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
                   Your Visions
                 </h1>
-                <p className="text-gray-600 text-xs sm:text-sm font-medium">Define your long-term aspirations and dreams</p>
+                <p className="text-gray-500 text-sm font-medium">
+                  Define your long-term aspirations and dreams
+                </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <BackButton variant="ghost" showText={false} className="md:hidden" />
-              <Button 
-                onClick={openCreateModal} 
-                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:shadow-md hover:shadow-purple-500/25 transition-all duration-300 flex-1 sm:flex-initial font-semibold"
-              >
-                <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5" /> 
-                <span className="hidden sm:inline">New Vision</span>
-                <span className="sm:hidden">New</span>
-              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* SEARCH & FILTERS */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex flex-1 items-center gap-2">
-          <Input
-            placeholder="Search visions..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-          <Button
-            variant="outline"
-            onClick={() => setShowFilters(prev => !prev)}
-            className="flex items-center gap-1"
-          >
-            <Filter size={16} /> Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
-          </Button>
+      {/* Vision Statistics - Compact */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200/50">
+          <Eye className="h-4 w-4 text-purple-600" />
+          <span className="text-lg font-bold text-gray-900">{visionsWithProgress.length}</span>
+          <span className="text-xs text-gray-600 font-medium">Total Visions</span>
         </div>
-
-        {showFilters && (
-          <div className="flex flex-wrap gap-4 mt-2 md:mt-0">
-            <Select value={selectedStatus} onValueChange={val => setSelectedStatus(val)}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                {statusOptions.map(status => (
-                  <SelectItem key={status} value={status}>{status}</SelectItem>
-                ))}
-                <SelectItem value="Accomplished">Accomplished</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedPriority} onValueChange={val => setSelectedPriority(val)}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                {priorityOptions.map(priority => (
-                  <SelectItem key={priority} value={priority}>{priority}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <Button 
+          onClick={openCreateModal} 
+          className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:shadow-md hover:shadow-purple-500/25 transition-all duration-300 font-semibold"
+        >
+          <PlusCircle className="h-5 w-5" /> 
+          New Vision
+        </Button>
       </div>
 
-      {/* VISIONS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-        {filteredVisions.length === 0 ? (
-          <p className="text-center col-span-full text-gray-500">No visions found.</p>
-        ) : (
-          filteredVisions.map(vision => {
+      {/* SEARCH & FILTERS - Only show when there are visions */}
+      {visionsWithProgress.length > 0 && (
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-1 items-center gap-2">
+            <Input
+              placeholder="Search visions..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(prev => !prev)}
+              className="flex items-center gap-1"
+            >
+              <Filter size={16} /> Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+            </Button>
+          </div>
+
+          {showFilters && (
+            <div className="flex flex-wrap gap-4 mt-2 md:mt-0">
+              <Select value={selectedStatus} onValueChange={val => setSelectedStatus(val)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  {statusOptions.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                  <SelectItem value="Accomplished">Accomplished</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedPriority} onValueChange={val => setSelectedPriority(val)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  {priorityOptions.map(priority => (
+                    <SelectItem key={priority} value={priority}>{priority}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* VISIONS GRID OR EMPTY STATE */}
+      {filteredVisions.length === 0 && visionsWithProgress.length === 0 ? (
+        <Card className={glassClass}>
+          <CardContent className="p-12 sm:p-16 text-center">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-100 via-purple-50 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center shadow-lg shadow-purple-500/10 animate-pulse-slow">
+              <Eye className="h-14 w-14 sm:h-16 sm:w-16 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Visions Yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
+              Create your first vision to define your long-term aspirations and set the direction for your goals.
+            </p>
+            <Button 
+              onClick={openCreateModal} 
+              className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+            >
+              Create Your First Vision
+            </Button>
+          </CardContent>
+        </Card>
+      ) : filteredVisions.length === 0 ? (
+        <Card className={glassClass}>
+          <CardContent className="p-12 sm:p-16 text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+              <Eye className="h-10 w-10 text-gray-400 dark:text-gray-500" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">No Visions Match Your Filters</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Try adjusting your search criteria or clear the filters.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+          {filteredVisions.map(vision => {
             const formatDate = (dateString?: string) => {
               if (!dateString) return 'N/A';
               const date = new Date(dateString);
@@ -800,9 +834,9 @@ export default function VisionPage() {
                 )}
               </Card>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* CREATE / EDIT MODAL */}
       <Dialog open={showModal} onOpenChange={(open) => {
@@ -810,7 +844,7 @@ export default function VisionPage() {
           handleCloseCreateModal();
         }
       }}>
-        <DialogContent className="backdrop-blur-xl bg-white/95 border-2 border-purple-200/60 shadow-2xl shadow-purple-900/20 rounded-3xl max-w-2xl mx-auto max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent className="backdrop-blur-xl bg-white/95 border-2 border-purple-200/60 shadow-2xl shadow-purple-900/20 rounded-2xl sm:rounded-3xl max-w-2xl mx-auto max-h-[90vh] sm:max-h-[90vh] overflow-y-auto p-0 mx-2 sm:mx-4 md:mx-auto" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 p-6 rounded-t-3xl">
             <DialogHeader className="text-left">
               <div className="flex items-center gap-4 mb-3">
@@ -830,7 +864,7 @@ export default function VisionPage() {
               </div>
             </DialogHeader>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-6 p-6 pt-8">
+          <form onSubmit={handleSubmit} className="space-y-6 p-4 sm:p-6 pt-6 sm:pt-8">
             <div className="space-y-2.5">
               <Label htmlFor="vision-title" className="text-sm font-bold text-gray-900 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-600 to-teal-500"></span>
@@ -895,7 +929,7 @@ export default function VisionPage() {
                 </Select>
               </div>
             </div>
-            <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2 border-gray-100 mt-6">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t-2 border-gray-100 mt-4 sm:mt-6 pb-2 sm:pb-0">
               <Button 
                 type="button"
                 variant="outline" 
@@ -956,7 +990,7 @@ export default function VisionPage() {
           setEditProgressText("");
         }
       }}>
-        <DialogContent className={`${glassClass} rounded-2xl max-w-3xl mx-auto max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-0 mx-2 sm:mx-4 md:mx-auto`}>
+        <DialogContent className={`${glassClass} rounded-2xl max-w-3xl mx-auto max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-0 mx-2 sm:mx-4 md:mx-auto`} style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           {selectedVisionForHistory && selectedVisionForHistory.progressHistory && selectedVisionForHistory.progressHistory.length > 0 && (
             <>
               <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-purple-500 p-4 sm:p-5 md:p-6 rounded-t-2xl sticky top-0 z-10">
@@ -1144,7 +1178,7 @@ export default function VisionPage() {
           setInitialProgress(0);
         }
       }}>
-        <DialogContent className={`${glassClass} rounded-2xl sm:rounded-3xl max-w-2xl mx-auto max-h-[90vh] sm:max-h-[90vh] overflow-y-auto p-0 mx-2 sm:mx-4 md:mx-auto`}>
+        <DialogContent className={`${glassClass} rounded-2xl sm:rounded-3xl max-w-2xl mx-auto max-h-[90vh] sm:max-h-[90vh] overflow-y-auto p-0 mx-2 sm:mx-4 md:mx-auto`} style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 p-4 sm:p-5 md:p-6 rounded-t-2xl sm:rounded-t-3xl sticky top-0 z-10">
             <DialogHeader className="text-left">
@@ -1353,6 +1387,17 @@ export default function VisionPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Mobile FAB */}
+      {isMobile && (
+        <button 
+          onClick={openCreateModal}
+          className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-2xl hover:shadow-xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110"
+          aria-label="Create new vision"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
     </div>
   );
 }
