@@ -61,7 +61,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   // Load messages for a specific chat
-  const loadMessages = useCallback(async (chatId: string) => {
+  // Optionally supports pagination, but defaults to loading all messages (backward compatible)
+  const loadMessages = useCallback(async (chatId: string, options?: { limit?: number; usePagination?: boolean }) => {
     // Only load messages if user is authenticated
     if (!user) {
       setMessages([]);
@@ -69,8 +70,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     try {
-      const { messages: chatMessages } = await chatAPI.getChatMessages(chatId);
-      setMessages(chatMessages || []);
+      // If usePagination is true, use pagination (default limit: 50)
+      // Otherwise, load all messages (backward compatible)
+      const paginationOptions = options?.usePagination 
+        ? { limit: options.limit || 50 }
+        : undefined;
+      
+      const response = await chatAPI.getChatMessages(chatId, paginationOptions);
+      setMessages(response.messages || []);
+      
+      // Store pagination info if available
+      if (response.pagination) {
+        // Store in a ref or state if needed for "Load More" functionality
+        // For now, we'll just load all messages on initial load for simplicity
+      }
     } catch (error: any) {
       // Silently handle 401 and CORS errors
       if (error.response?.status === 401 || error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {

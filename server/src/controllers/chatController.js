@@ -142,9 +142,13 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
 // @desc Get chat messages
 // @route GET /api/chat/:chatId/messages
+// @query limit (optional) - Number of messages to return (default: all)
+// @query skip (optional) - Number of messages to skip (default: 0)
+// @query before (optional) - Get messages before this message ID (for pagination)
 export const getChatMessages = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const userId = req.user.id;
+  const { limit, skip, before } = req.query;
 
   const chat = await Chat.findById(chatId);
   if (!chat) {
@@ -156,13 +160,74 @@ export const getChatMessages = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: "Not a participant in this chat" });
   }
 
+  // Get all messages (sorted by createdAt, newest first)
+  let messages = [...(chat.messages || [])];
+  
+  // Sort messages by createdAt (newest first for pagination)
+  messages.sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return dateB - dateA; // Newest first
+  });
+
+  // If 'before' parameter is provided, get messages before that message
+  if (before) {
+    const beforeIndex = messages.findIndex(m => (m._id || m.id)?.toString() === before);
+    if (beforeIndex !== -1) {
+      messages = messages.slice(beforeIndex + 1);
+    }
+  }
+
+  // Apply skip if provided
+  const skipNum = skip ? parseInt(skip) : 0;
+  if (skipNum > 0) {
+    messages = messages.slice(skipNum);
+  }
+
+  // Apply limit if provided (default: return all messages for backward compatibility)
+  const limitNum = limit ? parseInt(limit) : messages.length;
+  const paginatedMessages = limitNum > 0 && limitNum < messages.length 
+    ? messages.slice(0, limitNum) 
+    : messages;
+
+  // Reverse to show oldest first (for display)
+  const displayMessages = [...paginatedMessages].reverse();
+
+  // Calculate pagination metadata (only if pagination is being used)
+  const totalMessages = chat.messages?.length || 0;
+  let hasMore = false;
+  
+  if (limit || skip || before) {
+    // If using pagination, check if there are more messages
+    if (before) {
+      // If using 'before', check if there are messages after the filtered set
+      hasMore = messages.length > paginatedMessages.length;
+    } else if (limit) {
+      // If using limit, check if there are more messages beyond current page
+      hasMore = (skipNum + limitNum) < totalMessages;
+    }
+  }
+
   res.status(200).json({
-    messages: chat.messages,
+    messages: displayMessages,
     chat: {
       id: chat._id,
       type: chat.type,
       name: chat.name,
     },
+    // Pagination metadata (only if pagination is used)
+    ...(limit || skip || before ? {
+      pagination: {
+        total: totalMessages,
+        limit: limitNum,
+        skip: skipNum,
+        hasMore,
+        // ID of the oldest message in current page (for "load more" functionality)
+        oldestMessageId: displayMessages.length > 0 
+          ? (displayMessages[0]._id || displayMessages[0].id)?.toString() 
+          : null,
+      }
+    } : {}),
   });
 });
 

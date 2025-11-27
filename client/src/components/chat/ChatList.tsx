@@ -76,7 +76,7 @@ const ChatList: React.FC<ChatListProps> = ({ searchQuery = '' }) => {
           </div>
         </div>
       ) : (
-        <div className="p-2 sm:p-3 md:p-4 space-y-2 flex-1">
+        <div className="p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-2.5 flex-1">
           {filteredChats.map((chat) => {
           const isActive = activeChat?._id === chat._id;
           const chatName = getChatName(chat);
@@ -87,10 +87,10 @@ const ChatList: React.FC<ChatListProps> = ({ searchQuery = '' }) => {
           return (
             <Card
               key={chat._id}
-              className={`p-3 sm:p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+              className={`p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
                 isActive
-                  ? 'bg-gradient-to-r from-purple-50 to-teal-50 border-purple-300 shadow-md'
-                  : 'hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-purple-50 via-purple-50/50 to-teal-50 dark:from-purple-900/30 dark:via-purple-900/20 dark:to-teal-900/30 border-purple-300 dark:border-purple-700 shadow-lg ring-2 ring-purple-200 dark:ring-purple-800'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-800/50 border-gray-200 dark:border-gray-700'
               }`}
               onClick={() => {
                 setActiveChat(chat);
@@ -100,35 +100,45 @@ const ChatList: React.FC<ChatListProps> = ({ searchQuery = '' }) => {
                 }
               }}
             >
-              <div className="flex items-start gap-3">
-                <div className="relative flex-shrink-0">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="relative flex-shrink-0 group">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white dark:ring-gray-800 transition-transform duration-300 ${isActive ? 'ring-purple-300 dark:ring-purple-700 scale-110' : 'group-hover:scale-110'}`}>
                     {isGroup ? (
-                      <Users className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <Users className="h-6 w-6 sm:h-7 sm:w-7" />
                     ) : (
-                      <span className="text-base sm:text-lg">
+                      <span className="text-lg sm:text-xl">
                         {chatName.charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
                   {!isGroup && otherUserId && isOnline(otherUserId) && (
-                    <Circle className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500 fill-green-500 border-2 border-white rounded-full" />
+                    <div className="absolute -bottom-0.5 -right-0.5">
+                      <Circle className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-green-500 fill-green-500 border-2 border-white dark:border-gray-800 rounded-full animate-pulse" />
+                      <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                    </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1 gap-2">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{chatName}</h3>
+                  <div className="flex items-center justify-between mb-1.5 gap-2">
+                    <h3 className={`font-bold text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base transition-colors ${isActive ? 'text-purple-700 dark:text-purple-300' : ''}`}>
+                      {chatName}
+                    </h3>
                     {chat.lastActivity && (
-                      <span className="text-xs text-gray-500 flex-shrink-0">
+                      <span className={`text-xs flex-shrink-0 transition-colors ${isActive ? 'text-purple-600 dark:text-purple-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                         {formatTime(chat.lastActivity)}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">{preview}</p>
+                  <p className={`text-xs sm:text-sm truncate mb-1 transition-colors ${isActive ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                    {preview}
+                  </p>
                   {isGroup && (
-                    <div className="mt-1 flex items-center gap-1">
-                      <MessageCircle className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <div className="relative">
+                        <MessageCircle className="h-3.5 w-3.5 text-purple-500 dark:text-purple-400" />
+                        <div className="absolute inset-0 rounded-full bg-purple-500 animate-ping opacity-20"></div>
+                      </div>
+                      <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
                         {onlineUsers.length} online
                       </span>
                     </div>

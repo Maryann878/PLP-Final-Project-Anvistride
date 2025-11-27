@@ -2,6 +2,12 @@ import React, { createContext, useContext, useReducer, useEffect, useRef } from 
 import { useSocket } from './SocketContext';
 import { saveToRecycleBin } from '@/lib/recycleBin';
 import * as ideaAPI from '@/api/idea';
+import * as visionAPI from '@/api/vision';
+import * as goalAPI from '@/api/goal';
+import * as taskAPI from '@/api/task';
+import * as noteAPI from '@/api/note';
+import * as journalAPI from '@/api/journal';
+import * as achievementAPI from '@/api/achievement';
 import type {
   VisionType,
   GoalType,
@@ -38,7 +44,14 @@ type AppAction =
   | { type: `UPDATE_${Uppercase<EntityName>}`; payload: { id: string; data: any } }
   | { type: `DELETE_${Uppercase<EntityName>}`; payload: string }
   | { type: 'TOGGLE_TASK_STATUS'; payload: { id: string; status: 'Todo' | 'In Progress' | 'Done' } }
-  | { type: 'LOAD_STATE'; payload: AppState };
+  | { type: 'LOAD_STATE'; payload: AppState }
+  | { type: 'LOAD_VISIONS'; payload: any[] }
+  | { type: 'LOAD_GOALS'; payload: any[] }
+  | { type: 'LOAD_TASKS'; payload: any[] }
+  | { type: 'LOAD_IDEAS'; payload: any[] }
+  | { type: 'LOAD_NOTES'; payload: any[] }
+  | { type: 'LOAD_JOURNAL'; payload: any[] }
+  | { type: 'LOAD_ACHIEVEMENTS'; payload: any[] };
 
 // -------------------- Constants --------------------
 const STORAGE_KEY = 'anvistride-app-state';
@@ -122,8 +135,32 @@ function appReducer(state: AppState, action: AppAction): AppState {
     return action.payload;
   }
 
+  if (action.type === 'LOAD_VISIONS') {
+    return { ...state, visions: action.payload };
+  }
+
+  if (action.type === 'LOAD_GOALS') {
+    return { ...state, goals: action.payload };
+  }
+
+  if (action.type === 'LOAD_TASKS') {
+    return { ...state, tasks: action.payload };
+  }
+
   if (action.type === 'LOAD_IDEAS') {
     return { ...state, ideas: action.payload };
+  }
+
+  if (action.type === 'LOAD_NOTES') {
+    return { ...state, notes: action.payload };
+  }
+
+  if (action.type === 'LOAD_JOURNAL') {
+    return { ...state, journal: action.payload };
+  }
+
+  if (action.type === 'LOAD_ACHIEVEMENTS') {
+    return { ...state, achievements: action.payload };
   }
 
   return state;
@@ -135,36 +172,36 @@ interface AppContextType extends AppState {
   addEntity: (entity: EntityName, item: any) => void;
   updateEntity: (entity: EntityName, id: string, data: any) => void;
   deleteEntity: (entity: EntityName, id: string) => void;
-  toggleTaskStatus: (id: string, status: 'Todo' | 'In Progress' | 'Done') => void;
+  toggleTaskStatus: (id: string, status: 'Todo' | 'In Progress' | 'Done') => Promise<void>;
   
-  // Specific methods for each entity
-  addVision: (item: VisionType) => void;
-  updateVision: (id: string, data: Partial<VisionType>) => void;
-  deleteVision: (id: string) => void;
+  // Specific methods for each entity (all async now for backend integration)
+  addVision: (item: VisionType) => Promise<void>;
+  updateVision: (id: string, data: Partial<VisionType>) => Promise<void>;
+  deleteVision: (id: string) => Promise<void>;
   
-  addGoal: (item: GoalType) => void;
-  updateGoal: (id: string, data: Partial<GoalType>) => void;
-  deleteGoal: (id: string) => void;
+  addGoal: (item: GoalType) => Promise<void>;
+  updateGoal: (id: string, data: Partial<GoalType>) => Promise<void>;
+  deleteGoal: (id: string) => Promise<void>;
   
-  addTask: (item: TaskType) => void;
-  updateTask: (id: string, data: Partial<TaskType>) => void;
-  deleteTask: (id: string, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => void;
+  addTask: (item: TaskType) => Promise<void>;
+  updateTask: (id: string, data: Partial<TaskType>) => Promise<void>;
+  deleteTask: (id: string, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => Promise<void>;
   
-  addIdea: (item: IdeaType) => void;
-  updateIdea: (id: string, data: Partial<IdeaType>) => void;
-  deleteIdea: (id: string) => void;
+  addIdea: (item: IdeaType) => Promise<void>;
+  updateIdea: (id: string, data: Partial<IdeaType>) => Promise<void>;
+  deleteIdea: (id: string) => Promise<void>;
   
-  addNote: (item: NoteType) => void;
-  updateNote: (id: string, data: Partial<NoteType>) => void;
-  deleteNote: (id: string) => void;
+  addNote: (item: NoteType) => Promise<void>;
+  updateNote: (id: string, data: Partial<NoteType>) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
   
-  addJournal: (item: JournalEntryType) => void;
-  updateJournal: (id: string, data: Partial<JournalEntryType>) => void;
-  deleteJournal: (id: string) => void;
+  addJournal: (item: JournalEntryType) => Promise<void>;
+  updateJournal: (id: string, data: Partial<JournalEntryType>) => Promise<void>;
+  deleteJournal: (id: string) => Promise<void>;
   
-  addAchievement: (item: AchievementType) => void;
-  updateAchievement: (id: string, data: Partial<AchievementType>) => void;
-  deleteAchievement: (id: string) => void;
+  addAchievement: (item: AchievementType) => Promise<void>;
+  updateAchievement: (id: string, data: Partial<AchievementType>) => Promise<void>;
+  deleteAchievement: (id: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -178,12 +215,91 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Load from backend and localStorage
   useEffect(() => {
     const loadData = async () => {
+      const loadedEntities: any = {};
+
+      // Load Visions from backend
       try {
-        // Load ideas from backend
+        const visions = await visionAPI.getVisions();
+        if (visions && Array.isArray(visions)) {
+          loadedEntities.visions = visions.map((vision: any) => ({
+            id: vision._id || vision.id,
+            title: vision.title,
+            description: vision.description,
+            status: vision.status ? vision.status.charAt(0).toUpperCase() + vision.status.slice(1) : 'Planning',
+            priority: vision.priority ? vision.priority.charAt(0).toUpperCase() + vision.priority.slice(1) : 'Medium',
+            progress: vision.progress || 0,
+            horizonYears: vision.horizonYears,
+            startDate: vision.startDate,
+            targetDate: vision.targetDate,
+            tags: vision.tags || [],
+            focusArea: vision.focusArea,
+            createdAt: vision.createdAt,
+            completedAt: vision.completedAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load visions from backend:', error);
+      }
+
+      // Load Goals from backend
+      try {
+        const goals = await goalAPI.getGoals();
+        if (goals && Array.isArray(goals)) {
+          loadedEntities.goals = goals.map((goal: any) => ({
+            id: goal._id || goal.id,
+            title: goal.title,
+            description: goal.description,
+            status: goal.status === 'not_started' ? 'Not Started' : 
+                    goal.status === 'in_progress' ? 'In Progress' : 
+                    goal.status === 'completed' ? 'Completed' : 
+                    goal.status === 'paused' ? 'Paused' : 'Not Started',
+            priority: goal.priority ? goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1) : 'Medium',
+            progress: goal.progress || 0,
+            deadline: goal.deadline,
+            completedAt: goal.completedAt,
+            linkedVisionId: goal.vision,
+            tags: goal.tags || [],
+            metrics: goal.metrics || [],
+            createdAt: goal.createdAt,
+            updatedAt: goal.updatedAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load goals from backend:', error);
+      }
+
+      // Load Tasks from backend
+      try {
+        const tasks = await taskAPI.getTasks();
+        if (tasks && Array.isArray(tasks)) {
+          loadedEntities.tasks = tasks.map((task: any) => ({
+            id: task._id || task.id,
+            title: task.title,
+            description: task.description,
+            status: task.status === 'not_started' ? 'Todo' :
+                    task.status === 'in_progress' ? 'In Progress' :
+                    task.status === 'completed' ? 'Done' :
+                    task.status === 'blocked' ? 'Blocked' : 'Todo',
+            priority: task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium',
+            dueDate: task.dueDate,
+            completedAt: task.completedAt,
+            goalId: task.goal,
+            reminder: task.reminder,
+            estimatedMinutes: task.estimatedMinutes,
+            tags: task.tags || [],
+            checklists: task.checklists || [],
+            createdAt: task.createdAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load tasks from backend:', error);
+      }
+
+      // Load Ideas from backend
+      try {
         const ideas = await ideaAPI.getIdeas();
-        if (ideas && ideas.length > 0) {
-          // Map backend data to frontend format
-          const mappedIdeas = ideas.map((idea: any) => ({
+        if (ideas && Array.isArray(ideas)) {
+          loadedEntities.ideas = ideas.map((idea: any) => ({
             id: idea._id || idea.id,
             title: idea.title,
             description: idea.description,
@@ -197,20 +313,105 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             implementationNotes: idea.implementationNotes,
             createdAt: idea.createdAt,
           }));
-          dispatch({ type: 'LOAD_IDEAS', payload: mappedIdeas });
         }
       } catch (error) {
-        console.warn('Failed to load ideas from backend, using localStorage:', error);
+        console.warn('Failed to load ideas from backend:', error);
       }
 
-      // Load other data from localStorage (for backward compatibility)
+      // Load Notes from backend
+      try {
+        const notes = await noteAPI.getNotes();
+        if (notes && Array.isArray(notes)) {
+          loadedEntities.notes = notes.map((note: any) => ({
+            id: note._id || note.id,
+            title: note.title,
+            content: note.content,
+            tags: note.tags || [],
+            pinned: note.pinned || false,
+            linkedVisionId: note.relatedVision,
+            linkedGoalId: note.relatedGoal,
+            linkedTaskId: note.relatedTask,
+            createdAt: note.createdAt,
+            updatedAt: note.updatedAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load notes from backend:', error);
+      }
+
+      // Load Journal entries from backend
+      try {
+        const journal = await journalAPI.getJournalEntries();
+        if (journal && Array.isArray(journal)) {
+          loadedEntities.journal = journal.map((entry: any) => ({
+            id: entry._id || entry.id,
+            date: entry.entryDate || entry.date,
+            title: entry.title,
+            content: entry.summary || '',
+            mood: entry.mood || 'neutral', // Backend uses: very_low, low, neutral, good, great
+            tags: entry.tags || [],
+            highlights: entry.highlights || [],
+            gratitude: entry.gratitude || [],
+            lessons: entry.lessons || [],
+            nextSteps: entry.nextSteps || [],
+            createdAt: entry.createdAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load journal entries from backend:', error);
+      }
+
+      // Load Achievements from backend
+      try {
+        const achievements = await achievementAPI.getAchievements();
+        if (achievements && Array.isArray(achievements)) {
+          loadedEntities.achievements = achievements.map((achievement: any) => ({
+            id: achievement._id || achievement.id,
+            title: achievement.title,
+            description: achievement.description,
+            type: achievement.type || 'milestone',
+            imageUrl: achievement.evidenceUrl,
+            documentUrl: achievement.evidenceUrl,
+            date: achievement.achievedOn || achievement.date,
+            issuer: achievement.issuer,
+            visibility: achievement.visibility || 'private',
+            impactScore: achievement.impactScore,
+            linkedVisionId: achievement.relatedVision,
+            linkedGoalId: achievement.relatedGoal,
+            createdAt: achievement.createdAt,
+          }));
+        }
+      } catch (error) {
+        console.warn('Failed to load achievements from backend:', error);
+      }
+
+      // Dispatch loaded entities
+      if (loadedEntities.visions) dispatch({ type: 'LOAD_VISIONS', payload: loadedEntities.visions });
+      if (loadedEntities.goals) dispatch({ type: 'LOAD_GOALS', payload: loadedEntities.goals });
+      if (loadedEntities.tasks) dispatch({ type: 'LOAD_TASKS', payload: loadedEntities.tasks });
+      if (loadedEntities.ideas) dispatch({ type: 'LOAD_IDEAS', payload: loadedEntities.ideas });
+      if (loadedEntities.notes) dispatch({ type: 'LOAD_NOTES', payload: loadedEntities.notes });
+      if (loadedEntities.journal) dispatch({ type: 'LOAD_JOURNAL', payload: loadedEntities.journal });
+      if (loadedEntities.achievements) dispatch({ type: 'LOAD_ACHIEVEMENTS', payload: loadedEntities.achievements });
+
+      // Load remaining data from localStorage (for backward compatibility - only if not loaded from backend)
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          // Don't overwrite ideas if we loaded from backend
-          const { ideas: _, ...rest } = parsed;
-          dispatch({ type: 'LOAD_STATE', payload: rest });
+          // Only load entities that weren't loaded from backend
+          const fallbackState: any = {};
+          if (!loadedEntities.visions && parsed.visions) fallbackState.visions = parsed.visions;
+          if (!loadedEntities.goals && parsed.goals) fallbackState.goals = parsed.goals;
+          if (!loadedEntities.tasks && parsed.tasks) fallbackState.tasks = parsed.tasks;
+          if (!loadedEntities.ideas && parsed.ideas) fallbackState.ideas = parsed.ideas;
+          if (!loadedEntities.notes && parsed.notes) fallbackState.notes = parsed.notes;
+          if (!loadedEntities.journal && parsed.journal) fallbackState.journal = parsed.journal;
+          if (!loadedEntities.achievements && parsed.achievements) fallbackState.achievements = parsed.achievements;
+          
+          if (Object.keys(fallbackState).length > 0) {
+            dispatch({ type: 'LOAD_STATE', payload: { ...initialState, ...fallbackState } });
+          }
         } catch (err) {
           console.error('Failed to load saved state', err);
         }
@@ -291,78 +492,275 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       emitSync('entity:delete', { entity, id });
       emitSync('activity:create', { type: 'delete', entity, itemId: id });
     },
-    toggleTaskStatus: (id, status) => {
-      dispatch({ type: 'TOGGLE_TASK_STATUS', payload: { id, status } });
-      emitSync('entity:update', { entity: 'tasks', id, data: { status } });
-      emitSync('activity:create', { type: 'update', entity: 'tasks', itemId: id, action: `marked as ${status}` });
+    toggleTaskStatus: async (id, status) => {
+      try {
+        const backendStatus = status === 'Todo' ? 'not_started' :
+                             status === 'In Progress' ? 'in_progress' :
+                             status === 'Done' ? 'completed' : 'not_started';
+        await taskAPI.updateTask(id, { status: backendStatus });
+        dispatch({ type: 'TOGGLE_TASK_STATUS', payload: { id, status } });
+        emitSync('entity:update', { entity: 'tasks', id, data: { status } });
+        emitSync('activity:create', { type: 'update', entity: 'tasks', itemId: id, action: `marked as ${status}` });
+      } catch (error) {
+        console.error('Error toggling task status:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'TOGGLE_TASK_STATUS', payload: { id, status } });
+      }
     },
     
     // Specific methods for each entity
-    addVision: (item) => {
-      dispatch({ type: 'ADD_VISIONS', payload: item });
-      emitSync('entity:add', { entity: 'visions', item });
-      emitSync('activity:create', { type: 'add', entity: 'visions', itemId: item.id, itemTitle: item.title });
-    },
-    updateVision: (id, data) => {
-      dispatch({ type: 'UPDATE_VISIONS', payload: { id, data } });
-      emitSync('entity:update', { entity: 'visions', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'visions', itemId: id });
-    },
-    deleteVision: (id) => {
-      const vision = state.visions.find(v => v.id === id);
-      if (vision) {
-        saveToRecycleBin(vision, 'vision').catch(err => console.error('Error saving to recycle bin:', err));
+    addVision: async (item) => {
+      try {
+        const payload = {
+          title: item.title,
+          description: item.description || '',
+          status: item.status?.toLowerCase() || 'planning',
+          priority: item.priority?.toLowerCase() || 'medium',
+          horizonYears: item.horizonYears || 5,
+          progress: item.progress || 0,
+          startDate: item.startDate,
+          targetDate: item.targetDate,
+          tags: item.tags || [],
+          focusArea: item.focusArea,
+        };
+        const created = await visionAPI.createVision(payload);
+        const mappedVision = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_VISIONS', payload: mappedVision });
+        emitSync('entity:add', { entity: 'visions', item: mappedVision });
+        emitSync('activity:create', { type: 'add', entity: 'visions', itemId: mappedVision.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating vision:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_VISIONS', payload: item });
       }
-      dispatch({ type: 'DELETE_VISIONS', payload: id });
-      emitSync('entity:delete', { entity: 'visions', id });
-      emitSync('activity:create', { type: 'delete', entity: 'visions', itemId: id });
+    },
+    updateVision: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.status !== undefined) payload.status = data.status.toLowerCase();
+        if (data.priority !== undefined) payload.priority = data.priority.toLowerCase();
+        if (data.progress !== undefined) payload.progress = data.progress;
+        if (data.horizonYears !== undefined) payload.horizonYears = data.horizonYears;
+        if (data.startDate !== undefined) payload.startDate = data.startDate;
+        if (data.targetDate !== undefined) payload.targetDate = data.targetDate;
+        if (data.tags !== undefined) payload.tags = data.tags;
+        if (data.focusArea !== undefined) payload.focusArea = data.focusArea;
+        
+        const updated = await visionAPI.updateVision(id, payload);
+        const mappedVision = {
+          ...data,
+          id: updated._id || updated.id,
+          status: updated.status ? updated.status.charAt(0).toUpperCase() + updated.status.slice(1) : data.status,
+          priority: updated.priority ? updated.priority.charAt(0).toUpperCase() + updated.priority.slice(1) : data.priority,
+        };
+        dispatch({ type: 'UPDATE_VISIONS', payload: { id, data: mappedVision } });
+        emitSync('entity:update', { entity: 'visions', id, data: mappedVision });
+        emitSync('activity:create', { type: 'update', entity: 'visions', itemId: id });
+      } catch (error) {
+        console.error('Error updating vision:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_VISIONS', payload: { id, data } });
+      }
+    },
+    deleteVision: async (id) => {
+      try {
+        const vision = state.visions.find(v => v.id === id);
+        if (vision) {
+          saveToRecycleBin(vision, 'vision').catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await visionAPI.deleteVision(id);
+        dispatch({ type: 'DELETE_VISIONS', payload: id });
+        emitSync('entity:delete', { entity: 'visions', id });
+        emitSync('activity:create', { type: 'delete', entity: 'visions', itemId: id });
+      } catch (error) {
+        console.error('Error deleting vision:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_VISIONS', payload: id });
+      }
     },
     
-    addGoal: (item) => {
-      dispatch({ type: 'ADD_GOALS', payload: item });
-      emitSync('entity:add', { entity: 'goals', item });
-      emitSync('activity:create', { type: 'add', entity: 'goals', itemId: item.id, itemTitle: item.title });
-    },
-    updateGoal: (id, data) => {
-      dispatch({ type: 'UPDATE_GOALS', payload: { id, data } });
-      emitSync('entity:update', { entity: 'goals', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'goals', itemId: id });
-    },
-    deleteGoal: (id) => {
-      const goal = state.goals.find(g => g.id === id);
-      if (goal) {
-        saveToRecycleBin(goal, 'goal', {
-          parentId: goal.linkedVisionId || goal.visionId,
-          parentType: (goal.linkedVisionId || goal.visionId) ? 'vision' : undefined,
-        }).catch(err => console.error('Error saving to recycle bin:', err));
+    addGoal: async (item) => {
+      try {
+        const payload = {
+          title: item.title,
+          description: item.description || '',
+          deadline: item.deadline,
+          status: item.status === 'Not Started' ? 'not_started' :
+                  item.status === 'In Progress' ? 'in_progress' :
+                  item.status === 'Completed' ? 'completed' :
+                  item.status === 'Paused' ? 'paused' : 'not_started',
+          progress: item.progress || 0,
+          priority: item.priority?.toLowerCase() || 'medium',
+          vision: item.linkedVisionId || null,
+          tags: item.tags || [],
+          metrics: item.metrics || [],
+        };
+        const created = await goalAPI.createGoal(payload);
+        const mappedGoal = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_GOALS', payload: mappedGoal });
+        emitSync('entity:add', { entity: 'goals', item: mappedGoal });
+        emitSync('activity:create', { type: 'add', entity: 'goals', itemId: mappedGoal.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating goal:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_GOALS', payload: item });
       }
-      dispatch({ type: 'DELETE_GOALS', payload: id });
-      emitSync('entity:delete', { entity: 'goals', id });
-      emitSync('activity:create', { type: 'delete', entity: 'goals', itemId: id });
+    },
+    updateGoal: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.deadline !== undefined) payload.deadline = data.deadline;
+        if (data.status !== undefined) {
+          payload.status = data.status === 'Not Started' ? 'not_started' :
+                          data.status === 'In Progress' ? 'in_progress' :
+                          data.status === 'Completed' ? 'completed' :
+                          data.status === 'Paused' ? 'paused' : 'not_started';
+        }
+        if (data.progress !== undefined) payload.progress = data.progress;
+        if (data.priority !== undefined) payload.priority = data.priority.toLowerCase();
+        if (data.linkedVisionId !== undefined) payload.vision = data.linkedVisionId || null;
+        if (data.tags !== undefined) payload.tags = data.tags;
+        if (data.metrics !== undefined) payload.metrics = data.metrics;
+        
+        const updated = await goalAPI.updateGoal(id, payload);
+        const mappedGoal = {
+          ...data,
+          id: updated._id || updated.id,
+          status: updated.status === 'not_started' ? 'Not Started' :
+                  updated.status === 'in_progress' ? 'In Progress' :
+                  updated.status === 'completed' ? 'Completed' :
+                  updated.status === 'paused' ? 'Paused' : data.status,
+          priority: updated.priority ? updated.priority.charAt(0).toUpperCase() + updated.priority.slice(1) : data.priority,
+        };
+        dispatch({ type: 'UPDATE_GOALS', payload: { id, data: mappedGoal } });
+        emitSync('entity:update', { entity: 'goals', id, data: mappedGoal });
+        emitSync('activity:create', { type: 'update', entity: 'goals', itemId: id });
+      } catch (error) {
+        console.error('Error updating goal:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_GOALS', payload: { id, data } });
+      }
+    },
+    deleteGoal: async (id) => {
+      try {
+        const goal = state.goals.find(g => g.id === id);
+        if (goal) {
+          saveToRecycleBin(goal, 'goal', {
+            parentId: goal.linkedVisionId || goal.visionId,
+            parentType: (goal.linkedVisionId || goal.visionId) ? 'vision' : undefined,
+          }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await goalAPI.deleteGoal(id);
+        dispatch({ type: 'DELETE_GOALS', payload: id });
+        emitSync('entity:delete', { entity: 'goals', id });
+        emitSync('activity:create', { type: 'delete', entity: 'goals', itemId: id });
+      } catch (error) {
+        console.error('Error deleting goal:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_GOALS', payload: id });
+      }
     },
     
-    addTask: (item) => {
-      dispatch({ type: 'ADD_TASKS', payload: item });
-      emitSync('entity:add', { entity: 'tasks', item });
-      emitSync('activity:create', { type: 'add', entity: 'tasks', itemId: item.id, itemTitle: item.title });
-    },
-    updateTask: (id, data) => {
-      dispatch({ type: 'UPDATE_TASKS', payload: { id, data } });
-      emitSync('entity:update', { entity: 'tasks', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'tasks', itemId: id });
-    },
-    deleteTask: (id, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => {
-      const task = state.tasks.find(t => t.id === id);
-      if (task) {
-        saveToRecycleBin(task, 'task', {
-          parentId: metadata?.parentId || task.goalId || task.visionId,
-          parentType: metadata?.parentType || (task.goalId ? 'goal' : task.visionId ? 'vision' : undefined),
-          originalLocation: metadata?.originalLocation,
-        }).catch(err => console.error('Error saving to recycle bin:', err));
+    addTask: async (item) => {
+      try {
+        const payload = {
+          title: item.title || '',
+          description: item.description,
+          goal: item.goalId || null,
+          status: item.status === 'Todo' ? 'not_started' :
+                  item.status === 'In Progress' ? 'in_progress' :
+                  item.status === 'Done' ? 'completed' :
+                  item.status === 'Blocked' ? 'blocked' : 'not_started',
+          priority: item.priority?.toLowerCase() || 'medium',
+          dueDate: item.dueDate,
+          reminder: item.reminder,
+          estimatedMinutes: item.estimatedMinutes,
+          tags: item.tags || [],
+          checklists: item.checklists || [],
+          isStandalone: !item.goalId,
+        };
+        const created = await taskAPI.createTask(payload);
+        const mappedTask = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_TASKS', payload: mappedTask });
+        emitSync('entity:add', { entity: 'tasks', item: mappedTask });
+        emitSync('activity:create', { type: 'add', entity: 'tasks', itemId: mappedTask.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating task:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_TASKS', payload: item });
       }
-      dispatch({ type: 'DELETE_TASKS', payload: id });
-      emitSync('entity:delete', { entity: 'tasks', id });
-      emitSync('activity:create', { type: 'delete', entity: 'tasks', itemId: id });
+    },
+    updateTask: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.goalId !== undefined) payload.goal = data.goalId || null;
+        if (data.status !== undefined) {
+          payload.status = data.status === 'Todo' ? 'not_started' :
+                          data.status === 'In Progress' ? 'in_progress' :
+                          data.status === 'Done' ? 'completed' :
+                          data.status === 'Blocked' ? 'blocked' : 'not_started';
+        }
+        if (data.priority !== undefined) payload.priority = data.priority.toLowerCase();
+        if (data.dueDate !== undefined) payload.dueDate = data.dueDate;
+        if (data.reminder !== undefined) payload.reminder = data.reminder;
+        if (data.estimatedMinutes !== undefined) payload.estimatedMinutes = data.estimatedMinutes;
+        if (data.tags !== undefined) payload.tags = data.tags;
+        if (data.checklists !== undefined) payload.checklists = data.checklists;
+        if (data.goalId !== undefined) payload.isStandalone = !data.goalId;
+        
+        const updated = await taskAPI.updateTask(id, payload);
+        const mappedTask = {
+          ...data,
+          id: updated._id || updated.id,
+          status: updated.status === 'not_started' ? 'Todo' :
+                  updated.status === 'in_progress' ? 'In Progress' :
+                  updated.status === 'completed' ? 'Done' :
+                  updated.status === 'blocked' ? 'Blocked' : data.status,
+          priority: updated.priority ? updated.priority.charAt(0).toUpperCase() + updated.priority.slice(1) : data.priority,
+        };
+        dispatch({ type: 'UPDATE_TASKS', payload: { id, data: mappedTask } });
+        emitSync('entity:update', { entity: 'tasks', id, data: mappedTask });
+        emitSync('activity:create', { type: 'update', entity: 'tasks', itemId: id });
+      } catch (error) {
+        console.error('Error updating task:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_TASKS', payload: { id, data } });
+      }
+    },
+    deleteTask: async (id, metadata?: { parentId?: string; parentType?: string; originalLocation?: string }) => {
+      try {
+        const task = state.tasks.find(t => t.id === id);
+        if (task) {
+          saveToRecycleBin(task, 'task', {
+            parentId: metadata?.parentId || task.goalId || task.visionId,
+            parentType: metadata?.parentType || (task.goalId ? 'goal' : task.visionId ? 'vision' : undefined),
+            originalLocation: metadata?.originalLocation,
+          }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await taskAPI.deleteTask(id);
+        dispatch({ type: 'DELETE_TASKS', payload: id });
+        emitSync('entity:delete', { entity: 'tasks', id });
+        emitSync('activity:create', { type: 'delete', entity: 'tasks', itemId: id });
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_TASKS', payload: id });
+      }
     },
     
     addIdea: async (item) => {
@@ -431,73 +829,265 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     },
     
-    addNote: (item) => {
-      dispatch({ type: 'ADD_NOTES', payload: item });
-      emitSync('entity:add', { entity: 'notes', item });
-      emitSync('activity:create', { type: 'add', entity: 'notes', itemId: item.id, itemTitle: item.title });
-    },
-    updateNote: (id, data) => {
-      dispatch({ type: 'UPDATE_NOTES', payload: { id, data } });
-      emitSync('entity:update', { entity: 'notes', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'notes', itemId: id });
-    },
-    deleteNote: (id) => {
-      const note = state.notes.find(n => n.id === id);
-      if (note) {
-        saveToRecycleBin(note, 'note', {
-          parentId: note.visionId || note.goalId || note.taskId,
-          parentType: note.visionId ? 'vision' : note.goalId ? 'goal' : note.taskId ? 'task' : undefined,
-        }).catch(err => console.error('Error saving to recycle bin:', err));
+    addNote: async (item) => {
+      try {
+        const payload = {
+          title: item.title,
+          content: item.content,
+          tags: item.tags || [],
+          pinned: item.pinned || false,
+          relatedVision: item.linkedVisionId || null,
+          relatedGoal: item.linkedGoalId || null,
+          relatedTask: item.linkedTaskId || null,
+        };
+        const created = await noteAPI.createNote(payload);
+        const mappedNote = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_NOTES', payload: mappedNote });
+        emitSync('entity:add', { entity: 'notes', item: mappedNote });
+        emitSync('activity:create', { type: 'add', entity: 'notes', itemId: mappedNote.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating note:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_NOTES', payload: item });
       }
-      dispatch({ type: 'DELETE_NOTES', payload: id });
-      emitSync('entity:delete', { entity: 'notes', id });
-      emitSync('activity:create', { type: 'delete', entity: 'notes', itemId: id });
+    },
+    updateNote: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.content !== undefined) payload.content = data.content;
+        if (data.tags !== undefined) payload.tags = data.tags;
+        if (data.pinned !== undefined) payload.pinned = data.pinned;
+        if (data.linkedVisionId !== undefined) payload.relatedVision = data.linkedVisionId || null;
+        if (data.linkedGoalId !== undefined) payload.relatedGoal = data.linkedGoalId || null;
+        if (data.linkedTaskId !== undefined) payload.relatedTask = data.linkedTaskId || null;
+        
+        const updated = await noteAPI.updateNote(id, payload);
+        const mappedNote = {
+          ...data,
+          id: updated._id || updated.id,
+        };
+        dispatch({ type: 'UPDATE_NOTES', payload: { id, data: mappedNote } });
+        emitSync('entity:update', { entity: 'notes', id, data: mappedNote });
+        emitSync('activity:create', { type: 'update', entity: 'notes', itemId: id });
+      } catch (error) {
+        console.error('Error updating note:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_NOTES', payload: { id, data } });
+      }
+    },
+    deleteNote: async (id) => {
+      try {
+        const note = state.notes.find(n => n.id === id);
+        if (note) {
+          saveToRecycleBin(note, 'note', {
+            parentId: note.linkedVisionId || note.linkedGoalId || note.linkedTaskId,
+            parentType: note.linkedVisionId ? 'vision' : note.linkedGoalId ? 'goal' : note.linkedTaskId ? 'task' : undefined,
+          }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await noteAPI.deleteNote(id);
+        dispatch({ type: 'DELETE_NOTES', payload: id });
+        emitSync('entity:delete', { entity: 'notes', id });
+        emitSync('activity:create', { type: 'delete', entity: 'notes', itemId: id });
+      } catch (error) {
+        console.error('Error deleting note:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_NOTES', payload: id });
+      }
     },
     
-    addJournal: (item) => {
-      dispatch({ type: 'ADD_JOURNAL', payload: item });
-      emitSync('entity:add', { entity: 'journal', item });
-      emitSync('activity:create', { type: 'add', entity: 'journal', itemId: item.id, itemTitle: item.title });
-    },
-    updateJournal: (id, data) => {
-      dispatch({ type: 'UPDATE_JOURNAL', payload: { id, data } });
-      emitSync('entity:update', { entity: 'journal', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'journal', itemId: id });
-    },
-    deleteJournal: (id) => {
-      const journal = state.journal.find(j => j.id === id);
-      if (journal) {
-        saveToRecycleBin(journal, 'journal', {
-          parentId: journal.linkedVisionId || journal.linkedGoalId || journal.linkedTaskId,
-          parentType: journal.linkedVisionId ? 'vision' : journal.linkedGoalId ? 'goal' : journal.linkedTaskId ? 'task' : undefined,
-        }).catch(err => console.error('Error saving to recycle bin:', err));
+    addJournal: async (item) => {
+      try {
+        // Map frontend mood to backend mood enum
+        const moodMap: Record<string, string> = {
+          'very_low': 'very_low',
+          'low': 'low',
+          'neutral': 'neutral',
+          'good': 'good',
+          'great': 'great',
+          // Map other moods to closest backend value
+          'happy': 'good',
+          'excited': 'great',
+          'grateful': 'good',
+          'proud': 'great',
+          'peaceful': 'good',
+          'motivated': 'good',
+          'hopeful': 'good',
+          'confident': 'great',
+          'sad': 'low',
+          'stressed': 'low',
+          'tired': 'low',
+          'confused': 'low',
+          'anxious': 'low',
+          'angry': 'very_low',
+          'lonely': 'low',
+        };
+        
+        const payload = {
+          entryDate: item.date,
+          mood: moodMap[item.mood || 'neutral'] || 'neutral',
+          summary: item.content || '',
+          highlights: item.highlights || [],
+          gratitude: item.gratitude || [],
+          lessons: item.lessons || [],
+          nextSteps: item.nextSteps || [],
+        };
+        const created = await journalAPI.createJournalEntry(payload);
+        const mappedJournal = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_JOURNAL', payload: mappedJournal });
+        emitSync('entity:add', { entity: 'journal', item: mappedJournal });
+        emitSync('activity:create', { type: 'add', entity: 'journal', itemId: mappedJournal.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating journal entry:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_JOURNAL', payload: item });
       }
-      dispatch({ type: 'DELETE_JOURNAL', payload: id });
-      emitSync('entity:delete', { entity: 'journal', id });
-      emitSync('activity:create', { type: 'delete', entity: 'journal', itemId: id });
+    },
+    updateJournal: async (id, data) => {
+      try {
+        // Map frontend mood to backend mood enum
+        const moodMap: Record<string, string> = {
+          'very_low': 'very_low',
+          'low': 'low',
+          'neutral': 'neutral',
+          'good': 'good',
+          'great': 'great',
+          'happy': 'good',
+          'excited': 'great',
+          'grateful': 'good',
+          'proud': 'great',
+          'peaceful': 'good',
+          'motivated': 'good',
+          'hopeful': 'good',
+          'confident': 'great',
+          'sad': 'low',
+          'stressed': 'low',
+          'tired': 'low',
+          'confused': 'low',
+          'anxious': 'low',
+          'angry': 'very_low',
+          'lonely': 'low',
+        };
+        
+        const payload: any = {};
+        if (data.date !== undefined) payload.entryDate = data.date;
+        if (data.mood !== undefined) payload.mood = moodMap[data.mood] || 'neutral';
+        if (data.content !== undefined) payload.summary = data.content;
+        if (data.highlights !== undefined) payload.highlights = data.highlights;
+        if (data.gratitude !== undefined) payload.gratitude = data.gratitude;
+        if (data.lessons !== undefined) payload.lessons = data.lessons;
+        if (data.nextSteps !== undefined) payload.nextSteps = data.nextSteps;
+        
+        const updated = await journalAPI.updateJournalEntry(id, payload);
+        const mappedJournal = {
+          ...data,
+          id: updated._id || updated.id,
+        };
+        dispatch({ type: 'UPDATE_JOURNAL', payload: { id, data: mappedJournal } });
+        emitSync('entity:update', { entity: 'journal', id, data: mappedJournal });
+        emitSync('activity:create', { type: 'update', entity: 'journal', itemId: id });
+      } catch (error) {
+        console.error('Error updating journal entry:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_JOURNAL', payload: { id, data } });
+      }
+    },
+    deleteJournal: async (id) => {
+      try {
+        const journal = state.journal.find(j => j.id === id);
+        if (journal) {
+          saveToRecycleBin(journal, 'journal', {
+            parentId: journal.linkedVisionId || journal.linkedGoalId || journal.linkedTaskId,
+            parentType: journal.linkedVisionId ? 'vision' : journal.linkedGoalId ? 'goal' : journal.linkedTaskId ? 'task' : undefined,
+          }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await journalAPI.deleteJournalEntry(id);
+        dispatch({ type: 'DELETE_JOURNAL', payload: id });
+        emitSync('entity:delete', { entity: 'journal', id });
+        emitSync('activity:create', { type: 'delete', entity: 'journal', itemId: id });
+      } catch (error) {
+        console.error('Error deleting journal entry:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_JOURNAL', payload: id });
+      }
     },
     
-    addAchievement: (item) => {
-      dispatch({ type: 'ADD_ACHIEVEMENTS', payload: item });
-      emitSync('entity:add', { entity: 'achievements', item });
-      emitSync('activity:create', { type: 'add', entity: 'achievements', itemId: item.id, itemTitle: item.title });
-    },
-    updateAchievement: (id, data) => {
-      dispatch({ type: 'UPDATE_ACHIEVEMENTS', payload: { id, data } });
-      emitSync('entity:update', { entity: 'achievements', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'achievements', itemId: id });
-    },
-    deleteAchievement: (id) => {
-      const achievement = state.achievements.find(a => a.id === id);
-      if (achievement) {
-        saveToRecycleBin(achievement, 'achievement', {
-          parentId: achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId,
-          parentType: achievement.linkedVisionId ? 'vision' : achievement.linkedGoalId ? 'goal' : achievement.linkedTaskId ? 'task' : undefined,
-        }).catch(err => console.error('Error saving to recycle bin:', err));
+    addAchievement: async (item) => {
+      try {
+        const payload = {
+          title: item.title,
+          description: item.description,
+          achievedOn: item.date,
+          relatedVision: item.linkedVisionId || null,
+          relatedGoal: item.linkedGoalId || null,
+          visibility: item.visibility || 'private',
+          evidenceUrl: item.imageUrl || item.documentUrl,
+          impactScore: item.impactScore,
+        };
+        const created = await achievementAPI.createAchievement(payload);
+        const mappedAchievement = {
+          ...item,
+          id: created._id || created.id,
+        };
+        dispatch({ type: 'ADD_ACHIEVEMENTS', payload: mappedAchievement });
+        emitSync('entity:add', { entity: 'achievements', item: mappedAchievement });
+        emitSync('activity:create', { type: 'add', entity: 'achievements', itemId: mappedAchievement.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating achievement:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_ACHIEVEMENTS', payload: item });
       }
-      dispatch({ type: 'DELETE_ACHIEVEMENTS', payload: id });
-      emitSync('entity:delete', { entity: 'achievements', id });
-      emitSync('activity:create', { type: 'delete', entity: 'achievements', itemId: id });
+    },
+    updateAchievement: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.date !== undefined) payload.achievedOn = data.date;
+        if (data.linkedVisionId !== undefined) payload.relatedVision = data.linkedVisionId || null;
+        if (data.linkedGoalId !== undefined) payload.relatedGoal = data.linkedGoalId || null;
+        if (data.visibility !== undefined) payload.visibility = data.visibility;
+        if (data.imageUrl !== undefined || data.documentUrl !== undefined) payload.evidenceUrl = data.imageUrl || data.documentUrl;
+        if (data.impactScore !== undefined) payload.impactScore = data.impactScore;
+        
+        const updated = await achievementAPI.updateAchievement(id, payload);
+        const mappedAchievement = {
+          ...data,
+          id: updated._id || updated.id,
+        };
+        dispatch({ type: 'UPDATE_ACHIEVEMENTS', payload: { id, data: mappedAchievement } });
+        emitSync('entity:update', { entity: 'achievements', id, data: mappedAchievement });
+        emitSync('activity:create', { type: 'update', entity: 'achievements', itemId: id });
+      } catch (error) {
+        console.error('Error updating achievement:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_ACHIEVEMENTS', payload: { id, data } });
+      }
+    },
+    deleteAchievement: async (id) => {
+      try {
+        const achievement = state.achievements.find(a => a.id === id);
+        if (achievement) {
+          saveToRecycleBin(achievement, 'achievement', {
+            parentId: achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId,
+            parentType: achievement.linkedVisionId ? 'vision' : achievement.linkedGoalId ? 'goal' : achievement.linkedTaskId ? 'task' : undefined,
+          }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await achievementAPI.deleteAchievement(id);
+        dispatch({ type: 'DELETE_ACHIEVEMENTS', payload: id });
+        emitSync('entity:delete', { entity: 'achievements', id });
+        emitSync('activity:create', { type: 'delete', entity: 'achievements', itemId: id });
+      } catch (error) {
+        console.error('Error deleting achievement:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_ACHIEVEMENTS', payload: id });
+      }
     },
   };
 

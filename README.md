@@ -263,8 +263,10 @@ These three SDGs were chosen because Anvistride directly contributes to educatio
 - **Real-time Messaging**: Instant message delivery
 - **Typing Indicators**: See when others are typing
 - **Online Status**: Know who's online
-- **Message History**: Persistent chat history
-- **Mobile-Optimized**: Responsive chat interface
+- **Message History**: Persistent chat history with pagination support
+- **Message Pagination**: Efficient loading of chat messages (optional limit, skip, before parameters)
+- **Modern UI**: Enhanced chat interface with improved animations, better message bubbles, and compact layout
+- **Mobile-Optimized**: Responsive chat interface with optimized spacing
 
 #### 🔔 Real-time Notifications
 - Instant updates on achievements and milestones
@@ -735,7 +737,10 @@ These three SDGs were chosen because Anvistride directly contributes to educatio
 - **JWT Authentication**: Token-based auth
 - **Error Handling**: Centralized error middleware
 - **Validation**: Input validation middleware
-- **Rate Limiting**: API rate limiting
+- **Rate Limiting**: 
+  - General API: 100 requests per 15 minutes per IP
+  - Authentication: 10 requests per 15 minutes per IP
+  - Write operations: 50 requests per 15 minutes per IP (ready for future use)
 - **CORS**: Cross-origin resource sharing
 
 #### Real-time Architecture
@@ -1107,6 +1112,36 @@ GET /api/chat/private/:userId
 Authorization: Bearer <token>
 ```
 
+#### Get Chat Messages (with Pagination)
+```http
+GET /api/chat/:chatId/messages?limit=50&skip=0&before=<messageId>
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `limit` (optional): Number of messages to return (default: all messages)
+- `skip` (optional): Number of messages to skip (default: 0)
+- `before` (optional): Get messages before this message ID (for pagination)
+
+**Response:**
+```json
+{
+  "messages": [...],
+  "chat": {
+    "id": "chat_id",
+    "type": "group",
+    "name": "Anvistride Community"
+  },
+  "pagination": {
+    "total": 150,
+    "limit": 50,
+    "skip": 0,
+    "hasMore": true,
+    "oldestMessageId": "message_id"
+  }
+}
+```
+
 #### Send Message
 ```http
 POST /api/chat/:chatId/message
@@ -1286,6 +1321,101 @@ Sample payload:
   "visibility": "connections",
   "impactScore": 80,
   "evidenceUrl": "https://drive.google.com/..."
+}
+```
+
+### Analytics Endpoints
+
+#### Get Analytics Data
+```http
+GET /api/analytics?timeframe=week|month|year|all
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `timeframe` (optional): Filter by timeframe - `week`, `month`, `year`, or `all` (default: `all`)
+
+**Response:**
+```json
+{
+  "timeframe": "month",
+  "summary": {
+    "productivityScore": 75,
+    "totalEntities": {
+      "visions": 3,
+      "goals": 12,
+      "tasks": 45,
+      "ideas": 8,
+      "notes": 20,
+      "journalEntries": 15,
+      "achievements": 5
+    }
+  },
+  "visions": {
+    "total": 3,
+    "active": 2,
+    "planning": 1,
+    "completed": 0,
+    "paused": 0,
+    "averageProgress": 45.5
+  },
+  "goals": {
+    "total": 12,
+    "notStarted": 2,
+    "inProgress": 7,
+    "completed": 3,
+    "paused": 0,
+    "averageProgress": 62.5,
+    "completionRate": 25
+  },
+  "tasks": {
+    "total": 45,
+    "todo": 15,
+    "inProgress": 20,
+    "done": 10,
+    "completionRate": 22.2,
+    "overdue": 3
+  },
+  "ideas": {
+    "total": 8,
+    "draft": 3,
+    "exploring": 2,
+    "ready": 2,
+    "implemented": 1,
+    "archived": 0
+  },
+  "notes": {
+    "total": 20,
+    "pinned": 5,
+    "withTags": 12
+  },
+  "journal": {
+    "total": 15,
+    "byMood": {
+      "good": 8,
+      "great": 5,
+      "neutral": 2
+    },
+    "averageEntriesPerWeek": 3.5
+  },
+  "achievements": {
+    "total": 5,
+    "public": 2,
+    "private": 3,
+    "averageImpactScore": 75
+  },
+  "trends": {
+    "goals": {
+      "current": 12,
+      "previous": 10,
+      "change": 20
+    },
+    "tasks": {
+      "current": 45,
+      "previous": 38,
+      "change": 18.4
+    }
+  }
 }
 ```
 
@@ -1748,8 +1878,9 @@ This project would not have been possible without the support, resources, and gu
 - **Total Pages**: 28 pages
 - **Total Components**: 50+ components
 - **Context Providers**: 7 providers
-- **API Endpoints**: 20+ endpoints
+- **API Endpoints**: 25+ endpoints
 - **Real-time Features**: 6+ features
+- **Rate Limiting**: API protection with configurable limits
 - **Test Coverage**: Initial test suite implemented
 - **Lines of Code**: 20,000+
 - **Development Time**: 3+ months
@@ -1761,7 +1892,8 @@ This project would not have been possible without the support, resources, and gu
 - [ ] Mobile app (React Native)
 - [ ] AI-powered goal recommendations
 - [ ] Team collaboration features
-- [ ] Advanced analytics and insights
+- [x] Backend analytics aggregation (✅ Implemented)
+- [ ] Advanced analytics visualizations
 - [ ] Integration with calendar apps
 - [ ] Enhanced export/import functionality
 - [ ] Multi-language support

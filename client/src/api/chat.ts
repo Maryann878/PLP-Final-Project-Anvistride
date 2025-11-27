@@ -42,8 +42,26 @@ export const getUserChats = async (): Promise<Chat[]> => {
   return res.data;
 };
 
-export const getChatMessages = async (chatId: string): Promise<{ messages: Message[]; chat: Chat }> => {
-  const res = await API.get(`/chat/${chatId}/messages`);
+export const getChatMessages = async (
+  chatId: string, 
+  options?: { limit?: number; skip?: number; before?: string }
+): Promise<{ 
+  messages: Message[]; 
+  chat: Chat;
+  pagination?: {
+    total: number;
+    limit: number;
+    skip: number;
+    hasMore: boolean;
+    oldestMessageId: string | null;
+  };
+}> => {
+  const params: any = {};
+  if (options?.limit) params.limit = options.limit;
+  if (options?.skip) params.skip = options.skip;
+  if (options?.before) params.before = options.before;
+  
+  const res = await API.get(`/chat/${chatId}/messages`, { params });
   return res.data;
 };
 

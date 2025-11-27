@@ -7,6 +7,7 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import { apiLimiter, writeLimiter } from "./middleware/rateLimitMiddleware.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
@@ -21,6 +22,7 @@ import ideaRoutes from "./routes/ideaRoutes.js";
 import recycleBinRoutes from "./routes/recycleBinRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import { initializeSocket } from "./socket/socketServer.js";
 
 dotenv.config();
@@ -184,6 +186,12 @@ app.get("/api/health", (req, res) => {
 });
 
 // -----------------------------
+// Rate limiting (apply before routes)
+// -----------------------------
+// Apply general API rate limiting to all /api routes
+app.use("/api", apiLimiter);
+
+// -----------------------------
 // Routes (mount after body parsers & CORS)
 // -----------------------------
 app.use("/api/auth", authRoutes);
@@ -199,6 +207,7 @@ app.use("/api/ideas", ideaRoutes);
 app.use("/api/recycle", recycleBinRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/chat", chatRoutes);
 
 // -----------------------------
