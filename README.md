@@ -25,27 +25,34 @@
 
 ## 📋 Table of Contents
 
-- [About The Project](#-about-the-project)
-- [SDG Alignment](#-sdg-alignment)
-- [Features](#-features)
-- [Application Pages](#-application-pages)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Installation](#-installation)
-- [Environment Variables](#-environment-variables)
-- [Usage](#-usage)
-- [API Documentation](#-api-documentation)
-- [Real-time Features](#-real-time-features)
-- [UI/UX Design](#-uiux-design)
-- [Context Providers](#-context-providers)
-- [Deployment](#-deployment)
-- [Testing](#-testing)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Author](#-author)
-- [Acknowledgments](#-acknowledgments)
+- [About The Project](#about-the-project)
+- [SDG Alignment](#sdg-alignment)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Application Pages](#application-pages)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Real-time Features](#real-time-features)
+- [UI/UX Design](#uiux-design)
+- [Context Providers](#context-providers)
+- [Deployment](#deployment)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
+- [Challenges & Learnings](#challenges-learnings)
+- [Acknowledgments](#acknowledgments)
+- [Project Statistics](#project-statistics)
+- [Future Enhancements](#future-enhancements)
+- [Support](#support)
+- [Additional Resources](#additional-resources)
+- [Live Links](#live-links)
 
 ---
 
@@ -166,7 +173,7 @@ These three SDGs were chosen because Anvistride directly contributes to educatio
 
 ### Application Screenshots
 ![Chat(FamzStride) Screenshot](./client/public/Anvistride_FamzStride.png)
-*Main dashboard view*
+*Chat view*
 ---
 
 ## ✨ Features
