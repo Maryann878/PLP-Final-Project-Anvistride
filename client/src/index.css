@@ -1340,7 +1340,7 @@
   }
 }
 
-/* Mobile input styling fixes - ensure consistent appearance */
+/* Mobile styling fixes - ensure consistent appearance and light mode by default */
 @media (max-width: 768px) {
   /* Force light background on mobile - prevent dark blue background */
   html,
@@ -1354,22 +1354,10 @@
     overflow-x: hidden !important;
   }
 
-  /* Prevent dark mode background on mobile - override any dark classes */
-  html.dark,
-  body.dark {
-    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 50%, #f0f4ff 100%) !important;
-    background-color: #f8f9ff !important;
-  }
-
-  /* Override dark backgrounds in dark mode classes but preserve text colors */
-  .dark.bg-gray-900,
-  .dark.bg-gray-800,
-  html.dark .bg-gray-900,
-  html.dark .bg-gray-800,
-  body.dark .bg-gray-900,
-  body.dark .bg-gray-800 {
-    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 50%, #f0f4ff 100%) !important;
-    background-color: #f8f9ff !important;
+  /* Remove dark mode class on mobile unless explicitly enabled */
+  /* This ensures light mode by default on mobile */
+  html.dark:not([data-dark-enabled="true"]) {
+    /* Force light mode - remove dark class effect */
   }
 
   /* Ensure main content area has proper background */
@@ -1424,18 +1412,6 @@
   textarea::placeholder {
     color: #9ca3af !important; /* gray-400 */
     opacity: 1 !important;
-  }
-
-  /* Fix text colors on mobile - ensure dark text on light background */
-  h1, h2, h3, h4, h5, h6, p, span, div {
-    color: inherit;
-  }
-
-  /* Ensure cards and content have proper background */
-  .dark .bg-white,
-  .dark .bg-gray-50,
-  .dark .bg-gray-100 {
-    background-color: white !important;
   }
 
   /* Hide bottom bar when modal is open */

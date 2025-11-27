@@ -147,7 +147,7 @@ These three SDGs were chosen because Anvistride directly contributes to educatio
 ![Login Page 2](./client/public/Anvistride_login2.png)
 *Alternative login view*
 
-![Sign Up Page](./client/public/Anvistride_signup.png)
+![Sign Up Page](./client/public/Anvistride_signup2.png)
 *User registration interface*
 
 ![Forgot Password](./client/public/Anvistride_forgotPassword.png)
@@ -157,18 +157,16 @@ These three SDGs were chosen because Anvistride directly contributes to educatio
 *Email verification interface*
 
 ### Application Screenshots
-![Dashboard Screenshot](./client/public/Screenshot%202025-09-20%20131505.png)
+![Dashboard Screenshot](./client/public/Anvistride_dashboard.png)
 *Main dashboard view*
 
-![Application View](./client/public/Screenshot%202025-09-20%20131650.png)
-*Application interface*
+### Application Screenshots
+![Mobile Dashboard Screenshot](./client/public/Anvistride_dashboard_mobile.png)
+*Mobile-responsive dashboard screen*
 
-![Application View 2](./client/public/Screenshot%202025-09-20%20131650%20copy.png)
-*Alternative application view*
-
-![Application View 3](./client/public/Screenshot%202025-09-20%20133551.png)
-*Additional application features*
-
+### Application Screenshots
+![Chat(FamzStride) Screenshot](./client/public/Anvistride_FamzStride.png)
+*Main dashboard view*
 ---
 
 ## ✨ Features
