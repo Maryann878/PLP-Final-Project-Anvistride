@@ -5,30 +5,71 @@ const goalSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User", // links goal to the user who created it
+      ref: "User",
+      index: true,
+    },
+    vision: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vision",
+      default: null,
+      index: true,
     },
     title: {
       type: String,
       required: [true, "Please add a title for your goal"],
+      trim: true,
     },
     description: {
       type: String,
       required: [true, "Please add a short description"],
     },
-    completed: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: String,
+      enum: ["not_started", "in_progress", "completed", "paused"],
+      default: "not_started",
+      index: true,
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high", "critical"],
+      default: "medium",
+    },
+    progress: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 0,
+    },
+    deadline: Date,
+    completedAt: Date,
+    tags: {
+      type: [String],
+      default: [],
+    },
+    metrics: {
+      type: [
+        {
+          label: String,
+          target: Number,
+          current: {
+            type: Number,
+            default: 0,
+          },
+          unit: String,
+        },
+      ],
+      default: [],
     },
   },
   {
-    timestamps: true, // automatically creates createdAt and updatedAt
+    timestamps: true,
   }
 );
 
 // Indexes for better query performance
-goalSchema.index({ user: 1, createdAt: -1 }); // Get user's goals, newest first
-goalSchema.index({ user: 1, completed: 1 }); // Filter by completion status
-goalSchema.index({ user: 1 }); // General user lookup
+goalSchema.index({ user: 1, createdAt: -1 });
+goalSchema.index({ user: 1, status: 1 });
+goalSchema.index({ user: 1, vision: 1 });
 
 const Goal = mongoose.model("Goal", goalSchema);
 

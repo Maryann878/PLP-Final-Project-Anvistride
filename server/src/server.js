@@ -11,6 +11,12 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
+import visionRoutes from "./routes/visionRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
+import journalRoutes from "./routes/journalRoutes.js";
+import achievementRoutes from "./routes/achievementRoutes.js";
 import { initializeSocket } from "./socket/socketServer.js";
 
 dotenv.config();
@@ -77,6 +83,10 @@ const httpServer = createServer(app);
 // -----------------------------
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - Origin: ${req.headers.origin || "none"}`);
+  // Special logging for profile routes
+  if (req.originalUrl.includes('/profile')) {
+    console.log(`🔍 PROFILE ROUTE REQUEST: ${req.method} ${req.originalUrl}`);
+  }
   next();
 });
 
@@ -174,7 +184,13 @@ app.get("/api/health", (req, res) => {
 // -----------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/visions", visionRoutes);
 app.use("/api/goals", goalRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/notes", noteRoutes);
+app.use("/api/journal", journalRoutes);
+app.use("/api/achievements", achievementRoutes);
 app.use("/api/chat", chatRoutes);
 
 // -----------------------------
