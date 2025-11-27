@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { getMe } from "@/api/auth";
+import { getMyProfile } from "@/api/profile";
 
 interface AuthContextType {
   user: any;
@@ -16,29 +17,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      getMe()
-        .then((data) => setUser(data))
-        .catch((error) => {
+    const loadUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          // Load user data
+          const userData = await getMe();
+          
+          // Try to load profile data and merge it
+          try {
+            const profileData = await getMyProfile();
+            
+            // Merge profile data with user data
+            const mergedUser = {
+              ...userData,
+              id: userData._id || userData.id,
+              _id: userData._id || userData.id, // Ensure both id and _id are set
+              username: profileData.username || userData.name || userData.username,
+              profileImage: profileData.profileImage || profileData.avatar || userData.profileImage || null,
+              email: profileData.email || userData.email,
+            };
+            
+            setUser(mergedUser);
+          } catch (profileError: any) {
+            // If profile load fails (404 means route doesn't exist yet, which is OK), just use user data
+            if (profileError?.response?.status === 404) {
+              // Route doesn't exist - this is expected if server hasn't restarted
+              console.warn('Profile route not found (404) - server may need restart. Using user data only.');
+            } else {
+              console.warn('Profile not found, using user data only:', profileError);
+            }
+            setUser({
+              ...userData,
+              username: userData.name || userData.username,
+            });
+          }
+        } catch (error) {
           // Silently handle auth errors - token might be expired or invalid
           // Only remove token, don't show error toast (handled by axios interceptor if needed)
           localStorage.removeItem("token");
           setUser(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
   }, []);
 
   const login = async (token: string) => {
     localStorage.setItem("token", token);
-    // Re-fetch user data to ensure the context is updated with the latest user info
-    // In a real app, you might also pass user data directly from login response
-    try {
-      const data = await getMe();
-      setUser(data);
+      // Re-fetch user data to ensure the context is updated with the latest user info
+      try {
+        const userData = await getMe();
+        
+        // Try to load profile data and merge it
+        try {
+          const profileData = await getMyProfile();
+          
+          // Merge profile data with user data
+          const mergedUser = {
+            ...userData,
+            id: userData._id || userData.id,
+            _id: userData._id || userData.id, // Ensure both id and _id are set
+            username: profileData.username || userData.name || userData.username,
+            profileImage: profileData.profileImage || profileData.avatar || userData.profileImage || null,
+            email: profileData.email || userData.email,
+          };
+          
+          setUser(mergedUser);
+      } catch (profileError: any) {
+        // If profile load fails, just use user data
+        console.warn('Profile not found, using user data only:', profileError?.response?.status || profileError);
+        setUser({
+          ...userData,
+          id: userData._id || userData.id,
+          username: userData.name || userData.username,
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch user data after login:", error);
       localStorage.removeItem("token"); // Clear token if user data fetch fails

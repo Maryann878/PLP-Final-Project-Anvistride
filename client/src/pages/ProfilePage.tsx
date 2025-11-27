@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useAppContext } from "@/context/AppContext";
@@ -14,11 +14,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserCircle2, Mail, Calendar, Edit3, Save, X, Camera, Trash2, Eye, Target, CheckSquare2, Lightbulb } from "lucide-react";
+import { getMyProfile, updateMyProfile } from "@/api/profile";
 
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
   const { visions, goals, tasks, ideas } = useAppContext();
   const navigate = useNavigate();
+  
+  // Safety checks: ensure all arrays are defined
+  const safeVisions = visions || [];
+  const safeGoals = goals || [];
+  const safeTasks = tasks || [];
+  const safeIdeas = ideas || [];
   
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -27,8 +34,50 @@ export default function ProfilePage() {
     profileImage: user?.profileImage || "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(user?.profileImage || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load profile data on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setIsLoadingProfile(true);
+        const profileData = await getMyProfile();
+        
+        // Update local state with profile data
+        setEditData({
+          username: profileData.username || user?.name || "",
+          email: profileData.email || user?.email || "",
+          profileImage: profileData.profileImage || profileData.avatar || "",
+        });
+        setImagePreview(profileData.profileImage || profileData.avatar || null);
+        
+        // Update AuthContext with profile data
+        updateUser({
+          username: profileData.username || user?.name || "",
+          email: profileData.email || user?.email || "",
+          profileImage: profileData.profileImage || profileData.avatar || null,
+        });
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        // Fallback to user data if profile load fails
+        setEditData({
+          username: user?.username || user?.name || "",
+          email: user?.email || "",
+          profileImage: user?.profileImage || "",
+        });
+        setImagePreview(user?.profileImage || null);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    if (user) {
+      loadProfile();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id || user?._id]); // Only reload if user ID changes
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -125,19 +174,49 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setIsLoading(true);
+    const toast = getGlobalToast();
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update user data in AuthContext
-      updateUser({
+      // Prepare data for backend (map profileImage to avatar)
+      const profileUpdate = {
         username: editData.username,
-        email: editData.email,
-        profileImage: editData.profileImage,
+        profileImage: editData.profileImage, // Will be mapped to avatar in backend
+      };
+
+      // Call backend API to update profile
+      const updatedProfile = await updateMyProfile(profileUpdate);
+      
+      // Update local state with response
+      const updatedUserData = {
+        username: updatedProfile.username || editData.username,
+        email: updatedProfile.email || editData.email,
+        profileImage: updatedProfile.profileImage || updatedProfile.avatar || editData.profileImage,
+      };
+      
+      // Update AuthContext
+      updateUser(updatedUserData);
+      
+      // Update local edit data
+      setEditData({
+        ...editData,
+        ...updatedUserData,
       });
+      setImagePreview(updatedUserData.profileImage || null);
       
       setIsEditing(false);
-    } catch (error) {
+      
+      toast?.({
+        title: "Profile Updated",
+        description: "Your profile has been saved successfully.",
+        variant: "default",
+      });
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+      toast?.({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -235,8 +314,10 @@ export default function ProfilePage() {
                 style={{ display: 'none' }}
               />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-900 mt-4">{user?.username || 'User'}</CardTitle>
-            <p className="text-gray-600 break-all px-2">{user?.email}</p>
+            <CardTitle className="text-2xl font-bold text-gray-900 mt-4">
+              {isLoadingProfile ? 'Loading...' : (editData.username || user?.username || user?.name || 'User')}
+            </CardTitle>
+            <p className="text-gray-600 break-all px-2">{editData.email || user?.email}</p>
             {isEditing && (
               <p className="text-xs text-gray-500 italic mt-2">Click the camera icon to upload a profile image</p>
             )}
@@ -262,7 +343,7 @@ export default function ProfilePage() {
                     className="flex-1 sm:ml-4"
                   />
                 ) : (
-                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-words">{user?.username || 'N/A'}</span>
+                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-words">{editData.username || user?.username || user?.name || 'N/A'}</span>
                 )}
               </div>
 
@@ -281,7 +362,7 @@ export default function ProfilePage() {
                     className="flex-1 sm:ml-4"
                   />
                 ) : (
-                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-all">{user?.email || 'N/A'}</span>
+                  <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4 break-all">{editData.email || user?.email || 'N/A'}</span>
                 )}
               </div>
 
@@ -291,7 +372,7 @@ export default function ProfilePage() {
                   <span>Member Since</span>
                 </Label>
                 <span className="text-gray-600 font-medium sm:text-right flex-1 sm:ml-4">
-                  {formatDate(user?.createdAt)}
+                  {formatDate(user?.createdAt || user?.signupTime)}
                 </span>
               </div>
             </div>
@@ -341,22 +422,22 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-white border border-purple-200 hover:shadow-lg transition-all">
                 <Eye className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-gray-900">{visions.length}</p>
+                <p className="text-3xl font-bold text-gray-900">{safeVisions.length}</p>
                 <p className="text-xs uppercase tracking-wide text-gray-600">Visions</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-gradient-to-br from-teal-50 to-white border border-teal-200 hover:shadow-lg transition-all">
                 <Target className="h-8 w-8 text-teal-600 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-gray-900">{goals.length}</p>
+                <p className="text-3xl font-bold text-gray-900">{safeGoals.length}</p>
                 <p className="text-xs uppercase tracking-wide text-gray-600">Goals</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-gradient-to-br from-amber-50 to-white border border-amber-200 hover:shadow-lg transition-all">
                 <CheckSquare2 className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-gray-900">{tasks.length}</p>
+                <p className="text-3xl font-bold text-gray-900">{safeTasks.length}</p>
                 <p className="text-xs uppercase tracking-wide text-gray-600">Tasks</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-white border border-purple-200 hover:shadow-lg transition-all">
                 <Lightbulb className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-gray-900">{ideas.length}</p>
+                <p className="text-3xl font-bold text-gray-900">{safeIdeas.length}</p>
                 <p className="text-xs uppercase tracking-wide text-gray-600">Ideas</p>
               </div>
             </div>

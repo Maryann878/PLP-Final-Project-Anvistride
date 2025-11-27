@@ -48,9 +48,16 @@ export const updateMyProfile = asyncHandler(async (req, res) => {
     delete updates.profileImage;
   }
   
+  // Handle username - ensure it's saved
+  if (updates.username !== undefined) {
+    updates.username = updates.username.trim() || null;
+  }
+  
   // Remove fields that shouldn't be in Profile
   delete updates.email; // Email is in User, not Profile
   delete updates.createdAt; // Read-only
+  delete updates._id; // Don't allow ID updates
+  delete updates.id; // Don't allow ID updates
 
   const profile = await Profile.findOneAndUpdate(
     { user: req.user.id },

@@ -45,8 +45,15 @@ const NavbarMobile = () => {
     }
   };
 
-  // For logged-in users, show simplified navbar (logo + notification only)
-  if (user) {
+  // Check if we're on the landing page
+  const isLandingPage = location.pathname === "/" || location.pathname === "/home";
+  
+  // Check if we're on app routes
+  const isAppRoute = location.pathname.startsWith("/app");
+
+  // For logged-in users on app routes, show simplified navbar (logo + notification only)
+  // BUT on landing page, always show landing page navbar regardless of login status
+  if (user && isAppRoute && !isLandingPage) {
     return (
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-sm md:hidden">
         <div className="flex items-center justify-between px-4 py-3">

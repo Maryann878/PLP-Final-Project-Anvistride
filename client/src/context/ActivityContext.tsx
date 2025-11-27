@@ -1,6 +1,7 @@
 // client/src/context/ActivityContext.tsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSocket } from './SocketContext';
+import * as activityAPI from '@/api/activity';
 
 export interface Activity {
   id: string;
@@ -28,17 +29,39 @@ export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [activities, setActivities] = useState<Activity[]>([]);
   const { isConnected, on, off } = useSocket();
 
-  // Load activities from localStorage
+  // Load activities from backend
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const loadActivities = async () => {
       try {
-        const parsed = JSON.parse(stored);
-        setActivities(parsed);
-      } catch {
-        // Invalid data, start fresh
+        const data = await activityAPI.getActivities({ limit: MAX_ACTIVITIES });
+        if (data && Array.isArray(data)) {
+          setActivities(data.map((a: any) => ({
+            id: a._id || a.id,
+            type: a.type,
+            entity: a.entity,
+            itemId: a.itemId,
+            itemTitle: a.itemTitle,
+            action: a.action,
+            timestamp: a.createdAt || a.timestamp,
+            userId: a.user || a.userId,
+          })));
+        }
+      } catch (error) {
+        console.warn('Failed to load activities from backend, using localStorage:', error);
+        // Fallback to localStorage
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setActivities(parsed);
+          } catch {
+            // Invalid data, start fresh
+          }
+        }
       }
-    }
+    };
+
+    loadActivities();
   }, []);
 
   // Save activities to localStorage
@@ -70,18 +93,46 @@ export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [isConnected, on, off]);
 
-  const addActivity = useCallback((activity: Omit<Activity, 'id' | 'timestamp'>) => {
-    const newActivity: Activity = {
-      ...activity,
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-    };
-    setActivities((prev) => [newActivity, ...prev].slice(0, MAX_ACTIVITIES));
+  const addActivity = useCallback(async (activity: Omit<Activity, 'id' | 'timestamp'>) => {
+    try {
+      const created = await activityAPI.createActivity({
+        type: activity.type,
+        entity: activity.entity,
+        itemId: activity.itemId,
+        itemTitle: activity.itemTitle,
+        action: activity.action,
+      });
+      
+      const newActivity: Activity = {
+        ...activity,
+        id: created._id || created.id || Date.now().toString(),
+        timestamp: created.createdAt || new Date().toISOString(),
+        userId: created.user || activity.userId,
+      };
+      setActivities((prev) => [newActivity, ...prev].slice(0, MAX_ACTIVITIES));
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      // Fallback to local state
+      const newActivity: Activity = {
+        ...activity,
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+      };
+      setActivities((prev) => [newActivity, ...prev].slice(0, MAX_ACTIVITIES));
+    }
   }, []);
 
-  const clearActivities = useCallback(() => {
-    setActivities([]);
-    localStorage.removeItem(STORAGE_KEY);
+  const clearActivities = useCallback(async () => {
+    try {
+      await activityAPI.clearActivities();
+      setActivities([]);
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing activities:', error);
+      // Fallback to local clear
+      setActivities([]);
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }, []);
 
   return (

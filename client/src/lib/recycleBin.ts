@@ -3,6 +3,8 @@
  * Handles saving deleted items to recycle bin with metadata for restoration
  */
 
+import * as recycleBinAPI from '@/api/recycleBin';
+
 export type RecycleItemType = "vision" | "goal" | "task" | "idea" | "note" | "journal" | "achievement";
 
 export interface RecycleItem {
@@ -24,26 +26,40 @@ const STORAGE_KEY = 'anvistride-deleted-items';
 /**
  * Save an item to the recycle bin
  */
-export const saveToRecycleBin = (
+export const saveToRecycleBin = async (
   item: any,
   type: RecycleItemType,
   metadata?: RecycleItem['metadata']
-): void => {
+): Promise<void> => {
   try {
-    const deletedItems = getRecycleBinItems();
-    
-    const recycleItem: RecycleItem = {
-      id: item.id || Date.now().toString(),
+    // Save to backend
+    await recycleBinAPI.createRecycleItem({
       type,
+      entityId: item.id || item._id || Date.now().toString(),
       data: { ...item }, // Deep copy to preserve all data
-      deletedAt: new Date().toISOString(),
-      metadata: metadata || {},
-    };
-    
-    deletedItems.push(recycleItem);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(deletedItems));
+      parentId: metadata?.parentId,
+      parentType: metadata?.parentType,
+      originalLocation: metadata?.originalLocation,
+    });
   } catch (error) {
-    console.error('Error saving to recycle bin:', error);
+    console.error('Error saving to recycle bin (backend):', error);
+    // Fallback to localStorage
+    try {
+      const deletedItems = getRecycleBinItems();
+      
+      const recycleItem: RecycleItem = {
+        id: item.id || Date.now().toString(),
+        type,
+        data: { ...item }, // Deep copy to preserve all data
+        deletedAt: new Date().toISOString(),
+        metadata: metadata || {},
+      };
+      
+      deletedItems.push(recycleItem);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(deletedItems));
+    } catch (localError) {
+      console.error('Error saving to recycle bin (localStorage):', localError);
+    }
   }
 };
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,6 +19,7 @@ import { useAppContext } from "@/context/AppContext";
 import { Recycle, RefreshCcw, Trash2, AlertCircle, Eye, Target, CheckSquare2, Lightbulb, StickyNote, BookOpen, Trophy } from "lucide-react";
 import { getGlobalToast } from "@/lib/toast";
 import { getRecycleBinItems, removeFromRecycleBin, type RecycleItem } from "@/lib/recycleBin";
+import * as recycleBinAPI from "@/api/recycleBin";
 
 const typeIcons = {
   vision: Eye,
@@ -46,62 +47,92 @@ export default function RecycleBinPage() {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<RecycleItem | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [deletedItems, setDeletedItems] = useState<RecycleItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get deleted items from recycle bin utility
-  const deletedItems = useMemo<RecycleItem[]>(() => {
-    return getRecycleBinItems();
+  // Load deleted items from backend
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        setIsLoading(true);
+        const items = await recycleBinAPI.getRecycleItems();
+        setDeletedItems(items.map((item: any) => ({
+          id: item._id || item.id,
+          type: item.type,
+          entityId: item.entityId,
+          data: item.data,
+          deletedAt: item.createdAt || item.deletedAt,
+          metadata: {
+            parentId: item.parentId,
+            parentType: item.parentType,
+            originalLocation: item.originalLocation,
+          },
+        })));
+      } catch (error) {
+        console.warn('Failed to load recycle bin from backend, using localStorage:', error);
+        // Fallback to localStorage
+        setDeletedItems(getRecycleBinItems());
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadItems();
   }, [refreshKey]);
 
   const refreshItems = () => {
     setRefreshKey(prev => prev + 1);
   };
 
-  const restoreItem = (item: RecycleItem) => {
+  const restoreItem = async (item: RecycleItem) => {
     try {
-      // Restore to appropriate context with relationship preservation
-      switch (item.type) {
-        case "vision":
-          addVision(item.data);
-          break;
-        case "goal":
-          // Restore goal, preserving vision relationship if it exists
-          addGoal(item.data);
-          break;
-        case "task":
-          // Restore task, preserving goal/vision relationship if it exists
-          // The metadata will help identify where it came from
-          addTask(item.data);
-          break;
-        case "idea":
-          addIdea(item.data);
-          break;
-        case "note":
-          addNote(item.data);
-          break;
-        case "journal":
-          addJournal(item.data);
-          break;
-        case "achievement":
-          addAchievement(item.data);
-          break;
-      }
-      
-      // Remove from recycle bin
-      removeFromRecycleBin(item.id);
-      refreshItems();
-      
       const toast = getGlobalToast();
-      const locationInfo = item.metadata?.originalLocation 
-        ? ` (restored to ${item.metadata.originalLocation})`
-        : item.metadata?.parentType 
-        ? ` (restored under ${item.metadata.parentType})`
-        : '';
       
-      toast?.({
-        title: "Success!",
-        description: `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} restored successfully${locationInfo}!`,
-        variant: "default",
-      });
+      // Restore via backend API
+      const result = await recycleBinAPI.restoreItem(item.id);
+      
+      if (result.restored) {
+        // The backend has already restored it, just refresh
+        refreshItems();
+        
+        const locationInfo = item.metadata?.originalLocation 
+          ? ` (restored to ${item.metadata.originalLocation})`
+          : item.metadata?.parentType 
+          ? ` (restored under ${item.metadata.parentType})`
+          : '';
+        
+        toast?.({
+          title: "Success!",
+          description: `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} restored successfully${locationInfo}!`,
+          variant: "default",
+        });
+      } else {
+        // Fallback to local restore if backend doesn't return restored item
+        switch (item.type) {
+          case "vision":
+            addVision(item.data);
+            break;
+          case "goal":
+            addGoal(item.data);
+            break;
+          case "task":
+            addTask(item.data);
+            break;
+          case "idea":
+            addIdea(item.data);
+            break;
+          case "note":
+            addNote(item.data);
+            break;
+          case "journal":
+            addJournal(item.data);
+            break;
+          case "achievement":
+            addAchievement(item.data);
+            break;
+        }
+        refreshItems();
+      }
     } catch (error) {
       console.error('Restore error:', error);
       const toast = getGlobalToast();
@@ -118,20 +149,36 @@ export default function RecycleBinPage() {
     setShowConfirmDelete(true);
   };
 
-  const confirmPermanentDelete = () => {
+  const confirmPermanentDelete = async () => {
     if (!itemToDelete) return;
     
-    removeFromRecycleBin(itemToDelete.id);
-    refreshItems();
-    
-    const toast = getGlobalToast();
-    toast?.({
-      title: "Deleted",
-      description: `${itemToDelete.type.charAt(0).toUpperCase() + itemToDelete.type.slice(1)} permanently deleted!`,
-      variant: "default",
-    });
-    setShowConfirmDelete(false);
-    setItemToDelete(null);
+    try {
+      await recycleBinAPI.deleteRecycleItem(itemToDelete.id);
+      refreshItems();
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Deleted",
+        description: `${itemToDelete.type.charAt(0).toUpperCase() + itemToDelete.type.slice(1)} permanently deleted!`,
+        variant: "default",
+      });
+      setShowConfirmDelete(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Delete error:', error);
+      // Fallback to local delete
+      removeFromRecycleBin(itemToDelete.id);
+      refreshItems();
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Deleted",
+        description: `${itemToDelete.type.charAt(0).toUpperCase() + itemToDelete.type.slice(1)} permanently deleted!`,
+        variant: "default",
+      });
+      setShowConfirmDelete(false);
+      setItemToDelete(null);
+    }
   };
 
   const getParentInfo = (item: RecycleItem): string | null => {

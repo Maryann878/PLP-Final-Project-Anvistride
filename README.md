@@ -1159,6 +1159,136 @@ Content-Type: application/json
 }
 ```
 
+### Profile Endpoints
+
+#### Get My Profile
+```http
+GET /api/profile/me
+Authorization: Bearer <token>
+```
+
+#### Update My Profile
+```http
+PUT /api/profile/me
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "bio": "Product designer focused on education",
+  "focusAreas": ["Design", "Leadership"],
+  "notificationPreferences": {
+    "email": true,
+    "push": false
+  }
+}
+```
+
+### Vision Endpoints
+
+#### Get Visions
+```http
+GET /api/visions?status=active
+Authorization: Bearer <token>
+```
+
+#### Create Vision
+```http
+POST /api/visions
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Empower 10,000 young adults",
+  "description": "Design programs that build career momentum",
+  "status": "planning",
+  "priority": "high",
+  "horizonYears": 5,
+  "tags": ["education", "career"]
+}
+```
+
+### Task Endpoints
+
+Tasks can be linked to a goal (`goal`) or exist as standalone (`isStandalone: true`).
+
+#### Get Tasks
+```http
+GET /api/tasks?goalId=<goalId>&standalone=false
+Authorization: Bearer <token>
+```
+
+#### Create Task
+```http
+POST /api/tasks
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Draft curriculum outline",
+  "description": "Map out 6-week learning journey",
+  "priority": "high",
+  "dueDate": "2024-10-15",
+  "goal": "<goalId>"
+}
+```
+
+### Notes Endpoints
+```http
+GET /api/notes?visionId=<visionId>
+POST /api/notes
+PUT /api/notes/:id
+DELETE /api/notes/:id
+```
+Body for create/update:
+```json
+{
+  "title": "Product strategy",
+  "content": "North star metrics, positioning, experiments...",
+  "tags": ["strategy", "q4"],
+  "pinned": true,
+  "relatedVision": "<visionId>"
+}
+```
+
+### Journal Endpoints
+```http
+GET /api/journal?from=2024-01-01&to=2024-12-31
+POST /api/journal
+PUT /api/journal/:id
+DELETE /api/journal/:id
+```
+Sample payload:
+```json
+{
+  "entryDate": "2024-09-01",
+  "mood": "good",
+  "summary": "Shipped the first cohort onboarding",
+  "highlights": ["Onboarded 25 mentors", "Secured pilot partner"],
+  "gratitude": ["Supportive team", "Community feedback"],
+  "nextSteps": ["Collect testimonials", "Iterate on checklist"]
+}
+```
+
+### Achievement Endpoints
+```http
+GET /api/achievements?visibility=public
+POST /api/achievements
+PUT /api/achievements/:id
+DELETE /api/achievements/:id
+```
+Sample payload:
+```json
+{
+  "title": "Closed partnership with SDG hub",
+  "description": "Signed 1-year collaboration MOU",
+  "achievedOn": "2024-08-15",
+  "relatedGoal": "<goalId>",
+  "visibility": "connections",
+  "impactScore": 80,
+  "evidenceUrl": "https://drive.google.com/..."
+}
+```
+
 ---
 
 ## 🔄 Real-time Features

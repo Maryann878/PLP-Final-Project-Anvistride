@@ -62,6 +62,15 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'unread' | 'urgent'>('all');
 
+  // Safety checks: ensure all arrays are defined (for use in JSX)
+  const safeVisions = visions || [];
+  const safeGoals = goals || [];
+  const safeTasks = tasks || [];
+  const safeIdeas = ideas || [];
+  const safeNotes = notes || [];
+  const safeJournal = journal || [];
+  const safeAchievements = achievements || [];
+
   // State for quote carousel
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(
     quotes.length > 0 ? Math.floor(Math.random() * quotes.length) : 0
@@ -108,12 +117,12 @@ export default function DashboardPage() {
     const today = now.toISOString().split("T")[0];
 
     // Vision filtering
-    const activeVisions = visions.filter((v) => v?.status === "Active");
-    const planningVisions = visions.filter((v) => v?.status === "Planning");
-    const pausedVisions = visions.filter((v) => v?.status === "Paused");
-    const completedVisions = visions.filter((v) => v?.status === "Completed");
-    const accomplishedVisions = visions.filter((v) => {
-      const linkedGoals = goals.filter((goal) => goal.linkedVisionId === v.id);
+    const activeVisions = safeVisions.filter((v) => v?.status === "Active");
+    const planningVisions = safeVisions.filter((v) => v?.status === "Planning");
+    const pausedVisions = safeVisions.filter((v) => v?.status === "Paused");
+    const completedVisions = safeVisions.filter((v) => v?.status === "Completed");
+    const accomplishedVisions = safeVisions.filter((v) => {
+      const linkedGoals = safeGoals.filter((goal) => goal.linkedVisionId === v.id);
       const allGoalsCompleted =
         linkedGoals.length > 0 &&
         linkedGoals.every((goal) => goal.status === "Completed");
@@ -122,14 +131,14 @@ export default function DashboardPage() {
     });
 
     // Goal filtering
-    const activeGoals = goals.filter((g) => g?.status === "In Progress");
-    const overdueGoals = goals.filter((g) => {
+    const activeGoals = safeGoals.filter((g) => g?.status === "In Progress");
+    const overdueGoals = safeGoals.filter((g) => {
       if (!g?.deadline || g?.status === "Completed") return false;
       const deadlineDate = new Date(g.deadline);
       return deadlineDate < now && deadlineDate.getTime() > 0;
     });
 
-    const upcomingDeadlines = goals
+    const upcomingDeadlines = safeGoals
       .filter((g) => {
         if (!g?.deadline || g?.status === "Completed") return false;
         const deadlineDate = new Date(g.deadline);
@@ -143,18 +152,18 @@ export default function DashboardPage() {
       .slice(0, 5);
 
     // Task filtering
-    const todayTasks = tasks.filter((t) => t?.status === "Todo");
-    const overdueTasks = tasks.filter((t) => {
+    const todayTasks = safeTasks.filter((t) => t?.status === "Todo");
+    const overdueTasks = safeTasks.filter((t) => {
       if (t?.status === "Done" || !t?.dueDate) return false;
       const dueDate = new Date(t.dueDate);
       return dueDate < now;
     });
-    const highPriorityTasks = tasks.filter(
+    const highPriorityTasks = safeTasks.filter(
       (t) => t?.priority === "High" && t?.status !== "Done"
     );
 
     // Smart prioritization for Today's Focus
-    const smartFocusTasks = tasks
+    const smartFocusTasks = safeTasks
       .filter((t) => t?.status === "Todo")
       .sort((a, b) => {
         const getPriorityScore = (task: any) => {
@@ -196,7 +205,7 @@ export default function DashboardPage() {
       .slice(0, 3);
 
     // Smart prioritization for This Week's Goals
-    const smartWeeklyGoals = goals
+    const smartWeeklyGoals = safeGoals
       .filter((g) => g?.status === "In Progress")
       .sort((a, b) => {
         const getGoalPriorityScore = (goal: any) => {
@@ -218,7 +227,7 @@ export default function DashboardPage() {
           }
 
           if (goal.visionId) {
-            const linkedVision = visions.find((v) => v.id === goal.visionId);
+            const linkedVision = safeVisions.find((v) => v.id === goal.visionId);
             if (linkedVision) score += 1;
           }
 
@@ -230,12 +239,12 @@ export default function DashboardPage() {
       .slice(0, 3);
 
     // Ideas filtering
-    const newIdeas = ideas.filter((i) => i?.createdAt);
+    const newIdeas = safeIdeas.filter((i) => i?.createdAt);
     // Note: Ideas don't have a status field in the current type definition
-    const implementedIdeas: typeof ideas = [];
+    const implementedIdeas: typeof safeIdeas = [];
 
     // Notes filtering
-    const recentNotes = notes
+    const recentNotes = safeNotes
       .filter((n) => n?.updatedAt)
       .sort(
         (a, b) =>
@@ -244,31 +253,31 @@ export default function DashboardPage() {
       .slice(0, 5);
 
     // Journal entries
-    const recentJournalEntries = journal
+    const recentJournalEntries = safeJournal
       .filter((j) => j?.date)
       .sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       )
       .slice(0, 3);
 
-    const todayJournalEntries = journal.filter((j) => j?.date === today);
+    const todayJournalEntries = safeJournal.filter((j) => j?.date === today);
 
     // Progress calculations
     const goalsProgress =
-      goals.length > 0
-        ? goals.reduce((sum, g) => sum + (g?.progress || 0), 0) / goals.length
+      safeGoals.length > 0
+        ? safeGoals.reduce((sum, g) => sum + (g?.progress || 0), 0) / safeGoals.length
         : 0;
 
     const tasksProgress =
-      tasks.length > 0
-        ? (tasks.filter((t) => t?.status === "Done").length / tasks.length) *
+      safeTasks.length > 0
+        ? (safeTasks.filter((t) => t?.status === "Done").length / safeTasks.length) *
           100
         : 0;
 
     const visionsProgress =
-      visions.length > 0
-        ? visions.reduce((sum, v) => sum + (v?.progress || 0), 0) /
-          visions.length
+      safeVisions.length > 0
+        ? safeVisions.reduce((sum, v) => sum + (v?.progress || 0), 0) /
+          safeVisions.length
         : 0;
 
     const overallProgress = Math.round(
@@ -276,21 +285,21 @@ export default function DashboardPage() {
     );
 
     const taskCompletionRate =
-      tasks.length > 0
+      safeTasks.length > 0
         ? Math.round(
-            (tasks.filter((t) => t?.status === "Done").length / tasks.length) *
+            (safeTasks.filter((t) => t?.status === "Done").length / safeTasks.length) *
               100
           )
         : 0;
 
     // Completion tracking
-    const completedToday = tasks.filter((t) => {
+    const completedToday = safeTasks.filter((t) => {
       if (t?.status !== "Done" || !t?.completedAt) return false;
       const completedDate = new Date(t.completedAt).toISOString().split("T")[0];
       return completedDate === today;
     }).length;
 
-    const completedThisWeek = tasks.filter((t) => {
+    const completedThisWeek = safeTasks.filter((t) => {
       if (t?.status !== "Done" || !t?.completedAt) return false;
       const completedDate = new Date(t.completedAt);
       const weekStart = new Date(now);
@@ -299,7 +308,7 @@ export default function DashboardPage() {
       return completedDate >= weekStart;
     }).length;
 
-    const completedThisMonth = tasks.filter((t) => {
+    const completedThisMonth = safeTasks.filter((t) => {
       if (t?.status !== "Done" || !t?.completedAt) return false;
       const completedDate = new Date(t.completedAt);
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -307,50 +316,50 @@ export default function DashboardPage() {
     }).length;
 
     // Recent achievements
-    const recentAchievements = achievements
+    const recentAchievements = safeAchievements
       .filter((a) => a?.date)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 4);
 
     // Activity timeline
     const activityTimeline = [
-      ...visions.map((v) => ({
+      ...safeVisions.map((v) => ({
         ...v,
         type: "vision",
         action: "created",
         timestamp: v.createdAt,
       })),
-      ...goals.map((g) => ({
+      ...safeGoals.map((g) => ({
         ...g,
         type: "goal",
         action: "created",
         timestamp: g.createdAt,
       })),
-      ...tasks.map((t) => ({
+      ...safeTasks.map((t) => ({
         ...t,
         type: "task",
         action: "created",
         timestamp: t.createdAt,
       })),
-      ...ideas.map((i) => ({
+      ...safeIdeas.map((i) => ({
         ...i,
         type: "idea",
         action: "created",
         timestamp: i.createdAt,
       })),
-      ...notes.map((n) => ({
+      ...safeNotes.map((n) => ({
         ...n,
         type: "note",
         action: "created",
         timestamp: n.updatedAt,
       })),
-      ...journal.map((j) => ({
+      ...safeJournal.map((j) => ({
         ...j,
         type: "journal",
         action: "created",
         timestamp: j.date,
       })),
-      ...achievements.map((a) => ({
+      ...safeAchievements.map((a) => ({
         ...a,
         type: "achievement",
         action: "created",
@@ -820,7 +829,7 @@ export default function DashboardPage() {
         />
         <StatCard
           icon={<Target className="h-6 w-6 text-white" />}
-          value={goals.length}
+          value={safeGoals.length}
           label="Total Goals"
           detail={`${dashboardData.activeGoals.length} In Progress • ${dashboardData.overdueGoals.length} Overdue`}
           badge={
@@ -836,7 +845,7 @@ export default function DashboardPage() {
         />
         <StatCard
           icon={<Clock className="h-6 w-6 text-white" />}
-          value={tasks.length}
+          value={safeTasks.length}
           label="Total Tasks"
           detail={`${dashboardData.todayTasks.length} Today • ${dashboardData.overdueTasks.length} Overdue`}
           badge={
@@ -852,7 +861,7 @@ export default function DashboardPage() {
         />
         <StatCard
           icon={<Lightbulb className="h-6 w-6 text-white" />}
-          value={ideas.length}
+          value={safeIdeas.length}
           label="Total Ideas"
           detail={`${dashboardData.newIdeas.length} New • 0 Implemented`}
           badge={

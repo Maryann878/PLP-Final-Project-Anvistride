@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { useSocket } from './SocketContext';
 import { saveToRecycleBin } from '@/lib/recycleBin';
+import * as ideaAPI from '@/api/idea';
 import type {
   VisionType,
   GoalType,
@@ -121,6 +122,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
     return action.payload;
   }
 
+  if (action.type === 'LOAD_IDEAS') {
+    return { ...state, ideas: action.payload };
+  }
+
   return state;
 }
 
@@ -170,17 +175,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const { socket, isConnected, emit, on, off } = useSocket();
   const isLocalUpdateRef = useRef(false); // Track if update is from local action
 
-  // Load from localStorage
+  // Load from backend and localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    const loadData = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        dispatch({ type: 'LOAD_STATE', payload: parsed });
-      } catch (err) {
-        console.error('Failed to load saved state', err);
+        // Load ideas from backend
+        const ideas = await ideaAPI.getIdeas();
+        if (ideas && ideas.length > 0) {
+          // Map backend data to frontend format
+          const mappedIdeas = ideas.map((idea: any) => ({
+            id: idea._id || idea.id,
+            title: idea.title,
+            description: idea.description,
+            status: idea.status ? idea.status.charAt(0).toUpperCase() + idea.status.slice(1) : 'Draft',
+            priority: idea.priority ? idea.priority.charAt(0).toUpperCase() + idea.priority.slice(1) : 'Medium',
+            category: idea.category,
+            linkedVisionId: idea.linkedVision,
+            linkedGoalId: idea.linkedGoal,
+            linkedTaskId: idea.linkedTask,
+            implementedAt: idea.implementedAt,
+            implementationNotes: idea.implementationNotes,
+            createdAt: idea.createdAt,
+          }));
+          dispatch({ type: 'LOAD_IDEAS', payload: mappedIdeas });
+        }
+      } catch (error) {
+        console.warn('Failed to load ideas from backend, using localStorage:', error);
       }
-    }
+
+      // Load other data from localStorage (for backward compatibility)
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Don't overwrite ideas if we loaded from backend
+          const { ideas: _, ...rest } = parsed;
+          dispatch({ type: 'LOAD_STATE', payload: rest });
+        } catch (err) {
+          console.error('Failed to load saved state', err);
+        }
+      }
+    };
+
+    loadData();
   }, []);
 
   // Persist to localStorage
@@ -274,7 +311,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     deleteVision: (id) => {
       const vision = state.visions.find(v => v.id === id);
       if (vision) {
-        saveToRecycleBin(vision, 'vision');
+        saveToRecycleBin(vision, 'vision').catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_VISIONS', payload: id });
       emitSync('entity:delete', { entity: 'visions', id });
@@ -295,9 +332,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const goal = state.goals.find(g => g.id === id);
       if (goal) {
         saveToRecycleBin(goal, 'goal', {
-          parentId: goal.visionId,
-          parentType: goal.visionId ? 'vision' : undefined,
-        });
+          parentId: goal.linkedVisionId || goal.visionId,
+          parentType: (goal.linkedVisionId || goal.visionId) ? 'vision' : undefined,
+        }).catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_GOALS', payload: id });
       emitSync('entity:delete', { entity: 'goals', id });
@@ -321,34 +358,77 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           parentId: metadata?.parentId || task.goalId || task.visionId,
           parentType: metadata?.parentType || (task.goalId ? 'goal' : task.visionId ? 'vision' : undefined),
           originalLocation: metadata?.originalLocation,
-        });
+        }).catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_TASKS', payload: id });
       emitSync('entity:delete', { entity: 'tasks', id });
       emitSync('activity:create', { type: 'delete', entity: 'tasks', itemId: id });
     },
     
-    addIdea: (item) => {
-      dispatch({ type: 'ADD_IDEAS', payload: item });
-      emitSync('entity:add', { entity: 'ideas', item });
-      emitSync('activity:create', { type: 'add', entity: 'ideas', itemId: item.id, itemTitle: item.title });
-    },
-    updateIdea: (id, data) => {
-      dispatch({ type: 'UPDATE_IDEAS', payload: { id, data } });
-      emitSync('entity:update', { entity: 'ideas', id, data });
-      emitSync('activity:create', { type: 'update', entity: 'ideas', itemId: id });
-    },
-    deleteIdea: (id) => {
-      const idea = state.ideas.find(i => i.id === id);
-      if (idea) {
-        saveToRecycleBin(idea, 'idea', {
-          parentId: idea.visionId || idea.goalId || idea.taskId,
-          parentType: idea.visionId ? 'vision' : idea.goalId ? 'goal' : idea.taskId ? 'task' : undefined,
-        });
+    addIdea: async (item) => {
+      try {
+        const payload = {
+          title: item.title,
+          description: item.description,
+          status: item.status?.toLowerCase() || 'draft',
+          priority: item.priority?.toLowerCase() || 'medium',
+          category: item.category,
+          linkedVision: item.linkedVisionId,
+          linkedGoal: item.linkedGoalId,
+          linkedTask: item.linkedTaskId,
+          implementationNotes: item.implementationNotes,
+        };
+        const created = await ideaAPI.createIdea(payload);
+        dispatch({ type: 'ADD_IDEAS', payload: { ...item, id: created._id || created.id } });
+        emitSync('entity:add', { entity: 'ideas', item: created });
+        emitSync('activity:create', { type: 'add', entity: 'ideas', itemId: created._id || created.id, itemTitle: item.title });
+      } catch (error) {
+        console.error('Error creating idea:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'ADD_IDEAS', payload: item });
       }
-      dispatch({ type: 'DELETE_IDEAS', payload: id });
-      emitSync('entity:delete', { entity: 'ideas', id });
-      emitSync('activity:create', { type: 'delete', entity: 'ideas', itemId: id });
+    },
+    updateIdea: async (id, data) => {
+      try {
+        const payload: any = {};
+        if (data.title !== undefined) payload.title = data.title;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.status !== undefined) payload.status = data.status.toLowerCase();
+        if (data.priority !== undefined) payload.priority = data.priority.toLowerCase();
+        if (data.category !== undefined) payload.category = data.category;
+        if (data.linkedVisionId !== undefined) payload.linkedVision = data.linkedVisionId;
+        if (data.linkedGoalId !== undefined) payload.linkedGoal = data.linkedGoalId;
+        if (data.linkedTaskId !== undefined) payload.linkedTask = data.linkedTaskId;
+        if (data.implementationNotes !== undefined) payload.implementationNotes = data.implementationNotes;
+        
+        const updated = await ideaAPI.updateIdea(id, payload);
+        dispatch({ type: 'UPDATE_IDEAS', payload: { id, data: updated } });
+        emitSync('entity:update', { entity: 'ideas', id, data: updated });
+        emitSync('activity:create', { type: 'update', entity: 'ideas', itemId: id });
+      } catch (error) {
+        console.error('Error updating idea:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'UPDATE_IDEAS', payload: { id, data } });
+      }
+    },
+    deleteIdea: async (id) => {
+      try {
+        const idea = state.ideas.find(i => i.id === id);
+        if (idea) {
+        saveToRecycleBin(idea, 'idea', {
+          parentId: idea.linkedVisionId || idea.linkedGoalId || idea.linkedTaskId,
+          parentType: idea.linkedVisionId ? 'vision' : idea.linkedGoalId ? 'goal' : idea.linkedTaskId ? 'task' : undefined,
+        }).catch(err => console.error('Error saving to recycle bin:', err));
+        }
+        await ideaAPI.deleteIdea(id);
+        dispatch({ type: 'DELETE_IDEAS', payload: id });
+        emitSync('entity:delete', { entity: 'ideas', id });
+        emitSync('activity:create', { type: 'delete', entity: 'ideas', itemId: id });
+      } catch (error) {
+        console.error('Error deleting idea:', error);
+        // Fallback to local state if API fails
+        dispatch({ type: 'DELETE_IDEAS', payload: id });
+      }
     },
     
     addNote: (item) => {
@@ -367,7 +447,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveToRecycleBin(note, 'note', {
           parentId: note.visionId || note.goalId || note.taskId,
           parentType: note.visionId ? 'vision' : note.goalId ? 'goal' : note.taskId ? 'task' : undefined,
-        });
+        }).catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_NOTES', payload: id });
       emitSync('entity:delete', { entity: 'notes', id });
@@ -390,7 +470,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveToRecycleBin(journal, 'journal', {
           parentId: journal.linkedVisionId || journal.linkedGoalId || journal.linkedTaskId,
           parentType: journal.linkedVisionId ? 'vision' : journal.linkedGoalId ? 'goal' : journal.linkedTaskId ? 'task' : undefined,
-        });
+        }).catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_JOURNAL', payload: id });
       emitSync('entity:delete', { entity: 'journal', id });
@@ -413,7 +493,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveToRecycleBin(achievement, 'achievement', {
           parentId: achievement.linkedVisionId || achievement.linkedGoalId || achievement.linkedTaskId,
           parentType: achievement.linkedVisionId ? 'vision' : achievement.linkedGoalId ? 'goal' : achievement.linkedTaskId ? 'task' : undefined,
-        });
+        }).catch(err => console.error('Error saving to recycle bin:', err));
       }
       dispatch({ type: 'DELETE_ACHIEVEMENTS', payload: id });
       emitSync('entity:delete', { entity: 'achievements', id });

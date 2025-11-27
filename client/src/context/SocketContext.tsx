@@ -67,12 +67,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     // Connection event handlers
     newSocket.on('connect', () => {
-      console.log('✅ Socket.IO connected');
       setIsConnected(true);
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('❌ Socket.IO disconnected:', reason);
       setIsConnected(false);
     });
 

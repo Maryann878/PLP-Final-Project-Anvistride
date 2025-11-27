@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useSocket } from './SocketContext';
+import * as notificationAPI from '@/api/notification';
 
 export interface Notification {
   id: string;
@@ -32,32 +33,66 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const socketContext = useSocket();
   const { isConnected, on, off } = socketContext;
 
-  // Load from localStorage on mount
+  // Load from backend on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const loadNotifications = async () => {
       try {
-        const parsed = JSON.parse(stored);
-        setNotifications(parsed);
-      } catch {
-        // Invalid data, start fresh
+        const data = await notificationAPI.getNotifications({ limit: 100 });
+        if (data && data.notifications) {
+          setNotifications(data.notifications.map((n: any) => ({
+            id: n._id || n.id,
+            type: n.type,
+            title: n.title,
+            message: n.message,
+            timestamp: n.createdAt || n.timestamp,
+            isRead: n.isRead,
+            priority: n.priority,
+            actionUrl: n.actionUrl,
+            actionText: n.actionText,
+          })));
+        }
+      } catch (error) {
+        console.warn('Failed to load notifications from backend, using localStorage:', error);
+        // Fallback to localStorage
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setNotifications(parsed);
+          } catch {
+            // Invalid data, start fresh
+            const welcomeNotification: Notification = {
+              id: Date.now().toString(),
+              type: 'system',
+              title: 'Welcome to Anvistride!',
+              message: 'Your account has been successfully created. Start by creating your first vision!',
+              timestamp: new Date().toISOString(),
+              isRead: false,
+              priority: 'low',
+              actionUrl: '/app/vision',
+              actionText: 'Create Vision',
+            };
+            setNotifications([welcomeNotification]);
+          }
+        } else {
+          // Initialize with welcome notification
+          const welcomeNotification: Notification = {
+            id: Date.now().toString(),
+            type: 'system',
+            title: 'Welcome to Anvistride!',
+            message: 'Your account has been successfully created. Start by creating your first vision!',
+            timestamp: new Date().toISOString(),
+            isRead: false,
+            priority: 'low',
+            actionUrl: '/app/vision',
+            actionText: 'Create Vision',
+          };
+          setNotifications([welcomeNotification]);
+        }
       }
-    } else {
-      // Initialize with welcome notification
-      const welcomeNotification: Notification = {
-        id: Date.now().toString(),
-        type: 'system',
-        title: 'Welcome to Anvistride!',
-        message: 'Your account has been successfully created. Start by creating your first vision!',
-        timestamp: new Date().toISOString(),
-        isRead: false,
-        priority: 'low',
-        actionUrl: '/app/vision',
-        actionText: 'Create Vision',
-      };
-      setNotifications([welcomeNotification]);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([welcomeNotification]));
-    }
+    };
+
+    loadNotifications();
   }, []);
 
   // Save to localStorage whenever notifications change
@@ -66,14 +101,35 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [notifications]);
 
   // Define addNotification before it's used in useEffect
-  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'isRead'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      isRead: false,
-    };
-    setNotifications(prev => [newNotification, ...prev]);
+  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'timestamp' | 'isRead'>) => {
+    try {
+      const created = await notificationAPI.createNotification({
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        priority: notification.priority,
+        actionUrl: notification.actionUrl,
+        actionText: notification.actionText,
+      });
+      
+      const newNotification: Notification = {
+        ...notification,
+        id: created._id || created.id || Date.now().toString(),
+        timestamp: created.createdAt || new Date().toISOString(),
+        isRead: created.isRead || false,
+      };
+      setNotifications(prev => [newNotification, ...prev]);
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      // Fallback to local state
+      const newNotification: Notification = {
+        ...notification,
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      };
+      setNotifications(prev => [newNotification, ...prev]);
+    }
   }, []);
 
   // Listen for real-time notifications from Socket.IO
@@ -131,22 +187,52 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
   }, [isConnected, on, off, addNotification]);
 
-  const markAsRead = useCallback((id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
-    );
+  const markAsRead = useCallback(async (id: string) => {
+    try {
+      await notificationAPI.markAsRead(id);
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      // Fallback to local state
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    }
   }, []);
 
-  const markAllAsRead = useCallback(() => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await notificationAPI.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      // Fallback to local state
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    }
   }, []);
 
-  const deleteNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const deleteNotification = useCallback(async (id: string) => {
+    try {
+      await notificationAPI.deleteNotification(id);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      // Fallback to local state
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }
   }, []);
 
-  const clearAllRead = useCallback(() => {
-    setNotifications(prev => prev.filter(n => !n.isRead));
+  const clearAllRead = useCallback(async () => {
+    try {
+      await notificationAPI.clearReadNotifications();
+      setNotifications(prev => prev.filter(n => !n.isRead));
+    } catch (error) {
+      console.error('Error clearing read notifications:', error);
+      // Fallback to local state
+      setNotifications(prev => prev.filter(n => !n.isRead));
+    }
   }, []);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;

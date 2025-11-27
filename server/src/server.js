@@ -17,6 +17,10 @@ import taskRoutes from "./routes/taskRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
 import achievementRoutes from "./routes/achievementRoutes.js";
+import ideaRoutes from "./routes/ideaRoutes.js";
+import recycleBinRoutes from "./routes/recycleBinRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import { initializeSocket } from "./socket/socketServer.js";
 
 dotenv.config();
@@ -191,6 +195,10 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/achievements", achievementRoutes);
+app.use("/api/ideas", ideaRoutes);
+app.use("/api/recycle", recycleBinRoutes);
+app.use("/api/activities", activityRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/chat", chatRoutes);
 
 // -----------------------------
