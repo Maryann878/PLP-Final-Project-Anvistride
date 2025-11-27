@@ -89,11 +89,25 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
 
       {/* Utility Icons Section - Playful */}
       <div className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-purple-100/50 dark:border-purple-800/50">
-          <NavLink
-            to="/app/notifications"
-            className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/30 dark:to-violet-900/30 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-800/50 dark:hover:to-violet-800/50 flex items-center justify-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 shadow-sm hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 group"
-            title="Notifications"
-            onClick={handleNavClick}
+          <button
+            onClick={() => {
+              if (location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications")) {
+                // If already on notifications page, navigate to dashboard
+                navigate("/app");
+                handleNavClick();
+              } else {
+                // If not on notifications page, navigate to it
+                navigate("/app/notifications");
+                handleNavClick();
+              }
+            }}
+            className={cn(
+              "relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-sm hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 group",
+              location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications")
+                ? "bg-gradient-to-br from-purple-600 to-violet-600 text-white"
+                : "bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/30 dark:to-violet-900/30 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-800/50 dark:hover:to-violet-800/50 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+            )}
+            title={location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications") ? "Close Notifications" : "Notifications"}
           >
             <FaBell className="h-5 w-5 group-hover:rotate-12 transition-transform duration-500" />
             {unreadCount > 0 && (
@@ -101,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
-          </NavLink>
+          </button>
           <NavLink
             to="/app/profile"
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/30 dark:to-violet-900/30 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-800/50 dark:hover:to-violet-800/50 flex items-center justify-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 shadow-sm hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 group"

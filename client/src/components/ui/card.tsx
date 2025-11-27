@@ -7,7 +7,7 @@ function Card({ className, children, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-white text-gray-900 flex flex-col gap-6 rounded-2xl border border-purple-100/50 p-6 shadow-md shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200/80 hover:-translate-y-1 transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden",
+        "bg-white text-gray-900 flex flex-col gap-3 sm:gap-4 md:gap-6 rounded-xl sm:rounded-2xl border border-purple-100/50 p-3 sm:p-4 md:p-6 shadow-md shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200/80 hover:-translate-y-1 transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden",
         className
       )}
       {...props}
@@ -23,7 +23,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-3 sm:px-4 md:px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-3 sm:[.border-b]:pb-4 md:[.border-b]:pb-6",
         className
       )}
       {...props}
@@ -68,7 +68,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      className={cn("px-3 sm:px-4 md:px-6", className)}
       {...props}
     />
   )
@@ -78,7 +78,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      className={cn("flex items-center px-3 sm:px-4 md:px-6 [.border-t]:pt-3 sm:[.border-t]:pt-4 md:[.border-t]:pt-6", className)}
       {...props}
     />
   )

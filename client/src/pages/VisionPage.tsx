@@ -558,18 +558,18 @@ export default function VisionPage() {
   return (
     <div className="space-y-8 p-4 md:p-6">
       {/* HEADER */}
-      <Card className="bg-white border border-gray-200/80 shadow-sm rounded-xl">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center text-white shadow-md">
-                <Eye className="h-6 w-6 sm:h-7 sm:w-7" />
+      <Card className="bg-white border border-gray-200/80 shadow-sm rounded-xl mx-3 sm:mx-4 md:mx-6">
+        <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 md:gap-6">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center text-white shadow-md">
+                <Eye className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-1 sm:mb-2 tracking-tight leading-tight">
                   Your Visions
                 </h1>
-                <p className="text-gray-500 text-sm font-medium">
+                <p className="text-gray-500 text-xs sm:text-sm font-medium">
                   Define your long-term aspirations and dreams
                 </p>
               </div>
@@ -579,43 +579,44 @@ export default function VisionPage() {
       </Card>
 
       {/* Vision Statistics - Compact */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200/50">
-          <Eye className="h-4 w-4 text-purple-600" />
-          <span className="text-lg font-bold text-gray-900">{visionsWithProgress.length}</span>
-          <span className="text-xs text-gray-600 font-medium">Total Visions</span>
+      <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 md:px-6">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200/50">
+          <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600" />
+          <span className="text-base sm:text-lg font-bold text-gray-900">{visionsWithProgress.length}</span>
+          <span className="text-xs text-gray-600 font-medium hidden sm:inline">Total Visions</span>
         </div>
         <Button 
           onClick={openCreateModal} 
-          className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:shadow-md hover:shadow-purple-500/25 transition-all duration-300 font-semibold"
+          className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:shadow-md hover:shadow-purple-500/25 transition-all duration-300 font-semibold text-sm sm:text-base px-3 sm:px-4 py-2"
         >
-          <PlusCircle className="h-5 w-5" /> 
+          <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5" /> 
           New Vision
         </Button>
       </div>
 
       {/* SEARCH & FILTERS - Only show when there are visions */}
       {visionsWithProgress.length > 0 && (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 px-3 sm:px-4 md:px-6">
           <div className="flex flex-1 items-center gap-2">
             <Input
               placeholder="Search visions..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
+              className="text-sm sm:text-base h-9 sm:h-10"
             />
             <Button
               variant="outline"
               onClick={() => setShowFilters(prev => !prev)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 text-xs sm:text-sm h-9 sm:h-10 px-2 sm:px-3"
             >
-              <Filter size={16} /> Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+              <Filter size={14} className="sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Filters</span> {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
             </Button>
           </div>
 
           {showFilters && (
-            <div className="flex flex-wrap gap-4 mt-2 md:mt-0">
+            <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 mt-2 md:mt-0">
               <Select value={selectedStatus} onValueChange={val => setSelectedStatus(val)}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32 h-9 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -628,7 +629,7 @@ export default function VisionPage() {
               </Select>
 
               <Select value={selectedPriority} onValueChange={val => setSelectedPriority(val)}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32 h-9 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent>
@@ -673,7 +674,7 @@ export default function VisionPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 px-3 sm:px-4 md:px-6">
           {filteredVisions.map(vision => {
             const formatDate = (dateString?: string) => {
               if (!dateString) return 'N/A';

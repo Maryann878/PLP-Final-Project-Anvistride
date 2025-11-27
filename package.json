@@ -12,17 +12,16 @@
     "dev:client": "npm run dev -w client",
     "dev:simple": "npm run docker:up && node scripts/wait-for-backend.js && npm run dev:client",
     "dev:old": "concurrently \"npm run dev -w client\" \"npm run dev -w server\"",
-
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "docker:restart": "docker compose restart",
-
     "build": "npm run build -w client && npm run build -w server",
     "start": "npm run start -w server"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "docx": "^9.5.1"
   },
   "type": "module"
 }
