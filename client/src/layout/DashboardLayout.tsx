@@ -25,7 +25,7 @@ const DashboardLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-x-hidden">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-900 w-full overflow-x-hidden">
       {/* NavbarMobile (Mobile only) */}
       <div className="block md:hidden">
         <NavbarMobile />

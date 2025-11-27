@@ -212,7 +212,7 @@ export default function NotesPage() {
       </Card>
 
       {/* Notes Statistics - Compact */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 relative">
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-50 to-teal-50 border border-green-200/50">
           <StickyNote className="h-4 w-4 text-green-600" />
           <span className="text-lg font-bold text-gray-900">{notes.length}</span>
@@ -225,6 +225,16 @@ export default function NotesPage() {
           <PlusCircle className="h-5 w-5" />
           Create Note
         </Button>
+        {/* Mobile FAB - Top Right */}
+        {isMobile && (
+          <button 
+            onClick={openCreateModal}
+            className="absolute top-0 right-0 w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 active:scale-95"
+            aria-label="Create new note"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Filters & Search - Only show when items exist */}
@@ -580,16 +590,6 @@ export default function NotesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Mobile FAB */}
-      {isMobile && (
-        <button 
-          onClick={openCreateModal}
-          className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-2xl hover:shadow-xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110"
-          aria-label="Create new note"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
 
       {/* Mobile Slide Menu */}
       {showMobileMenu && (

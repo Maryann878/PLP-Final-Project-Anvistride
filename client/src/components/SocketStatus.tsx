@@ -14,7 +14,7 @@ const SocketStatus: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-24 left-4 z-40 md:hidden">
+    <div className="fixed bottom-24 left-4 z-30 md:hidden">
       <div
         className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg shadow-md backdrop-blur-md border transition-all duration-300 ${
           isConnected

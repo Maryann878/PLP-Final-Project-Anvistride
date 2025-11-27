@@ -36,8 +36,8 @@ const BottomBar = () => {
     { to: '/app/notes', label: 'Notes', icon: '📝', action: null },
     { to: '/app/journal', label: 'Journal', icon: '📔', action: null },
     { to: '/app/achievements', label: 'Achievements', icon: '🏆', action: null },
-    { to: '/app/recycle-bin', label: 'Recycle Bin', icon: '🗑️', action: null },
     { to: '/app/settings', label: 'Settings', icon: '⚙️', action: null },
+    { to: '/app/recycle-bin', label: 'Recycle Bin', icon: '🗑️', action: null },
     { to: '/app/help', label: 'Help', icon: '❓', action: null },
     { to: null, label: 'Logout', icon: '🚪', action: handleLogout },
   ];

@@ -469,7 +469,7 @@ export default function TasksPage() {
       </Card>
 
       {/* Task Statistics - Compact */}
-      <div className="flex items-center justify-between gap-2 sm:gap-3">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 relative">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-orange-50 to-purple-50 border border-orange-200/50">
             <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-600" />
@@ -482,6 +482,16 @@ export default function TasksPage() {
             </div>
           )}
         </div>
+        {/* Mobile FAB - Top Right */}
+        {isMobile && (
+          <button 
+            onClick={openCreateModal}
+            className="absolute top-0 right-0 w-12 h-12 rounded-full bg-gradient-to-br from-orange-600 to-purple-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 active:scale-95"
+            aria-label="Create new task"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
         {/* Desktop: Options and Create buttons */}
         <div className="hidden sm:flex items-center gap-2">
           <Button
@@ -1000,16 +1010,6 @@ export default function TasksPage() {
         </>
       )}
 
-      {/* Mobile FAB */}
-      {isMobile && (
-        <button 
-          onClick={openCreateModal}
-          className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-orange-600 to-purple-500 text-white shadow-2xl hover:shadow-xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110"
-          aria-label="Create new task"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
     </>
   );
 }

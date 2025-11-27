@@ -334,7 +334,7 @@ export default function AchievementsPage() {
       </Card>
 
       {/* Achievements Statistics - Compact */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 relative">
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-50 to-purple-50 border border-amber-200/50">
           <Trophy className="h-4 w-4 text-amber-600" />
           <span className="text-lg font-bold text-gray-900">{achievements.length}</span>
@@ -347,6 +347,16 @@ export default function AchievementsPage() {
           <PlusCircle className="h-5 w-5" />
           Add Achievement
         </Button>
+        {/* Mobile FAB - Top Right */}
+        {isMobile && (
+          <button 
+            onClick={openCreateModal}
+            className="absolute top-0 right-0 w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-purple-600 text-white shadow-xl hover:shadow-2xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 active:scale-95"
+            aria-label="Add achievement"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Filters & Search - Only show when items exist */}
@@ -911,16 +921,6 @@ export default function AchievementsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Mobile FAB */}
-      {isMobile && (
-        <button 
-          onClick={openCreateModal}
-          className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-purple-600 text-white shadow-2xl hover:shadow-xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110"
-          aria-label="Add new achievement"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
 
       {/* Mobile Slide Menu */}
       {showMobileMenu && (

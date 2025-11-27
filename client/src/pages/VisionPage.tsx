@@ -579,7 +579,7 @@ export default function VisionPage() {
       </Card>
 
       {/* Vision Statistics - Compact */}
-      <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 md:px-6">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 md:px-6 relative">
         <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200/50">
           <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600" />
           <span className="text-base sm:text-lg font-bold text-gray-900">{visionsWithProgress.length}</span>
@@ -592,6 +592,16 @@ export default function VisionPage() {
           <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5" /> 
           New Vision
         </Button>
+        {/* Mobile FAB - Top Right */}
+        {isMobile && (
+          <button 
+            onClick={openCreateModal}
+            className="absolute top-0 right-0 w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 active:scale-95"
+            aria-label="Create new vision"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* SEARCH & FILTERS - Only show when there are visions */}
@@ -651,8 +661,8 @@ export default function VisionPage() {
             <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-100 via-purple-50 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center shadow-lg shadow-purple-500/10 animate-pulse-slow">
               <Eye className="h-14 w-14 sm:h-16 sm:w-16 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">No Visions Yet</h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 mb-3">No Visions Yet</h3>
+            <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
               Create your first vision to define your long-term aspirations and set the direction for your goals.
             </p>
             <Button 
@@ -669,8 +679,8 @@ export default function VisionPage() {
             <div className="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
               <Eye className="h-10 w-10 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No Visions Match Your Filters</h3>
-            <p className="text-gray-600 text-sm sm:text-base">Try adjusting your search criteria or clear the filters.</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">No Visions Match Your Filters</h3>
+            <p className="text-gray-600 dark:text-slate-300 text-sm sm:text-base">Try adjusting your search criteria or clear the filters.</p>
           </CardContent>
         </Card>
       ) : (
@@ -1389,16 +1399,6 @@ export default function VisionPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Mobile FAB */}
-      {isMobile && (
-        <button 
-          onClick={openCreateModal}
-          className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-teal-500 text-white shadow-2xl hover:shadow-xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110"
-          aria-label="Create new vision"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +15,7 @@ const navLinks = [
 const NavbarMobile = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { unreadCount } = useNotifications();
 
@@ -59,10 +60,19 @@ const NavbarMobile = () => {
 
           <button
             onClick={() => {
-              navigate('/app/notifications');
+              // Toggle: if on notifications page, go back to dashboard; otherwise go to notifications
+              if (location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications")) {
+                navigate('/app');
+              } else {
+                navigate('/app/notifications');
+              }
             }}
-            className="relative w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-all duration-200 active:scale-95"
-            title="Notifications"
+            className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 ${
+              location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications")
+                ? "bg-gradient-to-br from-purple-600 to-violet-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+            title={location.pathname === "/app/notifications" || location.pathname.startsWith("/app/notifications") ? "Close Notifications" : "Notifications"}
           >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
