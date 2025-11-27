@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
 import PageLoader from "@/components/PageLoader";
+import RootLayout from "@/components/RootLayout";
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
@@ -40,20 +41,23 @@ const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const router = createBrowserRouter([
-  // Public Routes
   {
-    path: "/",
-    element: (
-      <LazyWrapper>
-        <LandingPage />
-      </LazyWrapper>
-    ),
-    errorElement: (
-      <LazyWrapper>
-        <ErrorPage />
-      </LazyWrapper>
-    ),
-  },
+    element: <RootLayout />,
+    children: [
+      // Public Routes
+      {
+        path: "/",
+        element: (
+          <LazyWrapper>
+            <LandingPage />
+          </LazyWrapper>
+        ),
+        errorElement: (
+          <LazyWrapper>
+            <ErrorPage />
+          </LazyWrapper>
+        ),
+      },
   {
     path: "/login",
     element: (
@@ -398,14 +402,6 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/contact",
-    element: (
-      <LazyWrapper>
-        <ComingSoonPage />
-      </LazyWrapper>
-    ),
-  },
-  {
     path: "/social/twitter",
     element: (
       <LazyWrapper>
@@ -444,5 +440,7 @@ export const router = createBrowserRouter([
         <ComingSoonPage />
       </LazyWrapper>
     ),
+  },
+    ],
   },
 ]);

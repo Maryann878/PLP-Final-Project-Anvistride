@@ -651,8 +651,8 @@ export default function VisionPage() {
             <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-100 via-purple-50 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center shadow-lg shadow-purple-500/10 animate-pulse-slow">
               <Eye className="h-14 w-14 sm:h-16 sm:w-16 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Visions Yet</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">No Visions Yet</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
               Create your first vision to define your long-term aspirations and set the direction for your goals.
             </p>
             <Button 
@@ -669,8 +669,8 @@ export default function VisionPage() {
             <div className="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
               <Eye className="h-10 w-10 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">No Visions Match Your Filters</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Try adjusting your search criteria or clear the filters.</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No Visions Match Your Filters</h3>
+            <p className="text-gray-600 text-sm sm:text-base">Try adjusting your search criteria or clear the filters.</p>
           </CardContent>
         </Card>
       ) : (

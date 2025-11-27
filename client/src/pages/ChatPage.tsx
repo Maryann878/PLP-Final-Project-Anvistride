@@ -103,14 +103,14 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 w-full max-w-full overflow-x-hidden">
       {/* Header - FamzStride - Creative Branded Design */}
-      <Card className={`${glassClass} border-purple-200/50 dark:border-purple-800/50 overflow-hidden relative`}>
+      <Card className={`${glassClass} border-purple-200/50 dark:border-purple-800/50 overflow-hidden relative w-full`}>
         {/* Decorative gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-transparent to-teal-50/50 dark:from-purple-900/10 dark:to-teal-900/10 pointer-events-none"></div>
-        <CardContent className="p-6 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div className="flex items-center gap-5">
+        <CardContent className="p-4 sm:p-6 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
               {/* Creative Logo Container with Gold Accent */}
               <div className="relative group">
                 {/* Main logo container with gradient border */}
@@ -134,17 +134,17 @@ const ChatPage: React.FC = () => {
                   <MessageCircle className="h-3 w-3 text-white stroke-[2.5]" />
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="flex items-baseline gap-3 mb-2">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 sm:gap-3 mb-2 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
                     <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent">Famz</span>
                     <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm">Stride</span>
                   </h1>
-                  <span className="px-2.5 py-1 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-900/30 dark:via-yellow-900/20 dark:to-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px] sm:text-xs font-bold rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                  <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-900/30 dark:via-yellow-900/20 dark:to-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px] sm:text-xs font-bold rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
                     FS
                   </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base font-medium leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm md:text-base font-medium leading-relaxed">
                   Your stride family - connect with accountability partners and the community
                 </p>
               </div>
@@ -154,18 +154,18 @@ const ChatPage: React.FC = () => {
       </Card>
 
       {/* Chat Statistics - Compact */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-50 via-amber-50/50 to-teal-50 dark:from-purple-900/20 dark:via-amber-900/10 dark:to-teal-900/20 border border-purple-200/50 dark:border-purple-800/50 shadow-sm">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-50 via-amber-50/50 to-teal-50 dark:from-purple-900/20 dark:via-amber-900/10 dark:to-teal-900/20 border border-purple-200/50 dark:border-purple-800/50 shadow-sm flex-1 sm:flex-initial">
           <div className="relative">
             <MessageCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{chats.length}</span>
-          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Famz Members</span>
+          <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">{chats.length}</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium hidden sm:inline">Famz Members</span>
         </div>
         <Button
           onClick={() => setShowNewChat(true)}
-          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+          className="hidden sm:flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0"
         >
           <UserPlus className="h-5 w-5" />
           New Chat
@@ -173,22 +173,22 @@ const ChatPage: React.FC = () => {
       </div>
 
       {/* Chat Interface */}
-      <div className="h-[calc(100vh-20rem)] md:h-[calc(100vh-18rem)] flex gap-0 sm:gap-2 md:gap-4 min-h-0 relative overflow-hidden">
+      <div className="h-[calc(100vh-20rem)] md:h-[calc(100vh-18rem)] flex gap-0 sm:gap-2 md:gap-4 min-h-0 relative overflow-hidden w-full">
         {/* Chat List - Desktop always visible, mobile toggle */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex flex-col w-full md:w-80 lg:w-96 xl:w-[28rem] border-r-0 md:border-r border-gray-200 bg-white rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden shadow-none sm:shadow-sm h-full`}
+          } md:flex flex-col w-full md:w-80 lg:w-96 xl:w-[28rem] border-r-0 md:border-r border-gray-200 bg-white rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden shadow-none sm:shadow-sm h-full max-w-full`}
         >
           {/* Mobile header with back button - only show if we're in chat list view */}
           {showChatList && (
-            <div className="md:hidden p-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20 flex items-center gap-3 flex-shrink-0">
-              <h2 className="font-semibold text-gray-900 flex-1 text-base">Conversations</h2>
+            <div className="md:hidden p-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20 flex items-center gap-3 flex-shrink-0 w-full">
+              <h2 className="font-semibold text-gray-900 flex-1 text-base min-w-0">Conversations</h2>
               <Button
                 onClick={() => setShowNewChat(true)}
                 variant="ghost"
                 size="sm"
-                className="p-2"
+                className="p-2 flex-shrink-0"
                 aria-label="New chat"
               >
                 <UserPlus className="h-5 w-5" />
@@ -196,11 +196,11 @@ const ChatPage: React.FC = () => {
             </div>
           )}
 
-          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20">
+          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-teal-50 dark:from-purple-900/20 dark:to-teal-900/20 w-full">
             <div className="flex items-center justify-between mb-3 hidden md:flex">
               <h2 className="font-semibold text-gray-900">Conversations</h2>
             </div>
-            <div className="relative">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
@@ -215,7 +215,7 @@ const ChatPage: React.FC = () => {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 flex flex-col min-w-0 h-full">
+        <div className="flex-1 flex flex-col min-w-0 h-full w-full max-w-full">
           {activeChat ? (
             <ChatWindow 
               onBack={() => {
@@ -226,8 +226,8 @@ const ChatPage: React.FC = () => {
               }}
             />
           ) : (
-            <Card className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900 dark:to-purple-900/10 rounded-none sm:rounded-xl md:rounded-2xl m-0">
-              <div className="text-center text-gray-500 dark:text-gray-400 px-4">
+            <Card className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900 dark:to-purple-900/10 rounded-none sm:rounded-xl md:rounded-2xl m-0 w-full">
+              <div className="text-center text-gray-500 dark:text-gray-400 px-4 w-full">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mx-auto mb-4 sm:mb-6 rounded-2xl bg-gradient-to-br from-purple-100 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center p-4 shadow-lg border-2 border-purple-200/50 dark:border-purple-800/50">
                   <img 
                     src="/Anvistride_logo.png" 
