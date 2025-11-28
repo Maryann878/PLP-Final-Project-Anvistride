@@ -64,9 +64,13 @@ const HeroSection: React.FC = () => {
               <span className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-amber-300 animate-ping opacity-75 z-10" style={{ animationDelay: '0.5s' }}></span>
               <span className="absolute top-1/2 -right-3 h-2.5 w-2.5 rounded-full bg-yellow-300 animate-ping opacity-60 z-10" style={{ animationDelay: '1s' }}></span>
               
-              {/* Main "Stride" text with stunning gradient - No overlays, just gradient and shadows */}
-              <span className="relative block bg-gradient-to-r from-amber-300 via-yellow-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tight [text-shadow:_0_0_40px_rgba(255,215,0,0.8),_0_0_60px_rgba(255,193,7,0.6),_0_0_80px_rgba(255,152,0,0.4)] group-hover:scale-105 transition-transform duration-300">
-                Stride
+              {/* Main "Stride" text with stunning gradient - Reduced size on desktop, darkened */}
+              <span className="relative block">
+                {/* Darkening backdrop to reduce brightness */}
+                <span className="absolute inset-0 bg-black/15 lg:bg-black/20 rounded-lg blur-md -z-0"></span>
+                <span className="relative block bg-gradient-to-r from-amber-300 via-yellow-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent text-6xl sm:text-7xl md:text-8xl lg:text-8xl font-extrabold tracking-tight [text-shadow:_0_0_40px_rgba(255,215,0,0.5),_0_0_60px_rgba(255,193,7,0.3),_0_0_80px_rgba(255,152,0,0.2)] group-hover:scale-105 transition-transform duration-300">
+                  Stride
+                </span>
               </span>
             </span>
           </h1>
