@@ -17,7 +17,7 @@
 
 **Aligned with UN SDGs:** [![SDG 4](https://img.shields.io/badge/SDG-4-1F2937?style=flat-square&labelColor=C5192D)](https://www.un.org/sustainabledevelopment/education/) [![SDG 8](https://img.shields.io/badge/SDG-8-1F2937?style=flat-square&labelColor=A21942)](https://www.un.org/sustainabledevelopment/economic-growth/) [![SDG 17](https://img.shields.io/badge/SDG-17-1F2937?style=flat-square&labelColor=19486A)](https://www.un.org/sustainabledevelopment/globalpartnerships/)
 
-[🌐 Live Demo](https://anvistride.pages.dev) • [📚 Documentation](#documentation) • [🐛 Report Bug](#) • [💡 Request Feature](#)
+[🌐 Live Demo](https://anvistride.pages.dev) • [📚 Documentation](#documentation) • [🐛 Report Bug](#) • [💡 Request Feature](#) •![CI/CD Pipeline](https://github.com/Maryann878/YOUR_REPO/workflows/CI%2FCD%20Pipeline/badge.svg)(#)
 
 </div>
 
