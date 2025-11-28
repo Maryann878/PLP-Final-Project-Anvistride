@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden">
         {/* Main background image - Restore previous opacity for better text visibility */}
         <div
-          className="absolute mt-5 lg:mt-20 inset-0 opacity-85 md:opacity-70 lg:opacity-65"
+          className="absolute mt-5 lg:mt-25 inset-0 opacity-85 md:opacity-70 lg:opacity-65"
           style={{
             backgroundImage: "url('/hero_img.png')",
             backgroundSize: "cover",
@@ -55,7 +55,7 @@ const HeroSection: React.FC = () => {
           
           {/* Hero Headline - The Star - Reduced sizes with better visibility */}
           <h1 className="max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-3 sm:mb-4 mt-5 tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)] [text-shadow:_0_2px_20px_rgba(0,0,0,0.9),_0_0_40px_rgba(0,0,0,0.5)]">
+            <span className="block text-3xl mt-8 lg:mt-0 sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-3 sm:mb-4 mt-5 tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)] [text-shadow:_0_2px_20px_rgba(0,0,0,0.9),_0_0_40px_rgba(0,0,0,0.5)]">
               Transform Your Vision Into
             </span>
             <span className="relative inline-block mt-2 group">
@@ -76,7 +76,7 @@ const HeroSection: React.FC = () => {
           </h1>
 
           {/* Refined Description - Reduced size with backdrop for visibility */}
-          <div className="relative mb-5 sm:mb-6 md:mb-7 max-w-2xl mx-auto px-4 py-3 sm:py-4 rounded-2xl backdrop-blur-md bg-black/30 md:bg-black/25 border border-white/20 shadow-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="relative mb-5 sm:mb-6 md:mb-7 max-w-2xl mx-auto px-2 py-2 sm:py-4 rounded-2xl backdrop-blur-md bg-black/30 md:bg-black/25 border border-white/20 shadow-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <p className="text-white text-sm sm:text-base md:text-lg leading-relaxed drop-shadow-[0_3px_15px_rgba(0,0,0,0.9)] [text-shadow:_0_2px_10px_rgba(0,0,0,0.95)] font-semibold">
               A productivity platform that combines{" "}
               <span className="font-bold bg-gradient-to-r from-purple-300 to-purple-200 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(168,85,247,0.8)]">vision planning</span>
