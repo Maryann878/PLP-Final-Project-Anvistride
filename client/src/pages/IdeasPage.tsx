@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Lightbulb, Edit3, Trash2, ChevronDown, ChevronUp, PlusCircle, Plus, X, CheckCircle, Play, Pause, Flag, Calendar } from "lucide-react";
 import { useAppContext } from "@/context/AppContext";
 import { getGlobalToast } from "@/lib/toast";
+import EmptyState from "@/components/EmptyState";
 import type { IdeaType } from "@/types";
 
 const statusOptions = ["Draft", "Exploring", "Ready", "Implemented", "Archived"] as const;
@@ -384,23 +385,16 @@ export default function IdeasPage() {
 
       {/* Ideas Grid or Empty State */}
       {filteredIdeas.length === 0 && ideas.length === 0 ? (
-        <Card className={glassClass}>
-          <CardContent className="p-12 sm:p-16 text-center">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-purple-100 dark:from-yellow-900/30 dark:to-purple-900/30 flex items-center justify-center shadow-lg shadow-yellow-500/10 animate-pulse-slow">
-              <Lightbulb className="h-14 w-14 sm:h-16 sm:w-16 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Ideas Yet</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-              Capture your spontaneous ideas and organize them for future implementation.
-            </p>
-            <Button 
-              onClick={openCreateModal} 
-              className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-purple-500 hover:from-yellow-600 hover:via-yellow-500 hover:to-purple-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
-            >
-              Capture Your First Idea
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Lightbulb}
+          title="No Ideas Yet"
+          description="Capture your spontaneous ideas and organize them for future implementation."
+          actionLabel="Capture Your First Idea"
+          onAction={openCreateModal}
+          iconBg="from-yellow-100 via-yellow-50 to-purple-100 dark:from-yellow-900/30 dark:to-purple-900/30"
+          iconColor="text-yellow-600 dark:text-yellow-400"
+          buttonClassName="bg-gradient-to-r from-yellow-500 via-yellow-400 to-purple-500 hover:from-yellow-600 hover:via-yellow-500 hover:to-purple-600 focus-visible:ring-yellow-500"
+        />
       ) : filteredIdeas.length === 0 ? (
         <Card className={glassClass}>
           <CardContent className="p-12 text-center">

@@ -42,7 +42,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         <div
           onClick={handleClick}
           className={cn(
-            "h-5 w-5 shrink-0 rounded-md border-2 transition-all duration-200 cursor-pointer flex items-center justify-center",
+            "h-5 w-5 shrink-0 rounded border-2 transition-all duration-300 cursor-pointer flex items-center justify-center hover:scale-110 active:scale-95",
             "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
             disabled && "cursor-not-allowed opacity-50",
             checked

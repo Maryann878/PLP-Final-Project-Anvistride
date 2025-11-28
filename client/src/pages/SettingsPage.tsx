@@ -163,17 +163,25 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <Settings className="h-6 w-6 sm:h-7 sm:w-7" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent mb-1 sm:mb-2">
-              Settings
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage your account and data preferences</p>
+      {/* Enhanced Header - Modern & Professional */}
+      <div className="relative">
+        <div className={`${glassClass} p-6 sm:p-8`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              {/* Enhanced Icon with glow effect */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-teal-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/30 ring-2 ring-white/20 group-hover:scale-105 transition-transform duration-300">
+                  <Settings className="h-7 w-7 sm:h-8 sm:w-8" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
+                  Settings
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">Manage your account and data preferences</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

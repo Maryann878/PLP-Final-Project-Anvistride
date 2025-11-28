@@ -31,6 +31,7 @@ import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getGlobalToast } from "@/lib/toast";
+import EmptyState from "@/components/EmptyState";
 import {
   Search,
   Filter,
@@ -656,23 +657,16 @@ export default function VisionPage() {
 
       {/* VISIONS GRID OR EMPTY STATE */}
       {filteredVisions.length === 0 && visionsWithProgress.length === 0 ? (
-        <Card className={glassClass}>
-          <CardContent className="p-12 sm:p-16 text-center">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-100 via-purple-50 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30 flex items-center justify-center shadow-lg shadow-purple-500/10 animate-pulse-slow">
-              <Eye className="h-14 w-14 sm:h-16 sm:w-16 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 mb-3">No Visions Yet</h3>
-            <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-              Create your first vision to define your long-term aspirations and set the direction for your goals.
-            </p>
-            <Button 
-              onClick={openCreateModal} 
-              className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
-            >
-              Create Your First Vision
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Eye}
+          title="No Visions Yet"
+          description="Create your first vision to define your long-term aspirations and set the direction for your goals."
+          actionLabel="Create Your First Vision"
+          onAction={openCreateModal}
+          iconBg="from-purple-100 via-purple-50 to-teal-100 dark:from-purple-900/30 dark:to-teal-900/30"
+          iconColor="text-purple-600 dark:text-purple-400"
+          buttonClassName="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 focus-visible:ring-purple-500"
+        />
       ) : filteredVisions.length === 0 ? (
         <Card className={glassClass}>
           <CardContent className="p-12 sm:p-16 text-center">

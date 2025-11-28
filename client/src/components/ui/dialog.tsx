@@ -115,7 +115,7 @@ const DialogContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-[60] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200/80 bg-white p-6 shadow-xl duration-200 animate-in fade-in-0 zoom-in-95 sm:rounded-xl",
+          "fixed left-[50%] top-[50%] z-[60] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-purple-200/50 bg-white p-6 shadow-xl shadow-purple-500/10 duration-300 animate-in fade-in-0 zoom-in-95 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2",
           className
         )}
         onClick={(e) => e.stopPropagation()}
@@ -124,7 +124,7 @@ const DialogContent = React.forwardRef<
         {children}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-lg opacity-70 hover:opacity-100 ring-offset-background transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 p-1.5"
+          className="absolute right-4 top-4 rounded-xl opacity-70 hover:opacity-100 ring-offset-background transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 p-1.5"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>

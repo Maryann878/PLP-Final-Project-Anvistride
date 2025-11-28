@@ -243,17 +243,27 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8 p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-            <UserCircle2 className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent">
-              Your Profile
-            </h1>
-            <p className="text-gray-600">Manage your account information and preferences</p>
+      {/* Enhanced Header - Modern & Professional */}
+      <div className="relative">
+        <div className={`${glassClass} p-6 sm:p-8`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              {/* Enhanced Icon with glow effect */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-teal-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/30 ring-2 ring-white/20 group-hover:scale-105 transition-transform duration-300">
+                  <UserCircle2 className="h-7 w-7 sm:h-8 sm:w-8" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent mb-2 tracking-tight leading-tight">
+                  Your Profile
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base font-medium">
+                  Manage your account information and preferences
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

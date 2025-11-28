@@ -104,47 +104,46 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="space-y-2 sm:space-y-3 p-2 sm:p-3 md:p-4 w-full max-w-full overflow-x-hidden h-full flex flex-col">
-      {/* Header - FamzStride - Compact Design */}
-      <Card className={`${glassClass} border-purple-200/50 dark:border-purple-800/50 overflow-hidden relative w-full flex-shrink-0`}>
-        {/* Decorative gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-transparent to-teal-50/50 dark:from-purple-900/10 dark:to-teal-900/10 pointer-events-none"></div>
-        <CardContent className="p-3 sm:p-4 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              {/* Compact Logo Container */}
+      {/* Enhanced Header - Modern & Professional */}
+      <div className="relative w-full flex-shrink-0">
+        <div className={`${glassClass} p-6 sm:p-8`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              {/* Enhanced Logo Container with glow effect */}
               <div className="relative group flex-shrink-0">
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center shadow-lg ring-2 ring-white/20 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 via-purple-400/15 to-teal-400/20 rounded-xl"></div>
-                  <div className="relative z-10 flex items-center justify-center p-1.5">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-teal-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 flex items-center justify-center shadow-xl shadow-purple-500/30 ring-2 ring-white/20 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 via-purple-400/15 to-teal-400/20 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center justify-center p-2">
                     <img 
                       src="/Anvistride_logo.png" 
                       alt="Anvistride" 
                       className="w-full h-full object-contain"
                     />
                   </div>
-                </div>
-                <div className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 border-2 border-white dark:border-gray-900 flex items-center justify-center shadow-lg">
-                  <MessageCircle className="h-2.5 w-2.5 text-white stroke-[2.5]" />
+                  <div className="absolute -top-1 -right-1 w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 border-2 border-white dark:border-gray-900 flex items-center justify-center shadow-lg">
+                    <MessageCircle className="h-3 w-3 text-white stroke-[2.5]" />
+                  </div>
                 </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
+              <div className="flex-1">
+                <div className="flex items-baseline gap-2 sm:gap-3 mb-2 flex-wrap">
+                  <h1 className="text-3xl sm:text-4xl md:text-4xl font-bold tracking-tight leading-tight">
                     <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent">Famz</span>
                     <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent">Stride</span>
                   </h1>
-                  <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-900/30 dark:via-yellow-900/20 dark:to-amber-900/30 text-amber-700 dark:text-amber-300 text-[9px] sm:text-[10px] font-bold rounded-full border border-amber-300 dark:border-amber-700">
+                  <span className="px-2 py-1 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-900/30 dark:via-yellow-900/20 dark:to-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full border border-amber-300 dark:border-amber-700">
                     FS
                   </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium leading-snug truncate">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
                   Connect with accountability partners and the community
                 </p>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Chat Statistics - Compact */}
       <div className="flex items-center justify-between gap-2 w-full flex-shrink-0">

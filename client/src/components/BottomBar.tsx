@@ -117,31 +117,35 @@ const BottomBar = () => {
           to="/app"
           onClick={handleNavClick}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
               isActive 
-                ? "text-purple-600 bg-purple-50" 
-                : "text-purple-400 hover:text-purple-600 hover:bg-purple-50 active:scale-95"
+                ? "text-purple-600 bg-gradient-to-br from-purple-50 to-purple-100/50" 
+                : "text-gray-500 hover:text-purple-600 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 active:scale-95"
             }`
           }
           aria-label="Dashboard"
         >
-          <Home className="w-5 h-5" />
-          <span>Home</span>
+          {({ isActive }) => (
+            <>
+              <Home className={`w-5 h-5 transition-all duration-300 ${isActive ? 'text-purple-600' : 'text-gray-500 group-hover:text-purple-600'}`} />
+              <span>Home</span>
+            </>
+          )}
         </NavLink>
 
         <NavLink
           to="/app/vision"
           onClick={handleNavClick}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
               isActive 
-                ? "text-purple-600 bg-purple-50" 
-                : "text-purple-400 hover:text-purple-600 hover:bg-purple-50 active:scale-95"
+                ? "text-purple-600 bg-gradient-to-br from-purple-50 to-violet-50" 
+                : "text-gray-500 hover:text-purple-600 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 active:scale-95"
             }`
           }
           aria-label="Vision"
         >
-          <Eye className="w-5 h-5" />
+          <Eye className="w-5 h-5 transition-all duration-300 group-hover:text-purple-600" />
           <span>Vision</span>
         </NavLink>
 
@@ -149,15 +153,15 @@ const BottomBar = () => {
           to="/app/goals"
           onClick={handleNavClick}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-2 rounded-xl flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 ${
               isActive 
-                ? "text-teal-600 bg-teal-50" 
-                : "text-teal-400 hover:text-teal-600 hover:bg-teal-50 active:scale-95"
+                ? "text-teal-600 bg-gradient-to-br from-teal-50 to-cyan-50" 
+                : "text-gray-500 hover:text-teal-600 hover:bg-gradient-to-br hover:from-teal-50 hover:to-cyan-50 active:scale-95"
             }`
           }
           aria-label="Goals"
         >
-          <Target className="w-5 h-5" />
+          <Target className="w-5 h-5 transition-all duration-300 group-hover:text-teal-600" />
           <span>Goals</span>
         </NavLink>
 
@@ -165,15 +169,15 @@ const BottomBar = () => {
           to="/app/tasks"
           onClick={handleNavClick}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-2 rounded-xl flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
               isActive 
-                ? "text-amber-600 bg-amber-50" 
-                : "text-amber-400 hover:text-amber-600 hover:bg-amber-50 active:scale-95"
+                ? "text-amber-600 bg-gradient-to-br from-amber-50 to-yellow-50" 
+                : "text-gray-500 hover:text-amber-600 hover:bg-gradient-to-br hover:from-amber-50 hover:to-yellow-50 active:scale-95"
             }`
           }
           aria-label="Tasks"
         >
-          <CheckSquare className="w-5 h-5" />
+          <CheckSquare className="w-5 h-5 transition-all duration-300 group-hover:text-amber-600" />
           <span>Tasks</span>
         </NavLink>
 
@@ -181,28 +185,28 @@ const BottomBar = () => {
           to="/app/profile"
           onClick={handleNavClick}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-200 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
+            `flex flex-col items-center gap-1 text-xs font-semibold transition-all duration-300 px-2.5 py-2 rounded-xl flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 ${
               isActive 
-                ? "text-purple-600 bg-purple-50" 
-                : "text-purple-400 hover:text-purple-600 hover:bg-purple-50 active:scale-95"
+                ? "text-purple-600 bg-gradient-to-br from-purple-50 to-violet-50" 
+                : "text-gray-500 hover:text-purple-600 hover:bg-gradient-to-br hover:from-purple-50 hover:to-violet-50 active:scale-95"
             }`
           }
           aria-label="Profile"
         >
-          <User className="w-5 h-5" />
+          <User className="w-5 h-5 transition-all duration-300 group-hover:text-purple-600" />
           <span>Profile</span>
         </NavLink>
 
         <button
-          className="flex flex-col items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-700 transition-all relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 rounded-xl px-2.5 py-2"
+          className="flex flex-col items-center gap-1 text-xs font-semibold text-gray-500 hover:text-purple-600 transition-all duration-300 relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 rounded-xl px-2.5 py-2"
           onClick={() => setShowMenu(!showMenu)}
           aria-label="More options"
           aria-expanded={showMenu}
         >
-          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-200 ${showMenu ? 'scale-110 rotate-90' : 'hover:scale-110 hover:rotate-12 active:scale-95'}`}>
-            <Menu className="w-5 h-5 text-white transition-transform duration-200" />
+          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br from-[#6A0DAD] via-[#8B5CF6] to-[#A78BFA] flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300 ${showMenu ? 'scale-110 rotate-90' : 'hover:scale-110 hover:rotate-12 active:scale-95'}`}>
+            <Menu className="w-5 h-5 text-white transition-transform duration-300" />
           </div>
-          <span className="text-[10px] group-hover:text-purple-700 transition-colors duration-200">More</span>
+          <span className="text-[10px] transition-colors duration-300 group-hover:text-purple-600">More</span>
         </button>
       </nav>
     </>

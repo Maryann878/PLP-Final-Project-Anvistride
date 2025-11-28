@@ -109,7 +109,7 @@ const SelectTrigger = React.forwardRef<
       onClick={() => onOpenChange(!open)}
       style={{ colorScheme: 'light', ...style }}
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-md border border-input bg-white text-gray-900 px-3 py-2 text-sm ring-offset-background placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-11 w-full items-center justify-between rounded-xl border-2 border-purple-200/50 bg-white text-gray-900 px-4 py-2.5 text-sm shadow-sm transition-all duration-300 placeholder:text-gray-400 hover:border-purple-300/70 hover:shadow-md hover:scale-[1.01] focus-visible:outline-none focus-visible:border-[#6A0DAD] focus-visible:ring-[#6A0DAD]/30 focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:shadow-lg focus-visible:shadow-purple-500/20 focus-visible:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
         className
       )}
       {...props}
@@ -133,7 +133,7 @@ const SelectContent = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+        "absolute z-50 min-w-[8rem] overflow-hidden rounded-xl border-2 border-purple-200/50 bg-white text-gray-900 shadow-lg shadow-purple-500/10 animate-in fade-in-0 zoom-in-95",
         className
       )}
       {...props}

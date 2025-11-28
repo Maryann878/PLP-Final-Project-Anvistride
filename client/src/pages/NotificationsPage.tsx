@@ -84,40 +84,62 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
-            <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+      {/* Enhanced Header - Modern & Professional */}
+      <div className="relative">
+        <div className={`${glassClass} p-6 sm:p-8`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-5 flex-1">
+              {/* Enhanced Icon with glow effect */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-teal-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 via-purple-500 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/30 ring-2 ring-white/20 group-hover:scale-105 transition-transform duration-300">
+                  <Bell className="h-7 w-7 sm:h-8 sm:w-8" />
+                  {/* Unread count badge */}
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-white animate-pulse">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 sm:gap-3 mb-2 flex-wrap">
+                  <h1 className="text-3xl sm:text-4xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-teal-500 bg-clip-text text-transparent tracking-tight leading-tight">
+                    Notifications
+                  </h1>
+                  {unreadCount > 0 && (
+                    <span className="px-2.5 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs sm:text-sm font-bold rounded-full shadow-lg ring-2 ring-white/50">
+                      {unreadCount} {unreadCount === 1 ? 'new' : 'new'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">Stay updated with your progress and important updates</p>
+              </div>
+            </div>
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-2 sm:flex-nowrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSettings(!showSettings)}
+                className="flex-1 sm:flex-initial"
+              >
+                <Settings className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Settings</span>
+              </Button>
+              {unreadCount > 0 && (
+                <Button
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:from-purple-700 hover:to-teal-600 flex-1 sm:flex-initial shadow-lg"
+                >
+                  <Check className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Mark All Read</span>
+                  <span className="sm:hidden">Mark Read</span>
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-teal-500 bg-clip-text text-transparent">
-              Notifications
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 hidden sm:block">Stay updated with your progress and important updates</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-            className="flex-1 sm:flex-initial"
-          >
-            <Settings className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Settings</span>
-          </Button>
-          {unreadCount > 0 && (
-            <Button
-              size="sm"
-              onClick={markAllAsRead}
-              className="bg-gradient-to-r from-purple-600 to-teal-500 text-white flex-1 sm:flex-initial"
-            >
-              <Check className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Mark All Read</span>
-              <span className="sm:hidden">Mark Read</span>
-            </Button>
-          )}
         </div>
       </div>
 
