@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useSocket } from './SocketContext';
+import { useAuth } from './AuthContext';
 import * as notificationAPI from '@/api/notification';
 
 export interface Notification {
@@ -32,9 +33,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const socketContext = useSocket();
   const { isConnected, on, off } = socketContext;
+  const { user, loading: authLoading } = useAuth(); // Get auth state
 
-  // Load from backend on mount
+  // Load from backend on mount - ONLY if user is authenticated
   useEffect(() => {
+    // Don't load data if auth is still loading or user is not authenticated
+    if (authLoading || !user) {
+      return;
+    }
+
     const loadNotifications = async () => {
       try {
         const data = await notificationAPI.getNotifications({ limit: 100 });
@@ -93,7 +100,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     loadNotifications();
-  }, []);
+  }, [user, authLoading]); // Only load when user/auth state changes
 
   // Save to localStorage whenever notifications change
   useEffect(() => {

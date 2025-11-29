@@ -1,6 +1,7 @@
 // client/src/context/ActivityContext.tsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSocket } from './SocketContext';
+import { useAuth } from './AuthContext';
 import * as activityAPI from '@/api/activity';
 
 export interface Activity {
@@ -28,9 +29,15 @@ const MAX_ACTIVITIES = 50; // Keep last 50 activities
 export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const { isConnected, on, off } = useSocket();
+  const { user, loading: authLoading } = useAuth(); // Get auth state
 
-  // Load activities from backend
+  // Load activities from backend - ONLY if user is authenticated
   useEffect(() => {
+    // Don't load data if auth is still loading or user is not authenticated
+    if (authLoading || !user) {
+      return;
+    }
+
     const loadActivities = async () => {
       try {
         const data = await activityAPI.getActivities({ limit: MAX_ACTIVITIES });
@@ -62,7 +69,7 @@ export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     loadActivities();
-  }, []);
+  }, [user, authLoading]); // Only load when user/auth state changes
 
   // Save activities to localStorage
   useEffect(() => {
