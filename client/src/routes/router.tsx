@@ -91,7 +91,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/email-verification",
+    path: "/verify-email",
     element: (
       <LazyWrapper>
         <EmailVerificationPage />
