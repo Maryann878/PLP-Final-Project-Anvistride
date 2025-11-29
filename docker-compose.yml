@@ -39,6 +39,8 @@ services:
       MONGODB_URI: ${MONGODB_URI:-mongodb://admin:password@mongodb:27017/anvistride?authSource=admin}
       JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
       CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-${CLIENT_URL:-http://localhost:5173}}
     # Only depend on local MongoDB if using local MongoDB (not Atlas)
     depends_on:
       mongodb:

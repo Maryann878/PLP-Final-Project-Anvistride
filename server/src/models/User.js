@@ -18,6 +18,26 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please enter your password"],
       minlength: 6,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: true, // ✅ Backward compatible: existing users treated as verified
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

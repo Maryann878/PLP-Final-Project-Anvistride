@@ -117,6 +117,28 @@ const RegisterPage: React.FC = () => {
 
     try {
       const data = await registerUser({ username, email, password });
+      
+      // Check if email verification is required
+      if (data?.requiresVerification) {
+        // Store token if provided (for after verification)
+        if (data?.token) {
+          localStorage.setItem('token', data.token);
+        }
+        
+        // Redirect to email verification page
+        navigate("/verify-email", {
+          state: { email, username }
+        });
+        
+        const toast = getGlobalToast();
+        toast?.({
+          title: "Check Your Email",
+          description: "We've sent a verification email. Please verify your email to continue.",
+          variant: "default",
+        });
+        return;
+      }
+      
       if (data?.token) {
         // Update auth context and then navigate to onboarding
         await login(data.token);

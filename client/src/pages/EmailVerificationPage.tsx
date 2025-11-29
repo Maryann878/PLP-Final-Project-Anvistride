@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,19 +7,64 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Mail, CheckCircle, AlertCircle, Loader2, Key, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getGlobalToast } from "@/lib/toast";
+import { verifyEmail, resendVerificationEmail } from "@/api/auth";
 
 export default function EmailVerificationPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   
   const userData = location.state as { email: string; username: string } | null;
+  const tokenFromUrl = searchParams.get('token');
   
-  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationToken, setVerificationToken] = useState(tokenFromUrl || '');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
   const [resendCooldown, setResendCooldown] = useState(0);
   const [error, setError] = useState('');
+
+  // Auto-verify if token is in URL
+  useEffect(() => {
+    if (tokenFromUrl && !isVerifying && verificationStatus === 'pending') {
+      const verify = async () => {
+        setIsVerifying(true);
+        setError('');
+        
+        try {
+          const response = await verifyEmail({ token: tokenFromUrl });
+          
+          if (response.token && response.user) {
+            await login(response.token);
+            setVerificationStatus('success');
+            
+            const toast = getGlobalToast();
+            toast?.({
+              title: "Email Verified!",
+              description: "Your email has been successfully verified.",
+              variant: "success",
+            });
+            
+            setTimeout(() => {
+              navigate('/app');
+            }, 2000);
+          } else {
+            setVerificationStatus('error');
+            setError('Verification failed. Please check your token and try again.');
+          }
+        } catch (err: any) {
+          setVerificationStatus('error');
+          const errorMessage = err?.response?.data?.message || 'An error occurred during verification. Please try again.';
+          setError(errorMessage);
+        } finally {
+          setIsVerifying(false);
+        }
+      };
+      
+      verify();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tokenFromUrl]);
 
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -28,16 +73,13 @@ export default function EmailVerificationPage() {
     }
   }, [resendCooldown]);
 
-  const handleVerificationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!verificationCode.trim()) {
-      setError('Please enter the verification code.');
-      return;
+  const handleVerificationSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
     }
-
-    if (verificationCode.length !== 6) {
-      setError('Verification code must be 6 digits.');
+    
+    if (!verificationToken.trim()) {
+      setError('Please enter the verification token.');
       return;
     }
 
@@ -45,43 +87,73 @@ export default function EmailVerificationPage() {
     setError('');
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await verifyEmail({ token: verificationToken });
       
-      if (/^\d+$/.test(verificationCode)) {
+      if (response.token && response.user) {
+        // Store token and update auth context
+        localStorage.setItem('token', response.token);
+        login(response.user);
+        
         setVerificationStatus('success');
         
-        if (userData) {
-          setTimeout(() => {
-            navigate('/app');
-          }, 2000);
-        } else {
-          setTimeout(() => {
-            navigate('/login');
-          }, 2000);
-        }
+        const toast = getGlobalToast();
+        toast?.({
+          title: "Email Verified!",
+          description: "Your email has been successfully verified.",
+          variant: "success",
+        });
+        
+        setTimeout(() => {
+          navigate('/app');
+        }, 2000);
       } else {
         setVerificationStatus('error');
-        setError('Please enter a valid 6-digit verification code.');
+        setError('Verification failed. Please check your token and try again.');
       }
-    } catch {
+    } catch (err: any) {
       setVerificationStatus('error');
-      setError('An error occurred during verification. Please try again.');
+      const errorMessage = err?.response?.data?.message || 'An error occurred during verification. Please try again.';
+      setError(errorMessage);
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Verification Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsVerifying(false);
     }
   };
 
   const handleResendCode = async () => {
+    if (!userData?.email) {
+      setError('Email address is required to resend verification email.');
+      return;
+    }
+
     try {
       setResendCooldown(60);
+      setError('');
+      
+      await resendVerificationEmail({ email: userData.email });
+      
       const toast = getGlobalToast();
       toast?.({
-        title: "Code Sent",
-        description: "A new verification code has been sent to your email.",
+        title: "Email Sent",
+        description: "A new verification email has been sent to your inbox.",
         variant: "success",
       });
-    } catch {
-      setError('Failed to send verification code. Please try again.');
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || 'Failed to send verification email. Please try again.';
+      setError(errorMessage);
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Failed to Send Email",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -148,31 +220,32 @@ export default function EmailVerificationPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="verificationCode" className="flex items-center gap-2">
+              <Label htmlFor="verificationToken" className="flex items-center gap-2">
                 <Key className="h-4 w-4 text-purple-600" />
-                Enter Verification Code
+                Enter Verification Token
               </Label>
               <Input
                 type="text"
-                id="verificationCode"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
-                className={`text-center text-2xl tracking-widest font-mono ${verificationStatus === 'error' ? 'border-red-500' : ''}`}
-                maxLength={6}
-                disabled={isVerifying}
+                id="verificationToken"
+                value={verificationToken}
+                onChange={(e) => setVerificationToken(e.target.value.trim())}
+                placeholder="Paste verification token from email"
+                className={`text-center font-mono text-sm ${verificationStatus === 'error' ? 'border-red-500' : ''}`}
+                disabled={isVerifying || !!tokenFromUrl}
                 autoComplete="off"
-                autoFocus
+                autoFocus={!tokenFromUrl}
               />
               <p className="text-xs text-gray-500 text-center">
-                Enter the 6-digit code sent to your email
+                {tokenFromUrl 
+                  ? 'Verifying automatically...' 
+                  : 'Enter the verification token from your email, or click the link in the email'}
               </p>
             </div>
 
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
-              disabled={isVerifying || verificationCode.length !== 6}
+              disabled={isVerifying || !verificationToken.trim() || !!tokenFromUrl}
             >
               {isVerifying ? (
                 <>
