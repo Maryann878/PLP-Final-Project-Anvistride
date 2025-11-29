@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +18,13 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
+  
+  // Get intended destination from location state (set by ProtectedRoute)
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/app";
 
   // Load saved email if remember me was previously checked
   useEffect(() => {
@@ -86,7 +90,9 @@ const LoginPage: React.FC = () => {
         setEmail("");
       }
       setPassword(""); // Always clear password on successful login
-      navigate("/app"); // redirect after login - the redirect itself is sufficient feedback
+      
+      // Redirect to intended destination or default to /app
+      navigate(from, { replace: true });
     } catch (error: any) {
       // Only log errors in development
       if (process.env.NODE_ENV === 'development') {

@@ -43,3 +43,22 @@ export const resendVerificationEmail = async (data: ResendVerificationData) => {
   const res = await API.post("/auth/resend-verification", data);
   return res.data;
 };
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export const forgotPassword = async (data: ForgotPasswordData) => {
+  const res = await API.post("/auth/forgot-password", data);
+  return res.data;
+};
+
+export interface ResetPasswordData {
+  token: string;
+  password: string;
+}
+
+export const resetPassword = async (data: ResetPasswordData) => {
+  const res = await API.post("/auth/reset-password", data);
+  return res.data;
+};

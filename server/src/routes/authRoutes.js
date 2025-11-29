@@ -6,7 +6,9 @@ import {
   loginUser, 
   getMe, 
   verifyEmail, 
-  resendVerificationEmail 
+  resendVerificationEmail,
+  forgotPassword,
+  resetPassword
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { validateRegister, validateLogin } from "../middleware/validationMiddleware.js";
@@ -20,6 +22,8 @@ router.post("/register", authLimiter, validateRegister, asyncHandler(registerUse
 router.post("/login", authLimiter, validateLogin, asyncHandler(loginUser));
 router.post("/verify-email", authLimiter, asyncHandler(verifyEmail));
 router.post("/resend-verification", authLimiter, asyncHandler(resendVerificationEmail));
+router.post("/forgot-password", authLimiter, asyncHandler(forgotPassword));
+router.post("/reset-password", authLimiter, asyncHandler(resetPassword));
 router.get("/me", protect, asyncHandler(getMe));
 
 export default router;

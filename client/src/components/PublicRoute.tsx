@@ -1,11 +1,15 @@
+// client/src/components/PublicRoute.tsx
 import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Spinner from "./Spinner";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+/**
+ * PublicRoute - Redirects authenticated users away from public pages (like login/register)
+ * Use this for pages that should only be accessible when NOT logged in
+ */
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) {
     return (
@@ -18,12 +22,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  // If not authenticated, redirect to login and save the intended destination
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
+  // If user is authenticated, redirect to app
+  return user ? <Navigate to="/app" replace /> : <>{children}</>;
 };
 
-export default ProtectedRoute;
+export default PublicRoute;
+

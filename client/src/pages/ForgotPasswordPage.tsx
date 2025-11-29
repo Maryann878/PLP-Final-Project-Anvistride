@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Mail, ArrowLeft, CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { forgotPassword } from "@/api/auth";
+import { getGlobalToast } from "@/lib/toast";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -44,10 +46,26 @@ export default function ForgotPasswordPage() {
     setError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await forgotPassword({ email });
       setIsSuccess(true);
-    } catch {
-      setError('Failed to send reset instructions. Please try again.');
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Email Sent",
+        description: "If an account exists with this email, a password reset link has been sent.",
+        variant: "default",
+      });
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || 'Failed to send reset instructions. Please try again.';
+      setError(errorMessage);
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       // Focus email field on error for better UX
       setTimeout(() => {
         emailInputRef.current?.focus();

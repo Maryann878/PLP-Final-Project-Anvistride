@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PublicRoute from "@/components/PublicRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
 import PageLoader from "@/components/PageLoader";
 import RootLayout from "@/components/RootLayout";
@@ -61,24 +62,38 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <LazyWrapper>
-        <LoginPage />
-      </LazyWrapper>
+      <PublicRoute>
+        <LazyWrapper>
+          <LoginPage />
+        </LazyWrapper>
+      </PublicRoute>
     ),
   },
   {
     path: "/register",
     element: (
-      <LazyWrapper>
-        <RegisterPage />
-      </LazyWrapper>
+      <PublicRoute>
+        <LazyWrapper>
+          <RegisterPage />
+        </LazyWrapper>
+      </PublicRoute>
     ),
   },
   {
     path: "/forgot-password",
     element: (
+      <PublicRoute>
+        <LazyWrapper>
+          <ForgotPasswordPage />
+        </LazyWrapper>
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
       <LazyWrapper>
-        <ForgotPasswordPage />
+        <ResetPasswordPage />
       </LazyWrapper>
     ),
   },
@@ -438,6 +453,15 @@ export const router = createBrowserRouter([
     element: (
       <LazyWrapper>
         <ComingSoonPage />
+      </LazyWrapper>
+    ),
+  },
+  // Catch-all 404 route - must be last
+  {
+    path: "*",
+    element: (
+      <LazyWrapper>
+        <ErrorPage />
       </LazyWrapper>
     ),
   },

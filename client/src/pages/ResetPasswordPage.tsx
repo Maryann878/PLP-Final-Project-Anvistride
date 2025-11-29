@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
+import { resetPassword } from "@/api/auth";
+import { getGlobalToast } from "@/lib/toast";
 
 export default function ResetPasswordPage() {
-  const { token } = useParams<{ token: string }>();
+  const { token: tokenFromParams } = useParams<{ token: string }>();
+  const [searchParams] = useSearchParams();
+  const tokenFromQuery = searchParams.get('token');
+  const token = tokenFromParams || tokenFromQuery; // Support both URL param and query param
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     password: '',
@@ -22,25 +27,14 @@ export default function ResetPasswordPage() {
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
-  // Validate token on mount
+  // Validate token on mount - token validation happens when form is submitted
   useEffect(() => {
-    const validateToken = async () => {
-      if (!token) {
-        setError('Invalid or missing reset token');
-        setIsValidToken(false);
-        return;
-      }
-
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsValidToken(true);
-      } catch {
-        setError('Invalid or expired reset token');
-        setIsValidToken(false);
-      }
-    };
-
-    validateToken();
+    if (!token) {
+      setError('Invalid or missing reset token');
+      setIsValidToken(false);
+    } else {
+      setIsValidToken(true);
+    }
   }, [token]);
 
   // Password strength
@@ -103,14 +97,40 @@ export default function ResetPasswordPage() {
     
     if (!validateForm()) return;
     
+    if (!token) {
+      setError('Invalid or missing reset token');
+      return;
+    }
+    
     setIsLoading(true);
     setError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await resetPassword({ token, password: formData.password });
       setIsSuccess(true);
-    } catch {
-      setError('Failed to reset password. Please try again.');
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Password Reset Successful!",
+        description: "Your password has been updated. You can now sign in with your new password.",
+        variant: "success",
+      });
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || 'Failed to reset password. Please try again.';
+      setError(errorMessage);
+      
+      const toast = getGlobalToast();
+      toast?.({
+        title: "Reset Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       // Focus password field on error for better UX
       setTimeout(() => {
         passwordInputRef.current?.focus();
