@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { useSocket } from './SocketContext';
+import { useAuth } from './AuthContext';
 import { saveToRecycleBin } from '@/lib/recycleBin';
 import * as ideaAPI from '@/api/idea';
 import * as visionAPI from '@/api/vision';
@@ -210,10 +211,16 @@ const AppContext = createContext<AppContextType | null>(null);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const { socket, isConnected, emit, on, off } = useSocket();
+  const { user, loading: authLoading } = useAuth(); // Get auth state
   const isLocalUpdateRef = useRef(false); // Track if update is from local action
 
-  // Load from backend and localStorage
+  // Load from backend and localStorage - ONLY if user is authenticated
   useEffect(() => {
+    // Don't load data if auth is still loading or user is not authenticated
+    if (authLoading || !user) {
+      return;
+    }
+
     const loadData = async () => {
       const loadedEntities: any = {};
 
@@ -419,7 +426,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     loadData();
-  }, []);
+  }, [user, authLoading]); // Only load when user/auth state changes
 
   // Persist to localStorage
   useEffect(() => {
